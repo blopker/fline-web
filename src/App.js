@@ -1,19 +1,20 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Typography from "@material-ui/core/Typography";
 import AppBar from "./AppBar";
 import Nav from "./Nav";
 import Log from "./Log";
+import Results from "./Results";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 function App() {
   return (
-    <React.Fragment>
+    <Router>
       <CssBaseline />
       <AppBar />
-      <Log />
+      <Route exact path="/" component={Log} />
+      <Route path="/results" component={Results} />
       <Nav />
-    </React.Fragment>
+    </Router>
   );
 }
 export default App;

@@ -5,6 +5,8 @@ import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import ShowChartIcon from "@material-ui/icons/ShowChart";
 import AssignmentIcon from "@material-ui/icons/Assignment";
+import { Link } from "react-router-dom";
+import { withRouter } from "react-router";
 
 const styles = {
   root: {
@@ -19,8 +21,20 @@ const styles = {
 
 class SimpleBottomNavigation extends React.Component {
   state = {
-    value: 0
+    value: 0,
+    pathMap: ["/", "/results"]
   };
+
+  static getDerivedStateFromProps(newProps, state) {
+    const { pathname } = newProps.location;
+    const { pathMap } = state;
+    const value = pathMap.indexOf(pathname);
+
+    if (value > -1) {
+      return { value };
+    }
+    return null;
+  }
 
   handleChange = (event, value) => {
     this.setState({ value });
@@ -28,7 +42,7 @@ class SimpleBottomNavigation extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { value } = this.state;
+    const { value, pathMap } = this.state;
 
     return (
       <BottomNavigation
@@ -37,8 +51,18 @@ class SimpleBottomNavigation extends React.Component {
         showLabels
         className={`${classes.root} ${classes.stickToBottom}`}
       >
-        <BottomNavigationAction label="Log" icon={<AssignmentIcon />} />
-        <BottomNavigationAction label="Results" icon={<ShowChartIcon />} />
+        <BottomNavigationAction
+          component={Link}
+          to={pathMap[0]}
+          label="Log"
+          icon={<AssignmentIcon />}
+        />
+        <BottomNavigationAction
+          component={Link}
+          to={pathMap[1]}
+          label="Results"
+          icon={<ShowChartIcon />}
+        />
       </BottomNavigation>
     );
   }
@@ -48,4 +72,4 @@ SimpleBottomNavigation.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(SimpleBottomNavigation);
+export default withStyles(styles)(withRouter(SimpleBottomNavigation));
