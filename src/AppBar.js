@@ -6,8 +6,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/CalendarToday";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import DayPicker from "./DayPicker";
 
 const styles = {
   root: {
@@ -21,15 +20,20 @@ const styles = {
 class ButtonAppBar extends React.Component {
   state = {
     value: 0,
-    isOpen: false
+    isOpen: false,
+    selectedDay: new Date()
   };
   constructor(props) {
     super(props);
     this.toggleCalendar = this.toggleCalendar.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.onDateChange = this.onDateChange.bind(this);
   }
-  handleChange(date) {
-    this.setState({ startDate: date });
+
+  onDateChange(date) {
+    console.log(date);
+    this.setState(state => {
+      return { selectedDay: date };
+    });
     this.toggleCalendar();
   }
 
@@ -43,6 +47,7 @@ class ButtonAppBar extends React.Component {
 
   render() {
     const { classes } = this.props;
+    let d = this.state.selectedDay;
     return (
       <div className={classes.root}>
         <AppBar position="static">
@@ -51,7 +56,7 @@ class ButtonAppBar extends React.Component {
               Log
             </Typography>
             <Typography variant="h6" color="inherit" className={classes.grow}>
-              1/2/19
+              {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
             </Typography>
             <IconButton
               color="inherit"
@@ -61,14 +66,12 @@ class ButtonAppBar extends React.Component {
               <MenuIcon />
             </IconButton>
 
-            {this.state.isOpen && (
-              <DatePicker
-                selected={this.state.startDate}
-                onChange={this.handleChange}
-                withPortal
-                inline
-              />
-            )}
+            <DayPicker
+              isOpen={this.state.isOpen}
+              onRequestClose={this.toggleCalendar}
+              onDateChange={this.onDateChange}
+              selectedDay={this.state.selectedDay}
+            />
           </Toolbar>
         </AppBar>
       </div>

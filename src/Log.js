@@ -30,13 +30,12 @@ function EntryListItem(props) {
 
 class InteractiveList extends React.Component {
   state = {
-    dense: false,
-    secondary: false
+    dense: false
   };
 
   render() {
     const { classes } = this.props;
-    const { dense, secondary } = this.state;
+    const { dense } = this.state;
 
     return (
       <div className={classes.log}>
