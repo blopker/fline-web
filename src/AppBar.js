@@ -20,8 +20,7 @@ const styles = {
 class ButtonAppBar extends React.Component {
   state = {
     value: 0,
-    isOpen: false,
-    selectedDay: new Date()
+    isOpen: false
   };
   constructor(props) {
     super(props);
@@ -30,9 +29,8 @@ class ButtonAppBar extends React.Component {
   }
 
   onDateChange(date) {
-    console.log(date);
-    this.setState(state => {
-      return { selectedDay: date };
+    this.props.setDate(state => {
+      return date;
     });
     this.toggleCalendar();
   }
@@ -47,7 +45,7 @@ class ButtonAppBar extends React.Component {
 
   render() {
     const { classes } = this.props;
-    let d = this.state.selectedDay;
+    let d = this.props.date;
     return (
       <div className={classes.root}>
         <AppBar position="static">
@@ -70,7 +68,7 @@ class ButtonAppBar extends React.Component {
               isOpen={this.state.isOpen}
               onRequestClose={this.toggleCalendar}
               onDateChange={this.onDateChange}
-              selectedDay={this.state.selectedDay}
+              selectedDay={d}
             />
           </Toolbar>
         </AppBar>

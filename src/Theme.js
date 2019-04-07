@@ -1,0 +1,17 @@
+import React from "react";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+
+const theme = createMuiTheme({
+  typography: {
+    useNextVariants: true
+  },
+  palette: {
+    type: "dark"
+  }
+});
+
+function Theme(props) {
+  return <MuiThemeProvider theme={theme}>{props.children}</MuiThemeProvider>;
+}
+
+export default Theme;

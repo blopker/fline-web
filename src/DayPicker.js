@@ -12,7 +12,8 @@ function getModalStyle() {
   return {
     top: `${top}%`,
     left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`
+    transform: `translate(-${top}%, -${left}%)`,
+    fontFamily: `"Roboto", "Helvetica", "Arial", sans-serif`
   };
 }
 
@@ -28,7 +29,11 @@ const styles = theme => ({
 
 function MyPicker(props) {
   return (
-    <Modal open={props.isOpen} onClose={props.onRequestClose}>
+    <Modal
+      open={props.isOpen}
+      onClose={props.onRequestClose}
+      disablePortal={true}
+    >
       <div style={getModalStyle()} className={props.classes.paper}>
         <DayPicker
           onDayClick={props.onDateChange}
