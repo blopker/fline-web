@@ -24,39 +24,28 @@ const styles = {
   }
 };
 
-class ButtonAppBar extends React.Component {
-  state = {
-    value: 0,
-    isOpen: false
-  };
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { classes } = this.props;
-    let d = this.props.date;
-    return (
-      <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" color="inherit" className={classes.grow}>
-              Edit
-            </Typography>
-            <Link
-              to="/"
-              replace
-              style={{ textDecoration: "none", color: "white" }}
-            >
-              <IconButton color="inherit" aria-label="Date">
-                <CloseIcon />
-              </IconButton>
-            </Link>
-          </Toolbar>
-        </AppBar>
-      </div>
-    );
-  }
+function ButtonAppBar(props) {
+  const { classes } = props;
+  return (
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" color="inherit" className={classes.grow}>
+            Edit
+          </Typography>
+          <Link
+            to="/"
+            replace
+            style={{ textDecoration: "none", color: "white" }}
+          >
+            <IconButton color="inherit" aria-label="Date">
+              <CloseIcon />
+            </IconButton>
+          </Link>
+        </Toolbar>
+      </AppBar>
+    </div>
+  );
 }
 
 ButtonAppBar.propTypes = {

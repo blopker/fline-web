@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -26,97 +26,82 @@ const styles = {
   }
 };
 
-class ButtonAppBar extends React.Component {
-  state = {
-    isOpen: false
-  };
-  constructor(props) {
-    super(props);
-    this.toggleCalendar = this.toggleCalendar.bind(this);
-    this.onDateChange = this.onDateChange.bind(this);
-    this.onNextDate = this.onNextDate.bind(this);
-    this.onLastDate = this.onLastDate.bind(this);
-  }
+function ButtonAppBar(props) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  onDateChange(date) {
-    this.props.setDate(state => {
-      return date;
+  function toggleCalendar(e) {
+    e && e.preventDefault();
+
+    setIsOpen(isOpen => {
+      return !isOpen;
     });
-    this.toggleCalendar();
   }
 
-  onNextDate() {
-    this.props.setDate(date => {
+  function onDateChange(date) {
+    props.setDate(date);
+    toggleCalendar();
+  }
+
+  function onNextDate() {
+    props.setDate(date => {
       var result = new Date(date);
       result.setDate(result.getDate() + 1);
       return result;
     });
   }
 
-  onLastDate() {
-    this.props.setDate(date => {
+  function onLastDate() {
+    props.setDate(date => {
       var result = new Date(date);
       result.setDate(result.getDate() - 1);
       return result;
     });
   }
 
-  toggleCalendar(e) {
-    e && e.preventDefault();
-
-    this.setState(state => {
-      return { isOpen: !state.isOpen };
-    });
-  }
-
-  render() {
-    const { classes } = this.props;
-    let d = this.props.date;
-    return (
-      <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" color="inherit" className={classes.grow}>
-              Fline
-            </Typography>
-            <div className={classes.grow}>
-              <IconButton onClick={this.onLastDate} className={classes.inline}>
-                <ArrowBack
-                  className={`${classes.arrow} ${classes.arrowBack}`}
-                />
-              </IconButton>
-              <Typography
-                variant="h6"
-                color="inherit"
-                className={`${classes.inline} ${classes.date}`}
-              >
-                {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
-              </Typography>
-              <IconButton onClick={this.onNextDate} className={classes.inline}>
-                <ArrowForward
-                  className={`${classes.arrow} ${classes.arrowForward}`}
-                />
-              </IconButton>
-            </div>
-            <IconButton
-              color="inherit"
-              aria-label="Date"
-              onClick={this.toggleCalendar}
-            >
-              <MenuIcon />
+  const { classes } = props;
+  let d = props.date;
+  return (
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" color="inherit" className={classes.grow}>
+            Fline
+          </Typography>
+          <div className={classes.grow}>
+            <IconButton onClick={onLastDate} className={classes.inline}>
+              <ArrowBack className={`${classes.arrow} ${classes.arrowBack}`} />
             </IconButton>
+            <Typography
+              variant="h6"
+              color="inherit"
+              className={`${classes.inline} ${classes.date}`}
+            >
+              {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
+            </Typography>
+            <IconButton onClick={onNextDate} className={classes.inline}>
+              <ArrowForward
+                className={`${classes.arrow} ${classes.arrowForward}`}
+              />
+            </IconButton>
+          </div>
+          <IconButton
+            color="inherit"
+            aria-label="Date"
+            onClick={toggleCalendar}
+          >
+            <MenuIcon />
+          </IconButton>
 
-            <DayPicker
-              isOpen={this.state.isOpen}
-              onRequestClose={this.toggleCalendar}
-              onDateChange={this.onDateChange}
-              selectedDay={d}
-            />
-          </Toolbar>
-        </AppBar>
-      </div>
-    );
-  }
+          <DayPicker
+            isOpen={isOpen}
+            onRequestClose={toggleCalendar}
+            onDateChange={onDateChange}
+            selectedDay={d}
+          />
+        </Toolbar>
+      </AppBar>
+    </div>
+  );
 }
 
 ButtonAppBar.propTypes = {

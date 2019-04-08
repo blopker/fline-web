@@ -1,14 +1,12 @@
 import React from "react";
 import AppBar from "./AppBar";
 
-class SimpleBottomNavigation extends React.Component {
-  render() {
-    return (
-      <>
-        <AppBar />
-      </>
-    );
-  }
+function EditScreen(props) {
+  return (
+    <>
+      <AppBar />
+    </>
+  );
 }
 
-export default SimpleBottomNavigation;
+export default EditScreen;
