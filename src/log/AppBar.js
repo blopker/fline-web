@@ -6,6 +6,8 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/CalendarToday";
+import ArrowBack from "@material-ui/icons/ArrowBackIos";
+import ArrowForward from "@material-ui/icons/ArrowForwardIos";
 import DayPicker from "./DayPicker";
 
 const styles = {
@@ -14,18 +16,26 @@ const styles = {
   },
   grow: {
     flexGrow: 1
+  },
+  inline: {
+    display: "inline-block"
+  },
+  date: {
+    top: "3px",
+    position: "relative"
   }
 };
 
 class ButtonAppBar extends React.Component {
   state = {
-    value: 0,
     isOpen: false
   };
   constructor(props) {
     super(props);
     this.toggleCalendar = this.toggleCalendar.bind(this);
     this.onDateChange = this.onDateChange.bind(this);
+    this.onNextDate = this.onNextDate.bind(this);
+    this.onLastDate = this.onLastDate.bind(this);
   }
 
   onDateChange(date) {
@@ -33,6 +43,22 @@ class ButtonAppBar extends React.Component {
       return date;
     });
     this.toggleCalendar();
+  }
+
+  onNextDate() {
+    this.props.setDate(date => {
+      var result = new Date(date);
+      result.setDate(result.getDate() + 1);
+      return result;
+    });
+  }
+
+  onLastDate() {
+    this.props.setDate(date => {
+      var result = new Date(date);
+      result.setDate(result.getDate() - 1);
+      return result;
+    });
   }
 
   toggleCalendar(e) {
@@ -51,11 +77,27 @@ class ButtonAppBar extends React.Component {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" color="inherit" className={classes.grow}>
-              Log
+              Fline
             </Typography>
-            <Typography variant="h6" color="inherit" className={classes.grow}>
-              {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
-            </Typography>
+            <div className={classes.grow}>
+              <IconButton onClick={this.onLastDate} className={classes.inline}>
+                <ArrowBack
+                  className={`${classes.arrow} ${classes.arrowBack}`}
+                />
+              </IconButton>
+              <Typography
+                variant="h6"
+                color="inherit"
+                className={`${classes.inline} ${classes.date}`}
+              >
+                {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
+              </Typography>
+              <IconButton onClick={this.onNextDate} className={classes.inline}>
+                <ArrowForward
+                  className={`${classes.arrow} ${classes.arrowForward}`}
+                />
+              </IconButton>
+            </div>
             <IconButton
               color="inherit"
               aria-label="Date"

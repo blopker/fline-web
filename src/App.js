@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import AppBar from "./AppBar";
-import Nav from "./Nav";
-import Log from "./Log";
-import Results from "./Results";
+import Edit from "./edit/EditScreen";
+import Log from "./log/LogScreen";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Theme from "./Theme";
 
@@ -13,10 +11,12 @@ function App() {
     <Router>
       <Theme>
         <CssBaseline />
-        <AppBar setDate={setDate} date={date} />
-        <Route exact path="/" component={() => <Log />} />
-        <Route path="/results" component={Results} />
-        <Nav />
+        <Route
+          exact
+          path="/"
+          component={() => <Log date={date} setDate={setDate} />}
+        />
+        <Route exact path="/edit" component={() => <Edit date={date} />} />
       </Theme>
     </Router>
   );

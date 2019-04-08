@@ -1,16 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import AppBar from "./AppBar";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
-import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
-
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import Fab from "@material-ui/core/Fab";
 const styles = theme => ({
   log: {
     backgroundColor: theme.palette.background.paper
+  },
+  fab: {
+    margin: theme.spacing.unit * 2,
+    position: "absolute",
+    bottom: 0,
+    right: 0
   }
 });
 
@@ -19,38 +25,43 @@ function EntryListItem(props) {
     <ListItem>
       <ListItemText>{props.time}</ListItemText>
       <ListItemText primary={props.entry} />
-      <ListItemSecondaryAction>
-        <IconButton aria-label="Edit">
-          <EditIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
     </ListItem>
   );
 }
 
-class InteractiveList extends React.Component {
-  state = {
-    dense: false
-  };
+function FloatingEditButton(props) {
+  const { classes } = props;
+  return (
+    <Link to="/edit/">
+      <Fab color="primary" aria-label="Edit" className={classes.fab}>
+        <EditIcon />
+      </Fab>
+    </Link>
+  );
+}
 
-  render() {
-    const { classes } = this.props;
-    const { dense } = this.state;
+let WrapFloatingEditButton = withStyles(styles)(FloatingEditButton);
 
-    return (
+function LogScreen(props) {
+  const { classes } = props;
+
+  return (
+    <>
+      <AppBar setDate={props.setDate} date={props.date} />
+      <WrapFloatingEditButton />
       <div className={classes.log}>
-        <List dense={dense}>
+        <List dense={true}>
           <EntryListItem time="10:00am" entry="5 shots of vodka" />
           <EntryListItem time="10:30am" entry="6 shots of vodka" />
           <EntryListItem time="11:00am" entry="10 shots of vodka" />
         </List>
       </div>
-    );
-  }
+    </>
+  );
 }
 
-InteractiveList.propTypes = {
+LogScreen.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(InteractiveList);
+export default withStyles(styles)(LogScreen);
