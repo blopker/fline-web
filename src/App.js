@@ -19,7 +19,7 @@ function App() {
       setDay(day);
     }
     getDay();
-  });
+  }, [day]);
 
   return (
     <Router>
