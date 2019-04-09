@@ -62,7 +62,7 @@ function ButtonAppBar(props) {
   let d = props.date;
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Fline
@@ -76,7 +76,7 @@ function ButtonAppBar(props) {
               color="inherit"
               className={`${classes.inline} ${classes.date}`}
             >
-              {`${d.getMonth()}/${d.getDate()}/${d.getFullYear()}`}
+              {d.toLocaleDateString("en-US")}
             </Typography>
             <IconButton onClick={onNextDate} className={classes.inline}>
               <ArrowForward

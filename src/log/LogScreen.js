@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "./AppBar";
@@ -8,13 +8,18 @@ import ListItemText from "@material-ui/core/ListItemText";
 import EditIcon from "@material-ui/icons/Edit";
 import { Link } from "react-router-dom";
 import Fab from "@material-ui/core/Fab";
+import Chart from "../Chart";
+
 const styles = theme => ({
   log: {
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    paddingTop: "56px",
+    paddingLeft: "10px",
+    paddingRight: "10px"
   },
   fab: {
     margin: theme.spacing.unit * 2,
-    position: "absolute",
+    position: "fixed",
     bottom: 0,
     right: 0
   }
@@ -42,20 +47,33 @@ function FloatingEditButton(props) {
 
 let WrapFloatingEditButton = withStyles(styles)(FloatingEditButton);
 
+function Event(props) {
+  return (
+    <>
+      <EntryListItem time={props.event.time} entry={props.event.event} />
+      <Chart data={props.graph} />
+    </>
+  );
+}
+
 function LogScreen(props) {
   const { classes } = props;
+  if (!props.day) {
+    return <div>Enter data</div>;
+  }
+
+  const els = props.day.events.map(e => {
+    return <Event graph={props.day.graph} event={e} />;
+  });
 
   return (
     <>
       <AppBar setDate={props.setDate} date={props.date} />
-      <WrapFloatingEditButton />
+
       <div className={classes.log}>
-        <List dense={true}>
-          <EntryListItem time="10:00am" entry="5 shots of vodka" />
-          <EntryListItem time="10:30am" entry="6 shots of vodka" />
-          <EntryListItem time="11:00am" entry="10 shots of vodka" />
-        </List>
+        <List dense={true}>{els}</List>
       </div>
+      <WrapFloatingEditButton />
     </>
   );
 }
