@@ -1,5 +1,3 @@
-const date = new Date();
-const sdate = date.toLocaleDateString();
 const data = {
   test: {
     graph: [

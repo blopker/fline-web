@@ -16,10 +16,11 @@ function App() {
   useEffect(() => {
     async function getDay() {
       let day = await db.days.get(date.toLocaleDateString());
+      console.log(date.toLocaleDateString());
       setDay(day);
     }
     getDay();
-  }, [day]);
+  }, [date]);
 
   return (
     <Router>

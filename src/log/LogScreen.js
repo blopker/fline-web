@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "./AppBar";
+import FloatingEditButton from "./Fab";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import EditIcon from "@material-ui/icons/Edit";
-import { Link } from "react-router-dom";
-import Fab from "@material-ui/core/Fab";
 import Chart from "../Chart";
 
 const styles = theme => ({
@@ -16,12 +14,6 @@ const styles = theme => ({
     paddingTop: "56px",
     paddingLeft: "10px",
     paddingRight: "10px"
-  },
-  fab: {
-    margin: theme.spacing.unit * 2,
-    position: "fixed",
-    bottom: 0,
-    right: 0
   }
 });
 
@@ -33,19 +25,6 @@ function EntryListItem(props) {
     </ListItem>
   );
 }
-
-function FloatingEditButton(props) {
-  const { classes } = props;
-  return (
-    <Link to="/edit/">
-      <Fab color="primary" aria-label="Edit" className={classes.fab}>
-        <EditIcon />
-      </Fab>
-    </Link>
-  );
-}
-
-let WrapFloatingEditButton = withStyles(styles)(FloatingEditButton);
 
 function Event(props) {
   return (
@@ -59,11 +38,11 @@ function Event(props) {
 function LogScreen(props) {
   const { classes } = props;
   if (!props.day) {
-    return <div>Enter data</div>;
+    return <div>Loading...</div>;
   }
 
-  const els = props.day.events.map(e => {
-    return <Event graph={props.day.graph} event={e} />;
+  const els = props.day.events.map((e, i) => {
+    return <Event key={i} graph={props.day.graph} event={e} />;
   });
 
   return (
@@ -73,7 +52,7 @@ function LogScreen(props) {
       <div className={classes.log}>
         <List dense={true}>{els}</List>
       </div>
-      <WrapFloatingEditButton />
+      <FloatingEditButton initialState={els.length === 0} />
     </>
   );
 }

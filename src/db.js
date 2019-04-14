@@ -1,6 +1,9 @@
 import Dexie from "dexie";
 import devData from "./devData";
 
+const date = new Date();
+const sdate = date.toLocaleDateString();
+
 class KeyValue {
   constructor(db) {
     this.db = db;
@@ -40,7 +43,15 @@ class Days extends KeyValue {
     this.tableName = "settings";
   }
   async get(key) {
-    return devData.test;
+    // if (key === sdate) {
+    //   return devData.test;
+    // }
+    let day = await super.get(key);
+    if (!day) {
+      return { graph: [], events: [] };
+    } else {
+      return day;
+    }
   }
 }
 

@@ -31,7 +31,7 @@ function ButtonAppBar(props) {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" color="inherit" className={classes.grow}>
-            Edit
+            {props.title}
           </Typography>
           <Link
             to="/"
