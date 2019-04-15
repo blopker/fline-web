@@ -5,6 +5,7 @@ import Log from "./log/LogScreen";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Theme from "./Theme";
 import initDB from "./db";
+import Immutable from "immutable";
 // import process from "./digitizer";
 
 const db = initDB();
@@ -21,14 +22,26 @@ function App() {
     getDay();
   }, [date]);
 
-  async function saveDay() {
-    await db.days.set(date.toLocaleDateString(), day);
-    setDay(day);
+  async function saveDay(newDay) {
+    await db.days.set(date.toLocaleDateString(), newDay);
+    newDay = await db.days.get(date.toLocaleDateString());
+    setDay(newDay);
   }
 
-  async function addEvent(event) {
-    day.events.push(event);
-    await saveDay();
+  async function addEvent(event, index = null) {
+    event = Immutable.fromJS(event);
+    let events = day.get("events");
+    if (index !== null) {
+      events = events.set(index, event);
+    } else {
+      events = events.push(event);
+    }
+    const newDay = day.set("events", events);
+    await saveDay(newDay);
+  }
+
+  if (!day) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -42,8 +55,23 @@ function App() {
         />
         <Route
           exact
-          path="/edit"
-          component={() => <Edit date={date} day={day} addEvent={addEvent} />}
+          path="/create/"
+          component={() => <Edit date={date} addEvent={addEvent} />}
+        />
+        <Route
+          exact
+          path="/edit/:id"
+          component={history => {
+            let match = parseInt(history.match.params.id, 10);
+            return (
+              <Edit
+                eventID={match}
+                event={day.get("events").get(match)}
+                date={date}
+                addEvent={addEvent}
+              />
+            );
+          }}
         />
       </Theme>
     </Router>

@@ -34,9 +34,15 @@ const styles = theme => ({
 
 function _EditScreen(props) {
   const { classes } = props;
-  let [eventDescription, setEventDescription] = useState("");
+  const title = props.event ? "Edit something" : "Add something";
+
+  const defaultDescription = props.event ? props.event.get("event") : "";
+  let [eventDescription, setEventDescription] = useState(defaultDescription);
+  const defaultTime = props.event ? props.event.get("time") : new Date();
+
+  let [eventTime, setEventTime] = useState(defaultTime);
+
   let [error, setError] = useState(false);
-  let [eventTime, setEventTime] = useState(new Date());
   let submit = e => {
     e.preventDefault();
     if (!eventDescription) {
@@ -44,20 +50,21 @@ function _EditScreen(props) {
       return;
     }
     async function doit() {
-      await props.addEvent({
-        event: eventDescription,
-        time: eventTime.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit"
-        })
-      });
+      await props.addEvent(
+        {
+          event: eventDescription,
+          time: eventTime.toLocaleString()
+        },
+        props.eventID
+      );
       props.history.replace("/");
     }
     doit();
   };
+
   return (
     <>
-      <AppBar title="Add something" />
+      <AppBar title={title} />
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
           <Typography

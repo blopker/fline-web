@@ -62,7 +62,7 @@ function FloatingEditButton(props) {
   return (
     <div className={classes.fab}>
       {props.initialState === true && <IntroFabInstructions />}
-      <Link to="/edit/">
+      <Link to="/create/">
         <Fab className={classes.fabButton} color="primary" aria-label="Edit">
           <AddIcon />
         </Fab>

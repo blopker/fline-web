@@ -1,5 +1,6 @@
 import Dexie from "dexie";
 import devData from "./devData";
+import Immutable from "immutable";
 
 const date = new Date();
 const sdate = date.toLocaleDateString();
@@ -11,7 +12,7 @@ class KeyValue {
   async getAll() {
     let arr = await this.db.table(this.tableName).toArray();
     return arr.reduce((obj, item) => {
-      obj[item.key] = item.value;
+      obj[item.key] = Immutable.fromJS(item.value);
       return obj;
     }, {});
   }
@@ -23,10 +24,11 @@ class KeyValue {
     if (entry === undefined) {
       return entry;
     }
-    return entry.value;
+    return Immutable.fromJS(entry.value);
   }
   async set(key, value) {
-    this.db.table(this.tableName).put({ key, value });
+    value = value.toJS();
+    await this.db.table(this.tableName).put({ key, value });
   }
 }
 
@@ -48,10 +50,18 @@ class Days extends KeyValue {
     // }
     let day = await super.get(key);
     if (!day) {
-      return { graph: [], events: [] };
-    } else {
-      return day;
+      return Immutable.fromJS({ graph: [], events: [] });
     }
+    day = day.set(
+      "events",
+      day.get("events").map(e => {
+        return Immutable.fromJS({
+          event: e.get("event"),
+          time: new Date(e.get("time"))
+        });
+      })
+    );
+    return day;
   }
 }
 

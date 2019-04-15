@@ -7,6 +7,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Chart from "../Chart";
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
   log: {
@@ -18,9 +19,13 @@ const styles = theme => ({
 });
 
 function EntryListItem(props) {
+  const time = props.time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
   return (
     <ListItem>
-      <ListItemText>{props.time}</ListItemText>
+      <ListItemText>{time}</ListItemText>
       <ListItemText primary={props.entry} />
     </ListItem>
   );
@@ -28,10 +33,16 @@ function EntryListItem(props) {
 
 function Event(props) {
   return (
-    <>
-      <EntryListItem time={props.event.time} entry={props.event.event} />
-      {props.graph.length !== 0 && <Chart data={props.graph} />}
-    </>
+    <Link
+      to={`/edit/${props.eventID}`}
+      style={{ textDecoration: "none", color: "white" }}
+    >
+      <EntryListItem
+        time={props.event.get("time")}
+        entry={props.event.get("event")}
+      />
+      {props.graph.size !== 0 && <Chart data={props.graph} />}
+    </Link>
   );
 }
 
@@ -41,19 +52,20 @@ function LogScreen(props) {
     return <div>Loading...</div>;
   }
 
-  const els = props.day.events.map((e, i) => {
-    return <Event key={i} graph={props.day.graph} event={e} />;
+  const els = props.day.get("events").map((e, i) => {
+    return (
+      <Event key={i} eventID={i} graph={props.day.get("graph")} event={e} />
+    );
   });
-
   return (
     <>
       <AppBar setDate={props.setDate} date={props.date} />
-      {els.length !== 0 && (
+      {els.size !== 0 && (
         <div className={classes.log}>
           <List dense={true}>{els}</List>
         </div>
       )}
-      <FloatingEditButton initialState={els.length === 0} />
+      <FloatingEditButton initialState={els.size === 0} />
     </>
   );
 }

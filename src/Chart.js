@@ -1,9 +1,11 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 import ChartJS from "chart.js";
+import Immutable from "immutable";
 
 ChartJS.defaults.global.defaultFontColor = "white";
 function makeData(data) {
+  data = Immutable.toJS(data);
   data = data.map(d => {
     const a = new Date();
     const s = d[0].split(":");
