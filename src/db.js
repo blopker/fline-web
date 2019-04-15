@@ -40,7 +40,7 @@ class Settings extends KeyValue {
 class Days extends KeyValue {
   constructor(db) {
     super(db);
-    this.tableName = "settings";
+    this.tableName = "days";
   }
   async get(key) {
     // if (key === sdate) {

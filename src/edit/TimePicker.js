@@ -1,50 +1,26 @@
 import "date-fns";
 import React from "react";
 import PropTypes from "prop-types";
-import Grid from "@material-ui/core/Grid";
-import { withStyles } from "@material-ui/core/styles";
 import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  TimePicker,
-  DatePicker
-} from "material-ui-pickers";
+import { MuiPickersUtilsProvider, TimePicker } from "material-ui-pickers";
 
-const styles = {
-  grid: {
-    width: "60%"
-  }
-};
-
-class MaterialUIPickers extends React.Component {
-  state = {
-    // The first commit of Material-UI
-    selectedDate: new Date()
-  };
-
-  handleDateChange = date => {
-    this.setState({ selectedDate: date });
-  };
-
-  render() {
-    const { classes } = this.props;
-    const { selectedDate } = this.state;
-
-    return (
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <TimePicker
-          margin="normal"
-          label="When?"
-          value={selectedDate}
-          onChange={this.handleDateChange}
-        />
-      </MuiPickersUtilsProvider>
-    );
-  }
+function MaterialUIPickers(props) {
+  const { time, setTime } = props;
+  return (
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <TimePicker
+        margin="normal"
+        label="When?"
+        value={time}
+        onChange={setTime}
+      />
+    </MuiPickersUtilsProvider>
+  );
 }
 
 MaterialUIPickers.propTypes = {
-  classes: PropTypes.object.isRequired
+  time: PropTypes.object.isRequired,
+  setTime: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(MaterialUIPickers);
+export default MaterialUIPickers;

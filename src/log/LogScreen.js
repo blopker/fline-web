@@ -30,7 +30,7 @@ function Event(props) {
   return (
     <>
       <EntryListItem time={props.event.time} entry={props.event.event} />
-      <Chart data={props.graph} />
+      {props.graph.length !== 0 && <Chart data={props.graph} />}
     </>
   );
 }
@@ -48,10 +48,11 @@ function LogScreen(props) {
   return (
     <>
       <AppBar setDate={props.setDate} date={props.date} />
-
-      <div className={classes.log}>
-        <List dense={true}>{els}</List>
-      </div>
+      {els.length !== 0 && (
+        <div className={classes.log}>
+          <List dense={true}>{els}</List>
+        </div>
+      )}
       <FloatingEditButton initialState={els.length === 0} />
     </>
   );

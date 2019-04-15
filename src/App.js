@@ -16,11 +16,20 @@ function App() {
   useEffect(() => {
     async function getDay() {
       let day = await db.days.get(date.toLocaleDateString());
-      console.log(date.toLocaleDateString());
       setDay(day);
     }
     getDay();
   }, [date]);
+
+  async function saveDay() {
+    await db.days.set(date.toLocaleDateString(), day);
+    setDay(day);
+  }
+
+  async function addEvent(event) {
+    day.events.push(event);
+    await saveDay();
+  }
 
   return (
     <Router>
@@ -31,7 +40,11 @@ function App() {
           path="/"
           component={() => <Log day={day} date={date} setDate={setDate} />}
         />
-        <Route exact path="/edit" component={() => <Edit date={date} />} />
+        <Route
+          exact
+          path="/edit"
+          component={() => <Edit date={date} day={day} addEvent={addEvent} />}
+        />
       </Theme>
     </Router>
   );
