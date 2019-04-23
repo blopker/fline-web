@@ -12,7 +12,6 @@ import { Link } from "react-router-dom";
 const styles = theme => ({
   log: {
     backgroundColor: theme.palette.background.paper,
-    paddingTop: "56px",
     paddingLeft: "10px",
     paddingRight: "10px"
   }

@@ -11,9 +11,6 @@ import ArrowForward from "@material-ui/icons/ArrowForwardIos";
 import DayPicker from "./DayPicker";
 
 const styles = {
-  root: {
-    flexGrow: 1
-  },
   grow: {
     flexGrow: 1
   },
@@ -61,46 +58,39 @@ function ButtonAppBar(props) {
   const { classes } = props;
   let d = props.date;
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography variant="h6" color="inherit" className={classes.grow}>
-            Fline
-          </Typography>
-          <div className={classes.grow}>
-            <IconButton onClick={onLastDate} className={classes.inline}>
-              <ArrowBack className={`${classes.arrow} ${classes.arrowBack}`} />
-            </IconButton>
-            <Typography
-              variant="h6"
-              color="inherit"
-              className={`${classes.inline} ${classes.date}`}
-            >
-              {d.toLocaleDateString("en-US")}
-            </Typography>
-            <IconButton onClick={onNextDate} className={classes.inline}>
-              <ArrowForward
-                className={`${classes.arrow} ${classes.arrowForward}`}
-              />
-            </IconButton>
-          </div>
-          <IconButton
-            color="inherit"
-            aria-label="Date"
-            onClick={toggleCalendar}
-          >
-            <MenuIcon />
+    <AppBar position="sticky">
+      <Toolbar>
+        <Typography variant="h6" color="inherit" className={classes.grow}>
+          Fline
+        </Typography>
+        <div className={classes.grow}>
+          <IconButton onClick={onLastDate} className={classes.inline}>
+            <ArrowBack className={`${classes.arrow} ${classes.arrowBack}`} />
           </IconButton>
-
-          <DayPicker
-            isOpen={isOpen}
-            onRequestClose={toggleCalendar}
-            onDateChange={onDateChange}
-            selectedDay={d}
-          />
-        </Toolbar>
-      </AppBar>
-    </div>
+          <Typography
+            variant="h6"
+            color="inherit"
+            className={`${classes.inline} ${classes.date}`}
+          >
+            {d.toLocaleDateString("en-US")}
+          </Typography>
+          <IconButton onClick={onNextDate} className={classes.inline}>
+            <ArrowForward
+              className={`${classes.arrow} ${classes.arrowForward}`}
+            />
+          </IconButton>
+        </div>
+        <IconButton color="inherit" aria-label="Date" onClick={toggleCalendar}>
+          <MenuIcon />
+        </IconButton>
+        <DayPicker
+          isOpen={isOpen}
+          onRequestClose={toggleCalendar}
+          onDateChange={onDateChange}
+          selectedDay={d}
+        />
+      </Toolbar>
+    </AppBar>
   );
 }
 
