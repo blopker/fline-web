@@ -51,17 +51,17 @@ function App() {
         <Route
           exact
           path="/"
-          component={() => <Log day={day} date={date} setDate={setDate} />}
+          render={() => <Log day={day} date={date} setDate={setDate} />}
         />
         <Route
           exact
           path="/create/"
-          component={() => <Edit date={date} addEvent={addEvent} />}
+          render={() => <Edit date={date} addEvent={addEvent} />}
         />
         <Route
           exact
           path="/edit/:id"
-          component={history => {
+          render={history => {
             let match = parseInt(history.match.params.id, 10);
             return (
               <Edit
