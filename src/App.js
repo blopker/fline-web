@@ -40,6 +40,11 @@ function App() {
     await saveDay(newDay);
   }
 
+  async function addGraph(graphData) {
+    const newDay = day.set("graph", graphData);
+    await saveDay(newDay);
+  }
+
   if (!day) {
     return <div>Loading...</div>;
   }
@@ -51,7 +56,9 @@ function App() {
         <Route
           exact
           path="/"
-          render={() => <Log day={day} date={date} setDate={setDate} />}
+          render={() => (
+            <Log day={day} date={date} setDate={setDate} addGraph={addGraph} />
+          )}
         />
         <Route
           exact

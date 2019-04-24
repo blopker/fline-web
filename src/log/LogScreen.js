@@ -47,7 +47,7 @@ function Event(props) {
 }
 
 function LogScreen(props) {
-  const { classes, day, date, setDate } = props;
+  const { classes, day, date, setDate, addGraph } = props;
   if (!day) {
     return <div>Loading...</div>;
   }
@@ -61,7 +61,7 @@ function LogScreen(props) {
   return (
     <>
       <AppBar setDate={setDate} date={date} />
-      <ImportGlucoseDataBanner day={day} />
+      <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
       {els.size !== 0 && (
         <div className={classes.log}>
           <List dense={true}>{els}</List>

@@ -43,7 +43,7 @@ const styles = theme => ({
  * data. Clicking on the banner brings up the ImportDialog.
  */
 const ImportGlucoseDataBanner = props => {
-  const { classes, day } = props;
+  const { classes, day, addGraph } = props;
   const dataExists = day.get("graph").size > 0;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -82,6 +82,7 @@ const ImportGlucoseDataBanner = props => {
         isOpen={isDialogOpen}
         handleClose={handleClose}
         day={day}
+        addGraph={addGraph}
       />
     </>
   );
@@ -89,6 +90,7 @@ const ImportGlucoseDataBanner = props => {
 
 ImportGlucoseDataBanner.propTypes = {
   day: PropTypes.object.isRequired,
+  addGraph: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ImportGlucoseDataBanner);

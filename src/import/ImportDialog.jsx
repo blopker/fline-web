@@ -4,14 +4,13 @@ import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import Divider from "@material-ui/core/Divider";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
-import teal from "@material-ui/core/colors/teal";
 import Instructions from "./Instructions";
+import AppBar from "./AppBar";
+import process from "../digitizer";
+import SuccessScreen from "./SuccessScreen";
+import TealButton from "./TealButton";
 
 const SlideUp = props => <Slide direction="up" {...props} />;
 
@@ -20,56 +19,93 @@ const styles = theme => ({
     margin: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
     textAlign: "center"
   },
-
-  input: {
-    display: "none"
-  },
-
-  button: {
-    color: theme.palette.getContrastText(teal[500]),
-    backgroundColor: teal[500],
-    "&:hover": {
-      backgroundColor: teal[700]
-    }
-  },
-
   paragraph: {
     margin: `${theme.spacing.unit * 3}px 0`
-  },
-
-  img: {
-    width: "85%",
-    maxWidth: 360
   }
 });
 
-const ImportDialog = props => {
-  const { classes, handleClose, isOpen } = props;
+const HIDDEN_INPUT_FIELD_ID = "select-image-file-input";
 
-  // Create an invisible input file field to store a screenshot to be imported.
-  const hiddenFileInputField = (
-    <input
-      accept="image/*"
-      className={classes.input}
-      id="select-image-file"
-      type="file"
-    />
-  );
+const fileChangedHandler = async (event, addGraph) => {
+  const { files } = event.target;
+  if (!files.length) {
+    return;
+  }
+  const objectUrl = window.URL.createObjectURL(files[0]);
+  // TODO: Error check
+  const graphData = await process(objectUrl);
+  window.URL.revokeObjectURL(objectUrl);
+  await addGraph(graphData);
+};
 
-  // The Select Image button merely acts as a click on the invisible file input.
-  const selectImageButton = (
-    <label htmlFor="select-image-file" style={{ width: "100%" }}>
-      <Button
-        fullWidth={true}
-        variant="contained"
-        component="div"
-        className={classes.button}
-        size="large"
-      >
-        Select Image
-      </Button>
+// Create an invisible input file field to store a screenshot to be imported.
+const HiddenFileInputField = ({ addGraph }) => (
+  <input
+    accept="image/*"
+    style={{ display: "none" }}
+    id={HIDDEN_INPUT_FIELD_ID}
+    type="file"
+    onChange={evt => fileChangedHandler(evt, addGraph)}
+  />
+);
+
+// The Select Image button merely acts as a click on the invisible file input.
+const SelectImageButton = ({ repick = false }) => {
+  const commonProps = {
+    fullWidth: true,
+    component: "div",
+    size: "large"
+  };
+
+  return (
+    <label htmlFor={HIDDEN_INPUT_FIELD_ID} style={{ width: "100%" }}>
+      {repick ? (
+        <Button variant="outlined" {...commonProps}>
+          Pick Different Image
+        </Button>
+      ) : (
+        <TealButton variant="contained" {...commonProps}>
+          Select Image
+        </TealButton>
+      )}
     </label>
   );
+};
+
+const ImportDialog = props => {
+  const { classes, handleClose, isOpen, day, addGraph } = props;
+  const dataExists = day.get("graph").size > 0;
+  const showInstructions = !dataExists;
+  const errorOccurred = false; // TODO
+  const pickImageButton = <SelectImageButton />;
+  const repickImageButton = <SelectImageButton repick />;
+
+  // The dialog contents will vary depending on the situation:
+  let mainContents;
+  if (dataExists) {
+    // The user has just now uploaded their screenshot, or has previously
+    // uploaded it successfully in the past.
+    mainContents = (
+      <SuccessScreen
+        repickImageButton={repickImageButton}
+        handleClose={handleClose}
+        day={day}
+      />
+    );
+  } else if (errorOccurred) {
+    // We've failed to digitize an uploaded screenshot just now.
+    mainContents = (
+      <>
+        <Typography variant="body1" className={classes.paragraph}>
+          We're sorry, we couldn't detect your glucose data.
+        </Typography>
+        {repickImageButton}
+      </>
+    );
+  } else {
+    // The user hasn't yet attempted to upload a screenshot.
+    mainContents = pickImageButton;
+  }
 
   return (
     <Dialog
@@ -78,25 +114,22 @@ const ImportDialog = props => {
       onClose={handleClose}
       TransitionComponent={SlideUp}
     >
-      <AppBar position="sticky">
-        <Toolbar>
-          <IconButton color="inherit" onClick={handleClose} aria-label="Close">
-            <CloseIcon />
-          </IconButton>
-          <Typography variant="h6">Add glucose data</Typography>
-        </Toolbar>
-      </AppBar>
-      <main>
+      <AppBar handleClose={handleClose} />
+      <HiddenFileInputField addGraph={addGraph} />
+      <div>
         <section className={classes.section}>
-          {hiddenFileInputField}
-          {selectImageButton}
+          <main>{mainContents}</main>
         </section>
-        <Divider />
-        <section className={classes.section}>
-          <Instructions />
-        </section>
-        <section className={classes.section}>{selectImageButton}</section>
-      </main>
+        {showInstructions && (
+          <>
+            <Divider />
+            <section className={classes.section}>
+              <Instructions />
+            </section>
+            <section className={classes.section}>{pickImageButton}</section>
+          </>
+        )}
+      </div>
     </Dialog>
   );
 };
@@ -104,7 +137,8 @@ const ImportDialog = props => {
 ImportDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  date: PropTypes.object.isRequired
+  day: PropTypes.object.isRequired,
+  addGraph: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ImportDialog);
