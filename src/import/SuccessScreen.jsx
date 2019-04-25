@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 import TealButton from "./TealButton";
+import Graph from "./Graph";
 
 const SuccessScreen = props => {
   const { day, repickImageButton, handleClose } = props;
@@ -15,21 +16,19 @@ const SuccessScreen = props => {
         Glucose data added
       </Typography>
 
-      {/* TODO: show graph */}
-      <pre
-        style={{
-          textAlign: "left",
-          color: "white",
-          height: 400,
-          overflowY: "scroll"
-        }}
-      >
-        {JSON.stringify(day.get("graph"), null, 2)}
-      </pre>
+      <div style={{ width: "90%", height: 260, margin: "auto" }}>
+        <Graph data={day.get("graph")} />
+      </div>
 
-      <TealButton fullWidth size="large" onClick={handleClose}>
+      <TealButton
+        fullWidth
+        size="large"
+        onClick={handleClose}
+        style={{ margin: "16px 0" }}
+      >
         Ok
       </TealButton>
+
       {repickImageButton}
     </div>
   );

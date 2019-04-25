@@ -41,7 +41,7 @@ function Event(props) {
         time={props.event.get("time")}
         entry={props.event.get("event")}
       />
-      {props.graph.size !== 0 && <Chart data={props.graph} />}
+      {/* {props.graph.size !== 0 && <Chart data={props.graph} />} */}
     </Link>
   );
 }
