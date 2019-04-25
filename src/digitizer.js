@@ -95,22 +95,11 @@ function map_coord(x, in_min, in_max, out_min, out_max) {
   return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
 }
 
-function getTime(hours) {
-  const time = new Date(0);
-  time.setUTCSeconds(hours * 3600);
-  return time.toUTCString();
-}
-
 function getGraphData(rawData, dems) {
-  return rawData.map(d => {
-    const x = map_coord(d.x, dems.minX, dems.maxX, 0, 24);
-    const y = 21 - map_coord(d.y, dems.minY, dems.maxY, 0, 21);
-    return {
-      x,
-      y,
-      time: getTime(x)
-    };
-  });
+  return rawData.map(d => ({
+    x: map_coord(d.x, dems.minX, dems.maxX, 0, 24),
+    y: 21 - map_coord(d.y, dems.minY, dems.maxY, 0, 21)
+  }));
 }
 
 function print(img, id = "None") {

@@ -41,7 +41,18 @@ function App() {
   }
 
   async function addGraph(graphData) {
-    const newDay = day.set("graph", graphData);
+    // Convert the digitizer X coordinates into ISO date format
+    const dateTimeFormatter = ({ x, y }) => {
+      const d = new Date(date);
+      // Convert fractional hours into HH:MM (eg: 10.5 -> 10:30)
+      d.setHours(0, 0, x * 3600, 0);
+      return {
+        x: d.toISOString(),
+        y: y
+      };
+    };
+    const formattedGraphData = graphData.map(dateTimeFormatter);
+    const newDay = day.set("graph", formattedGraphData);
     await saveDay(newDay);
   }
 
