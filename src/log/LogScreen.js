@@ -61,11 +61,13 @@ function LogScreen(props) {
   return (
     <>
       <AppBar setDate={setDate} date={date} />
-      <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
       {els.size !== 0 && (
-        <div className={classes.log}>
-          <List dense={true}>{els}</List>
-        </div>
+        <>
+          <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
+          <div className={classes.log}>
+            <List dense={true}>{els}</List>
+          </div>
+        </>
       )}
       <FloatingEditButton initialState={els.size === 0} />
     </>
