@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -26,26 +26,33 @@ const styles = theme => ({
 
 const HIDDEN_INPUT_FIELD_ID = "select-image-file-input";
 
-const fileChangedHandler = async (event, addGraph) => {
+const fileChangedHandler = async (event, addGraph, setErrorOccurred) => {
   const { files } = event.target;
-  if (!files.length) {
-    return;
-  }
+  if (!files.length) return;
+
+  // Pass a reference to the selected file to to the digitizer
   const objectUrl = window.URL.createObjectURL(files[0]);
-  // TODO: Error check
-  const graphData = await process(objectUrl);
-  window.URL.revokeObjectURL(objectUrl);
-  await addGraph(graphData);
+  try {
+    const graphData = await process(objectUrl);
+    // Save the digitized results
+    await addGraph(graphData);
+    setErrorOccurred(false);
+  } catch (err) {
+    console.error(err);
+    setErrorOccurred(true);
+  } finally {
+    window.URL.revokeObjectURL(objectUrl);
+  }
 };
 
 // Create an invisible input file field to store a screenshot to be imported.
-const HiddenFileInputField = ({ addGraph }) => (
+const HiddenFileInputField = ({ addGraph, setErrorOccurred }) => (
   <input
     accept="image/*"
     style={{ display: "none" }}
     id={HIDDEN_INPUT_FIELD_ID}
     type="file"
-    onChange={evt => fileChangedHandler(evt, addGraph)}
+    onChange={evt => fileChangedHandler(evt, addGraph, setErrorOccurred)}
   />
 );
 
@@ -73,16 +80,22 @@ const SelectImageButton = ({ repick = false }) => {
 };
 
 const ImportDialog = props => {
-  const { classes, handleClose, isOpen, day, addGraph } = props;
+  const { classes, isOpen, day, addGraph } = props;
+  const [errorOccurred, setErrorOccurred] = useState(false);
   const dataExists = day.get("graph").size > 0;
-  const showInstructions = !dataExists;
-  const errorOccurred = false; // TODO
+  const showInstructions = !dataExists || (dataExists && errorOccurred);
   const pickImageButton = <SelectImageButton />;
   const repickImageButton = <SelectImageButton repick />;
 
+  const handleClose = () => {
+    // Reset any errors when the dialog is closed
+    setErrorOccurred(false);
+    props.handleClose();
+  };
+
   // The dialog contents will vary depending on the situation:
   let mainContents;
-  if (dataExists) {
+  if (dataExists && !errorOccurred) {
     // The user has just now uploaded their screenshot, or has previously
     // uploaded it successfully in the past.
     mainContents = (
@@ -97,6 +110,9 @@ const ImportDialog = props => {
     mainContents = (
       <>
         <Typography variant="body1" className={classes.paragraph}>
+          <span role="img" aria-label="Cross Mark">
+            ❌
+          </span>{" "}
           We're sorry, we couldn't detect your glucose data.
         </Typography>
         {repickImageButton}
@@ -115,7 +131,10 @@ const ImportDialog = props => {
       TransitionComponent={SlideUp}
     >
       <AppBar handleClose={handleClose} />
-      <HiddenFileInputField addGraph={addGraph} />
+      <HiddenFileInputField
+        addGraph={addGraph}
+        setErrorOccurred={setErrorOccurred}
+      />
       <div>
         <section className={classes.section}>
           <main>{mainContents}</main>
