@@ -26,33 +26,45 @@ const styles = theme => ({
 
 const HIDDEN_INPUT_FIELD_ID = "select-image-file-input";
 
-const fileChangedHandler = async (event, addGraph, setErrorOccurred) => {
+// When an image is selected, attempt to digitize it and persist to the DB.
+const fileChangedHandler = async (
+  event,
+  addGraph,
+  setErrorOccurred,
+  setIsLoading
+) => {
   const { files } = event.target;
   if (!files.length) return;
 
-  // Pass a reference to the selected file to to the digitizer
-  const objectUrl = window.URL.createObjectURL(files[0]);
-  try {
-    const graphData = await process(objectUrl);
-    // Save the digitized results
-    await addGraph(graphData);
-    setErrorOccurred(false);
-  } catch (err) {
-    console.error(err);
-    setErrorOccurred(true);
-  } finally {
-    window.URL.revokeObjectURL(objectUrl);
-  }
+  setIsLoading(true);
+
+  setTimeout(async () => {
+    const objectUrl = window.URL.createObjectURL(files[0]);
+    try {
+      const graphData = await process(objectUrl);
+      // Save the digitized results
+      await addGraph(graphData);
+      setErrorOccurred(false);
+    } catch (err) {
+      console.error(err);
+      setErrorOccurred(true);
+    } finally {
+      window.URL.revokeObjectURL(objectUrl);
+      setIsLoading(false);
+    }
+  }, 0);
 };
 
 // Create an invisible input file field to store a screenshot to be imported.
-const HiddenFileInputField = ({ addGraph, setErrorOccurred }) => (
+const HiddenFileInputField = ({ addGraph, setErrorOccurred, setIsLoading }) => (
   <input
     accept="image/*"
     style={{ display: "none" }}
     id={HIDDEN_INPUT_FIELD_ID}
     type="file"
-    onChange={evt => fileChangedHandler(evt, addGraph, setErrorOccurred)}
+    onChange={evt =>
+      fileChangedHandler(evt, addGraph, setErrorOccurred, setIsLoading)
+    }
   />
 );
 
@@ -79,13 +91,20 @@ const SelectImageButton = ({ repick = false }) => {
   );
 };
 
+/**
+ * The ImportDialog prompts the user to select a screenshot of their daily
+ * glucose graph. After the screenshot is selected, is it scanned to extract
+ * numerical data from the graph image.
+ */
+
 const ImportDialog = props => {
   const { classes, isOpen, day, addGraph } = props;
   const [errorOccurred, setErrorOccurred] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dataExists = day.get("graph").size > 0;
   const showInstructions = !dataExists || (dataExists && errorOccurred);
-  const pickImageButton = <SelectImageButton />;
-  const repickImageButton = <SelectImageButton repick />;
+  const pickImageButton = <SelectImageButton disabled={isLoading} />;
+  const repickImageButton = <SelectImageButton repick disabled={isLoading} />;
 
   const handleClose = () => {
     // Reset any errors when the dialog is closed
@@ -95,7 +114,13 @@ const ImportDialog = props => {
 
   // The dialog contents will vary depending on the situation:
   let mainContents;
-  if (dataExists && !errorOccurred) {
+  if (!dataExists && isLoading) {
+    mainContents = (
+      <Typography variant="body1" className={classes.paragraph}>
+        Processing...
+      </Typography>
+    );
+  } else if (dataExists && !errorOccurred) {
     // The user has just now uploaded their screenshot, or has previously
     // uploaded it successfully in the past.
     mainContents = (
@@ -103,6 +128,7 @@ const ImportDialog = props => {
         repickImageButton={repickImageButton}
         handleClose={handleClose}
         day={day}
+        isLoading={isLoading}
       />
     );
   } else if (errorOccurred) {
@@ -134,6 +160,7 @@ const ImportDialog = props => {
       <HiddenFileInputField
         addGraph={addGraph}
         setErrorOccurred={setErrorOccurred}
+        setIsLoading={setIsLoading}
       />
       <div>
         <section className={classes.section}>
