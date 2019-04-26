@@ -1,10 +1,18 @@
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { withTheme } from "@material-ui/core/styles";
 import { ResponsiveLine } from "@nivo/line";
 import { format, startOfDay, addDays } from "date-fns";
 
-const Graph = props => {
+/**
+ * Renders a graph of glucose levels for a single day.
+ *
+ * The graph size grows to fill its parent container's dimensions. Make sure the
+ * parent container has an explicitly defined height, otherwise the graph height
+ * will be 0px.
+ */
+
+const Graph = memo(props => {
   const { theme } = props;
 
   // DANGER: Nivo messes up xScale min/max values and timezone info if you
@@ -98,7 +106,7 @@ const Graph = props => {
       }}
     />
   );
-};
+});
 
 Graph.propTypes = {
   theme: PropTypes.object.isRequired,
