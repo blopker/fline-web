@@ -10,10 +10,7 @@ import ArrowBack from "@material-ui/icons/ArrowBackIos";
 import ArrowForward from "@material-ui/icons/ArrowForwardIos";
 import DayPicker from "./DayPicker";
 
-const styles = {
-  root: {
-    flexGrow: 1
-  },
+const styles = theme => ({
   grow: {
     flexGrow: 1
   },
@@ -23,8 +20,9 @@ const styles = {
   date: {
     top: "3px",
     position: "relative"
-  }
-};
+  },
+  spacer: theme.mixins.toolbar
+});
 
 function ButtonAppBar(props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +59,7 @@ function ButtonAppBar(props) {
   const { classes } = props;
   let d = props.date;
   return (
-    <div className={classes.root}>
+    <>
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" color="inherit" className={classes.grow}>
@@ -91,7 +89,6 @@ function ButtonAppBar(props) {
           >
             <MenuIcon />
           </IconButton>
-
           <DayPicker
             isOpen={isOpen}
             onRequestClose={toggleCalendar}
@@ -100,7 +97,8 @@ function ButtonAppBar(props) {
           />
         </Toolbar>
       </AppBar>
-    </div>
+      <div className={classes.spacer} />
+    </>
   );
 }
 

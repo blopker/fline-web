@@ -1,4 +1,4 @@
-import IJS from "image-js";
+import { Image } from "image-js";
 
 const white = 250;
 const black = 5;
@@ -96,12 +96,10 @@ function map_coord(x, in_min, in_max, out_min, out_max) {
 }
 
 function getGraphData(rawData, dems) {
-  return rawData.map(d => {
-    return {
-      y: 21 - map_coord(d.y, dems.minY, dems.maxY, 0, 21),
-      x: map_coord(d.x, dems.minX, dems.maxX, 0, 24)
-    };
-  });
+  return rawData.map(d => ({
+    x: map_coord(d.x, dems.minX, dems.maxX, 0, 24),
+    y: 21 - map_coord(d.y, dems.minY, dems.maxY, 0, 21)
+  }));
 }
 
 function print(img, id = "None") {
@@ -121,12 +119,12 @@ function print(img, id = "None") {
 // }
 
 async function process(i) {
-  let image = await IJS.Image.load(i);
-  console.log(i);
+  let image = await Image.load(i);
   let grey = greyImg(image.rgba8()).invert();
   let crop = getCrop(grey);
   let rawData = getRawData(crop);
   let graphData = getGraphData(rawData, getGraphDimentions(crop));
+  return graphData;
   // new Chartist.Line(
   //   ".ct-chart",
   //   { series: [graphData] },

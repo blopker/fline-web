@@ -8,11 +8,11 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Chart from "../Chart";
 import { Link } from "react-router-dom";
+import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
 
 const styles = theme => ({
   log: {
     backgroundColor: theme.palette.background.paper,
-    paddingTop: "56px",
     paddingLeft: "10px",
     paddingRight: "10px"
   }
@@ -41,29 +41,33 @@ function Event(props) {
         time={props.event.get("time")}
         entry={props.event.get("event")}
       />
-      {props.graph.size !== 0 && <Chart data={props.graph} />}
+      {/* {props.graph.size !== 0 && <Chart data={props.graph} />} */}
     </Link>
   );
 }
 
 function LogScreen(props) {
-  const { classes } = props;
-  if (!props.day) {
+  const { classes, day, date, setDate, addGraph } = props;
+  if (!day) {
     return <div>Loading...</div>;
   }
 
-  const els = props.day.get("events").map((e, i) => {
-    return (
-      <Event key={i} eventID={i} graph={props.day.get("graph")} event={e} />
-    );
-  });
+  const els = day
+    .get("events")
+    .map((e, i) => (
+      <Event key={i} eventID={i} graph={day.get("graph")} event={e} />
+    ));
+
   return (
     <>
-      <AppBar setDate={props.setDate} date={props.date} />
+      <AppBar setDate={setDate} date={date} />
       {els.size !== 0 && (
-        <div className={classes.log}>
-          <List dense={true}>{els}</List>
-        </div>
+        <>
+          <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
+          <div className={classes.log}>
+            <List dense={true}>{els}</List>
+          </div>
+        </>
       )}
       <FloatingEditButton initialState={els.size === 0} />
     </>

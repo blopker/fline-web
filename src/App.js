@@ -40,6 +40,22 @@ function App() {
     await saveDay(newDay);
   }
 
+  async function addGraph(graphData) {
+    // Convert the digitizer X coordinates into ISO date format
+    const dateTimeFormatter = ({ x, y }) => {
+      const d = new Date(date);
+      // Convert fractional hours into HH:MM (eg: 10.5 -> 10:30)
+      d.setHours(0, 0, x * 3600, 0);
+      return {
+        x: d.toISOString(),
+        y: y
+      };
+    };
+    const formattedGraphData = graphData.map(dateTimeFormatter);
+    const newDay = day.set("graph", formattedGraphData);
+    await saveDay(newDay);
+  }
+
   if (!day) {
     return <div>Loading...</div>;
   }
@@ -51,17 +67,19 @@ function App() {
         <Route
           exact
           path="/"
-          component={() => <Log day={day} date={date} setDate={setDate} />}
+          render={() => (
+            <Log day={day} date={date} setDate={setDate} addGraph={addGraph} />
+          )}
         />
         <Route
           exact
           path="/create/"
-          component={() => <Edit date={date} addEvent={addEvent} />}
+          render={() => <Edit date={date} addEvent={addEvent} />}
         />
         <Route
           exact
           path="/edit/:id"
-          component={history => {
+          render={history => {
             let match = parseInt(history.match.params.id, 10);
             return (
               <Edit
