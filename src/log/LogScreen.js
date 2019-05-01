@@ -4,47 +4,15 @@ import { withStyles } from "@material-ui/core/styles";
 import AppBar from "./AppBar";
 import FloatingEditButton from "./Fab";
 import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Chart from "../Chart";
-import { Link } from "react-router-dom";
 import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
+import EventListItem from "./EventListItem";
 
 const styles = theme => ({
   log: {
     backgroundColor: theme.palette.background.paper,
-    paddingLeft: "10px",
-    paddingRight: "10px"
+    marginBottom: 64
   }
 });
-
-function EntryListItem(props) {
-  const time = props.time.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  return (
-    <ListItem>
-      <ListItemText>{time}</ListItemText>
-      <ListItemText primary={props.entry} />
-    </ListItem>
-  );
-}
-
-function Event(props) {
-  return (
-    <Link
-      to={`/edit/${props.eventID}`}
-      style={{ textDecoration: "none", color: "white" }}
-    >
-      <EntryListItem
-        time={props.event.get("time")}
-        entry={props.event.get("event")}
-      />
-      {/* {props.graph.size !== 0 && <Chart data={props.graph} />} */}
-    </Link>
-  );
-}
 
 function LogScreen(props) {
   const { classes, day, date, setDate, addGraph } = props;
@@ -52,11 +20,12 @@ function LogScreen(props) {
     return <div>Loading...</div>;
   }
 
-  const els = day
-    .get("events")
-    .map((e, i) => (
-      <Event key={i} eventID={i} graph={day.get("graph")} event={e} />
-    ));
+  const events = day.get("events");
+  const graph = day.get("graph");
+
+  const els = events.map((e, i) => (
+    <EventListItem key={i} eventID={i} event={e} graph={graph} />
+  ));
 
   return (
     <>
@@ -64,9 +33,9 @@ function LogScreen(props) {
       {els.size !== 0 && (
         <>
           <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
-          <div className={classes.log}>
-            <List dense={true}>{els}</List>
-          </div>
+          <List dense className={classes.log}>
+            {els}
+          </List>
         </>
       )}
       <FloatingEditButton initialState={els.size === 0} />
