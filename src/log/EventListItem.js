@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
+import EventGraph from "./EventGraph";
 
 const timeFormatter = new Intl.DateTimeFormat("default", {
   hour: "2-digit",
@@ -21,6 +22,7 @@ const EventListItem = props => {
         <ListItemText>{timeFormatter.format(time)}</ListItemText>
         <ListItemText>{entry}</ListItemText>
       </ListItem>
+      {graph.size > 0 && <EventGraph data={graph} eventTime={time} />}
       <Divider />
     </>
   );
