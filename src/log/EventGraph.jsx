@@ -1,10 +1,11 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 import teal from "@material-ui/core/colors/teal";
+import red from "@material-ui/core/colors/red";
 import { withTheme } from "@material-ui/core/styles";
 import { Group } from "@vx/group";
 import { scaleTime, scaleLinear } from "@vx/scale";
-import { LinePath } from "@vx/shape";
+import { LinePath, AreaClosed } from "@vx/shape";
 import { AxisLeft, AxisBottom } from "@vx/axis";
 import { Grid, GridColumns } from "@vx/grid";
 import { curveCatmullRom } from "@vx/curve";
@@ -33,7 +34,13 @@ const EventGraph = props => {
     end: times.threeHoursLater
   };
 
+  const areaInterval = {
+    start: times.eventTime,
+    end: times.twoHoursLater
+  };
+
   const lineSeries = [];
+  const areaSeries = [];
 
   data.toJS().forEach(d => {
     const x = new Date(d.x);
@@ -41,6 +48,10 @@ const EventGraph = props => {
 
     if (isWithinInterval(x, lineInterval)) {
       lineSeries.push({ x, y });
+
+      if (isWithinInterval(x, areaInterval)) {
+        areaSeries.push({ x, y });
+      }
     }
   });
 
@@ -58,6 +69,7 @@ const EventGraph = props => {
             width={contentRect.bounds.width}
             height={contentRect.bounds.height}
             lineSeries={lineSeries}
+            areaSeries={areaSeries}
             times={times}
             theme={theme}
           />
@@ -72,7 +84,7 @@ const EventGraph = props => {
  */
 
 const Graph = props => {
-  const { width, height, lineSeries, theme } = props;
+  const { width, height, lineSeries, areaSeries, theme } = props;
 
   if (!(width && height)) {
     return null;
@@ -85,6 +97,10 @@ const Graph = props => {
     twoHoursLater,
     threeHoursLater
   } = props.times;
+
+  // The baseline is where the glucose level started off at the logged event
+  // time. Any glucose increases/decrease from the baseline will be shaded in.
+  const baseline = areaSeries[0].y;
 
   const margin = {
     top: 16,
@@ -198,6 +214,26 @@ const Graph = props => {
           strokeWidth={2}
           curve={curveCatmullRom}
         />
+
+        {/* shade any glucose increase above the baseline in teal */}
+        <AreaClosed
+          data={areaSeries}
+          x={d => xScale(d.x)}
+          y0={d => yScale(Math.min(d.y, baseline))}
+          y1={d => yScale(d.y)}
+          fill={teal[300]}
+          fillOpacity={0.7}
+        />
+
+        {/* shade any glucose decrease below the baseline in red */}
+        <AreaClosed
+          data={areaSeries}
+          x={d => xScale(d.x)}
+          y0={d => yScale(d.y)}
+          y1={d => yScale(Math.max(d.y, baseline))}
+          fill={red[500]}
+          fillOpacity={0.3}
+        />
       </Group>
     </svg>
   );
@@ -213,6 +249,7 @@ Graph.propTypes = {
   height: PropTypes.number,
   lineSeries: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired,
+  areaSeries: PropTypes.array.isRequired,
   times: PropTypes.object.isRequired,
   width: PropTypes.number
 };
