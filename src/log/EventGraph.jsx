@@ -1,143 +1,220 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
-import Paper from "@material-ui/core/Paper";
-import { withStyles } from "@material-ui/core/styles";
-import { ResponsiveLine } from "@nivo/line";
-import { format, addHours } from "date-fns";
+import teal from "@material-ui/core/colors/teal";
+import { withTheme } from "@material-ui/core/styles";
+import { Group } from "@vx/group";
+import { scaleTime, scaleLinear } from "@vx/scale";
+import { LinePath } from "@vx/shape";
+import { AxisLeft, AxisBottom } from "@vx/axis";
+import { Grid, GridColumns } from "@vx/grid";
+import { curveCatmullRom } from "@vx/curve";
+import { format, addHours, isWithinInterval } from "date-fns";
+import Measure from "react-measure";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 
 /**
- * Renders a graph of glucose levels for the following two hours after a food
- * log entry.
+ * Renders a graph of glucose levels for the following three hours after a food
+ * log entry, and one hour prior.
  */
 
-const styles = theme => ({
-  container: {
-    height: 180,
-    margin: `0 ${theme.spacing.unit * 4}px ${theme.spacing.unit}px`
-  }
-});
+const EventGraph = props => {
+  const { eventTime, data, theme } = props;
 
-const EventGraph = memo(props => {
-  const { theme, eventTime, data, classes } = props;
-
-  const twoHoursLater = addHours(eventTime, 2);
-  const isWithinTimeRange = x => {
-    return x >= eventTime && x <= twoHoursLater;
+  const times = {
+    eventTime: eventTime,
+    oneHourEarlier: addHours(eventTime, -1),
+    oneHourLater: addHours(eventTime, 1),
+    twoHoursLater: addHours(eventTime, 2),
+    threeHoursLater: addHours(eventTime, 3)
   };
 
-  // props.data contains an entire day's worth of info, filter that down to
-  // find only the data points up to 2 hours after the event time
-  const filteredData = data.toJS().reduce((accumulator, currentValue) => {
-    const x = new Date(currentValue.x);
-    const y = currentValue.y;
-    if (isWithinTimeRange(x)) {
-      accumulator.push({ x, y });
+  const lineInterval = {
+    start: times.oneHourEarlier,
+    end: times.threeHoursLater
+  };
+
+  const lineSeries = [];
+
+  data.toJS().forEach(d => {
+    const x = new Date(d.x);
+    const y = d.y;
+
+    if (isWithinInterval(x, lineInterval)) {
+      lineSeries.push({ x, y });
     }
-    return accumulator;
-  }, []);
+  });
 
   // Bail out if there is not enough data within the 2hr time frame
-  if (filteredData.length < 2) {
+  if (lineSeries.length < 2) {
     return <NotEnoughDataMessage />;
   }
 
-  // Indicate the good range of glucose levels with a green background
-  const GoodGlucoseRange = ({ computedData, xScale, yScale }) => {
-    const [xMin, xMax] = xScale.domain();
-    return (
-      <rect
-        x={xScale(xMin)}
-        y={yScale(6.9)}
-        width={xScale(xMax)}
-        height={yScale(4) - yScale(6.9)}
-        fill="rgba(0, 255, 0, 0.12)"
-      />
-    );
-  };
-
-  // Base the graphs colors off of the current Material-UI theme
-  const graphTheme = {
-    background: "transparent",
-    textColor: theme.palette.text.secondary,
-    fontSize: 12,
-    fontFamily: theme.typography.fontFamily,
-    axis: {
-      domain: {
-        line: { stroke: theme.palette.divider, strokeWidth: 1 }
-      },
-      ticks: {
-        line: { stroke: theme.palette.divider, strokeWidth: 1 }
-      }
-    },
-    grid: {
-      line: { stroke: theme.palette.divider, strokeWidth: 1 }
-    }
-  };
-
+  // Draw a graph that is sized to the viewport width
   return (
-    <Paper className={classes.container} elevation={0}>
-      <ResponsiveLine
-        theme={graphTheme}
-        colors="#5AC0C0"
-        enableDots={false}
-        isInteractive={false}
-        layers={[
-          "grid",
-          "markers",
-          "axes",
-          "areas",
-          "lines",
-          "slices",
-          "dots",
-          "legends",
-          GoodGlucoseRange
-        ]}
-        data={[
-          {
-            id: "glucose series",
-            data: filteredData
-          }
-        ]}
-        xScale={{
-          type: "time",
-          precision: "second",
-          // Use native JS Date objects rather providing any formatting string.
-          // Nivo's string to date formatting seems buggy as of v0.56.2.
-          format: "native"
-        }}
-        axisBottom={{
-          tickValues: 4,
-          format: x =>
-            format(x, "h:mma")
-              .toLowerCase()
-              .replace(":00", "")
-        }}
-        yScale={{
-          type: "linear",
-          min: 2,
-          max: 10
-        }}
-        gridYValues={[2, 3, 4, 5, 6, 7, 8, 9, 10]}
-        axisLeft={{
-          tickValues: [2, 4, 6, 8, 10]
-        }}
-        margin={{
-          top: theme.spacing.unit * 2,
-          right: theme.spacing.unit * 2,
-          bottom: theme.spacing.unit * 4,
-          left: theme.spacing.unit * 3
-        }}
-      />
-    </Paper>
+    <Measure bounds>
+      {({ measureRef, contentRect }) => (
+        <div ref={measureRef} style={{ height: 180, marginBottom: 16 }}>
+          <Graph
+            width={contentRect.bounds.width}
+            height={contentRect.bounds.height}
+            lineSeries={lineSeries}
+            times={times}
+            theme={theme}
+          />
+        </div>
+      )}
+    </Measure>
   );
-});
-
-EventGraph.propTypes = {
-  theme: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
-  eventTime: PropTypes.object.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(EventGraph);
+/**
+ * The Graph helper component does the SVG heavy lifting.
+ */
+
+const Graph = props => {
+  const { width, height, lineSeries, theme } = props;
+
+  if (!(width && height)) {
+    return null;
+  }
+
+  const {
+    eventTime,
+    oneHourEarlier,
+    oneHourLater,
+    twoHoursLater,
+    threeHoursLater
+  } = props.times;
+
+  const margin = {
+    top: 16,
+    bottom: 32,
+    left: 40,
+    right: 24
+  };
+
+  const xMax = width - margin.left - margin.right;
+  const yMax = height - margin.top - margin.bottom;
+
+  const xScale = scaleTime({
+    range: [0, xMax],
+    domain: [oneHourEarlier, threeHoursLater]
+  });
+
+  const yScale = scaleLinear({
+    range: [yMax, 0],
+    domain: [2, 10],
+    clamp: true
+  });
+
+  return (
+    <svg width={width} height={height}>
+      <Group top={margin.top} left={margin.left}>
+        {/* green reference area designating the good glucose level ranges */}
+        <rect
+          x="0"
+          y={yScale(6.9)}
+          width={xMax}
+          height={yScale(4) - yScale(6.9)}
+          style={{
+            fill: "lime",
+            fillOpacity: 0.06
+          }}
+        />
+
+        {/* the background grid lines */}
+        <Grid
+          xScale={xScale}
+          yScale={yScale}
+          width={xMax}
+          height={yMax}
+          stroke="rgba(255, 255, 255, 0.05)"
+          columnTickValues={[
+            oneHourEarlier,
+            eventTime,
+            oneHourLater,
+            twoHoursLater,
+            threeHoursLater
+          ]}
+          rowTickValues={[2, 4, 6, 8, 10]}
+        />
+
+        {/* redraw the event time and +2hr grid lines in a brighter color */}
+        <GridColumns
+          scale={xScale}
+          height={yMax}
+          stroke="rgba(255, 255, 255, 0.4)"
+          tickValues={[eventTime, twoHoursLater]}
+        />
+
+        {/* the y-axis tracks the glucose level */}
+        <AxisLeft
+          scale={yScale}
+          top={0}
+          left={0}
+          stroke={theme.palette.divider}
+          tickStroke={theme.palette.divider}
+          tickLabelProps={({ tick, index }) => ({
+            dx: "-0.25em",
+            dy: "0.25em",
+            fill: theme.palette.text.secondary,
+            fontFamily: theme.typography.fontFamily,
+            fontSize: 12,
+            textAnchor: "end"
+          })}
+          numTicks={5}
+        />
+
+        {/* the x-axis tracks time */}
+        <AxisBottom
+          scale={xScale}
+          top={yMax}
+          stroke={theme.palette.divider}
+          tickStroke={"rgba(255, 255, 255, 0.4)"}
+          tickValues={[eventTime, twoHoursLater]}
+          tickFormat={x => {
+            if (x === twoHoursLater) {
+              return "+2 hours";
+            }
+            return format(x, "h:mma")
+              .toLowerCase()
+              .replace(":00", "");
+          }}
+          tickLabelProps={({ tick, index }) => ({
+            dy: "0.25em",
+            fill: theme.palette.text.secondary,
+            fontFamily: theme.typography.fontFamily,
+            fontSize: 12,
+            textAnchor: "middle"
+          })}
+        />
+
+        {/* draw a line representing the glucose level */}
+        <LinePath
+          data={lineSeries}
+          x={d => xScale(d.x)}
+          y={d => yScale(d.y)}
+          stroke={teal[300]}
+          strokeWidth={2}
+          curve={curveCatmullRom}
+        />
+      </Group>
+    </svg>
+  );
+};
+
+EventGraph.propTypes = {
+  data: PropTypes.object.isRequired,
+  eventTime: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired
+};
+
+Graph.propTypes = {
+  height: PropTypes.number,
+  lineSeries: PropTypes.array.isRequired,
+  theme: PropTypes.object.isRequired,
+  times: PropTypes.object.isRequired,
+  width: PropTypes.number
+};
+
+export default withTheme()(memo(EventGraph));
