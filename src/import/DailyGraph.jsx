@@ -1,116 +1,129 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { withTheme } from "@material-ui/core/styles";
-import { ResponsiveLine } from "@nivo/line";
 import { format, startOfDay, addDays } from "date-fns";
+import { Grid } from "@vx/grid";
+import { AxisBottom, AxisLeft } from "@vx/axis";
+import { LinePath } from "@vx/shape";
+import { curveCatmullRom } from "@vx/curve";
+import teal from "@material-ui/core/colors/teal";
+import { Group } from "@vx/group";
+import { scaleLinear, scaleTime } from "@vx/scale";
 
 /**
  * Renders a graph of glucose levels for a single day.
- *
- * The graph size grows to fill its parent container's dimensions. Make sure the
- * parent container has an explicitly defined height, otherwise the graph height
- * will be 0px.
  */
 
-const Graph = memo(props => {
-  const { theme } = props;
+const DailyGraph = memo(props => {
+  const { theme, width, height } = props;
 
-  // DANGER: Nivo messes up xScale min/max values and timezone info if you
-  // use its built-in date formatting options. It's much safer to parse any
-  // dates manually ourself.
   const data = props.data.toJS().map(({ x, y }) => ({ x: new Date(x), y }));
-  const xMin = startOfDay(data[0].x);
-  const xMax = addDays(xMin, 1);
+  const startTime = startOfDay(data[0].x);
+  const endTime = addDays(startTime, 1);
 
-  // Indicate the good range of glucose levels with a green background
-  const GoodGlucoseRange = ({ computedData, xScale, yScale }) => {
-    return (
-      <rect
-        x={xScale(xMin)}
-        y={yScale(6.9)}
-        width={xScale(xMax)}
-        height={yScale(4) - yScale(6.9)}
-        fill="rgba(0, 255, 0, 0.12)"
-      />
-    );
+  const margin = {
+    top: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
+    bottom: theme.spacing.unit * 4,
+    left: theme.spacing.unit * 3
   };
 
-  // Base the graphs colors off of the current Material-UI theme
-  const graphTheme = {
-    background: "transparent",
-    textColor: theme.palette.text.secondary,
-    fontSize: 12,
-    fontFamily: theme.typography.fontFamily,
-    axis: {
-      domain: {
-        line: { stroke: theme.palette.divider, strokeWidth: 1 }
-      },
-      ticks: {
-        line: { stroke: theme.palette.divider, strokeWidth: 1 }
-      }
-    },
-    grid: {
-      line: { stroke: theme.palette.divider, strokeWidth: 1 }
-    }
-  };
+  const xMax = width - margin.left - margin.right;
+  const yMax = height - margin.top - margin.bottom;
+
+  const xScale = scaleTime({
+    range: [0, xMax],
+    domain: [startTime, endTime]
+  });
+
+  const yScale = scaleLinear({
+    range: [yMax, 0],
+    domain: [0, 21],
+    clamp: true
+  });
 
   return (
-    <ResponsiveLine
-      theme={graphTheme}
-      colors="#5AC0C0"
-      enableDots={false}
-      isInteractive={false}
-      layers={[
-        "grid",
-        "markers",
-        "axes",
-        "areas",
-        "lines",
-        "slices",
-        "dots",
-        "legends",
-        GoodGlucoseRange
-      ]}
-      data={[
-        {
-          id: "glucose series",
-          data
-        }
-      ]}
-      xScale={{
-        type: "time",
-        precision: "second",
-        // Use native JS Date objects rather providing any formatting string.
-        // Nivo's string to date formatting seems buggy as of v0.56.2.
-        format: "native",
-        min: xMin,
-        max: xMax
-      }}
-      axisBottom={{
-        format: x => format(x, "ha").toLowerCase()
-      }}
-      yScale={{
-        type: "linear",
-        min: 0,
-        max: 21
-      }}
-      axisLeft={{
-        tickValues: [3, 6, 9, 12, 15, 18, 21]
-      }}
-      gridYValues={[3, 6, 9, 12, 15, 18, 21]}
-      margin={{
-        top: theme.spacing.unit * 2,
-        right: theme.spacing.unit * 2,
-        bottom: theme.spacing.unit * 4,
-        left: theme.spacing.unit * 3
-      }}
-    />
+    <svg
+      width={width}
+      height={height}
+      style={{ fontFamily: theme.typography.fontFamily }}
+    >
+      <Group top={margin.top} left={margin.left}>
+        {/* green reference area designating the good glucose level ranges */}
+        <rect
+          x="0"
+          y={yScale(6.9)}
+          width={xMax}
+          height={yScale(4) - yScale(6.9)}
+          style={{
+            fill: "lime",
+            fillOpacity: 0.06
+          }}
+        />
+
+        {/* the background grid lines */}
+        <Grid
+          xScale={xScale}
+          yScale={yScale}
+          width={xMax}
+          height={yMax}
+          stroke="rgba(255, 255, 255, 0.05)"
+          rowTickValues={[3, 6, 9, 12, 15, 18, 21]}
+        />
+
+        {/* the y-axis tracks the glucose level */}
+        <AxisLeft
+          scale={yScale}
+          top={0}
+          left={0}
+          stroke={theme.palette.divider}
+          tickStroke={theme.palette.divider}
+          tickValues={[3, 6, 9, 12, 15, 18, 21]}
+          tickLabelProps={({ tick, index }) => ({
+            dx: "-0.25em",
+            dy: "0.25em",
+            fill: theme.palette.text.secondary,
+            fontSize: 12,
+            textAnchor: "end"
+          })}
+        />
+
+        {/* the x-axis tracks time */}
+        <AxisBottom
+          scale={xScale}
+          top={yMax}
+          stroke={theme.palette.divider}
+          tickStroke={theme.palette.divider}
+          tickFormat={x =>
+            format(x, "h:mma")
+              .toLowerCase()
+              .replace(":00", "")
+          }
+          tickLabelProps={({ tick, index }) => ({
+            dy: "0.25em",
+            fill: theme.palette.text.secondary,
+            fontSize: 12,
+            textAnchor: "middle"
+          })}
+        />
+
+        {/* draw a line representing the glucose level */}
+        <LinePath
+          data={data}
+          x={d => xScale(d.x)}
+          y={d => yScale(d.y)}
+          stroke={teal[300]}
+          strokeWidth={2}
+          curve={curveCatmullRom}
+        />
+      </Group>
+    </svg>
   );
 });
 
-Graph.propTypes = {
+DailyGraph.propTypes = {
   theme: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired
 };
 
-export default withTheme()(Graph);
+export default withTheme()(DailyGraph);
