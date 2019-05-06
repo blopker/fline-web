@@ -17,9 +17,10 @@ const styles = theme => ({
     display: "flex"
   },
   time: {
-    flex: "0 0 20%",
-    textAlign: "right",
-    padding: 0
+    flex: "0 0 auto",
+    textAlign: "left",
+    padding: 0,
+    minWidth: 55
   }
 });
 
