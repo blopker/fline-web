@@ -12,9 +12,10 @@ const timeFormatter = new Intl.DateTimeFormat("default", {
 });
 
 const EventListItem = props => {
-  const { eventID, graph, event } = props;
+  const { eventID, event, day } = props;
   const time = event.get("time");
   const entry = event.get("event");
+  const graph = day.get("graph");
 
   return (
     <>
@@ -22,7 +23,7 @@ const EventListItem = props => {
         <ListItemText>{timeFormatter.format(time)}</ListItemText>
         <ListItemText>{entry}</ListItemText>
       </ListItem>
-      {graph.size > 0 && <EventGraph data={graph} eventTime={time} />}
+      {graph.size > 0 && <EventGraph day={day} event={event} />}
       <Divider />
     </>
   );
@@ -31,7 +32,7 @@ const EventListItem = props => {
 EventListItem.propTypes = {
   eventID: PropTypes.number.isRequired,
   event: PropTypes.object.isRequired,
-  graph: PropTypes.object
+  day: PropTypes.object
 };
 
 export default EventListItem;

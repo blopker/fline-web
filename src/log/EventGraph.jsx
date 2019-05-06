@@ -2,14 +2,17 @@ import React, { memo } from "react";
 import PropTypes from "prop-types";
 import teal from "@material-ui/core/colors/teal";
 import red from "@material-ui/core/colors/red";
+import amber from "@material-ui/core/colors/amber";
 import { withTheme } from "@material-ui/core/styles";
 import { Group } from "@vx/group";
 import { scaleTime, scaleLinear } from "@vx/scale";
 import { LinePath, AreaClosed } from "@vx/shape";
 import { AxisLeft, AxisBottom } from "@vx/axis";
 import { Grid, GridColumns } from "@vx/grid";
+import { AnnotationLabel } from "react-annotation";
 import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
+import truncate from "lodash/truncate";
 import Measure from "react-measure";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 
@@ -19,7 +22,11 @@ import NotEnoughDataMessage from "./NotEnoughDataMessage";
  */
 
 const EventGraph = props => {
-  const { eventTime, data, theme } = props;
+  const { event, day, theme } = props;
+
+  const eventTime = event.get("time");
+  const data = day.get("graph");
+  const events = day.get("events");
 
   const times = {
     eventTime: eventTime,
@@ -55,10 +62,16 @@ const EventGraph = props => {
     }
   });
 
-  // Bail out if there is not enough data within the 2hr time frame
+  // Bail out if there is not enough data within the time frame
   if (lineSeries.length < 2) {
     return <NotEnoughDataMessage />;
   }
+
+  // Look for another event occurring around the same time window as the current
+  // event. This other events will get annotated in the graph.
+  const overlappingEvent = events.find(e => {
+    return isWithinInterval(e.get("time"), lineInterval) && e !== event;
+  });
 
   // Draw a graph that is sized to the viewport width
   return (
@@ -72,6 +85,7 @@ const EventGraph = props => {
             areaSeries={areaSeries}
             times={times}
             theme={theme}
+            annotation={overlappingEvent ? overlappingEvent.toJS() : null}
           />
         </div>
       )}
@@ -84,7 +98,7 @@ const EventGraph = props => {
  */
 
 const Graph = props => {
-  const { width, height, lineSeries, areaSeries, theme } = props;
+  const { width, height, lineSeries, areaSeries, theme, annotation } = props;
 
   if (!(width && height)) {
     return null;
@@ -109,6 +123,10 @@ const Graph = props => {
     right: 24
   };
 
+  if (annotation) {
+    margin.top = 32;
+  }
+
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
 
@@ -123,8 +141,27 @@ const Graph = props => {
     clamp: true
   });
 
+  const getAnnotationAlignment = () => {
+    // Keep the annotation's text from overflowing off the edges of the graph
+    const annotationX = xScale(new Date(annotation.time));
+    const [xMin, xMax] = xScale.range();
+    const threshold = 25;
+    const nearLeftEdge = xMin + threshold > annotationX;
+    const nearRightEdge = xMax - threshold < annotationX;
+    if (nearLeftEdge) {
+      return "left";
+    } else if (nearRightEdge) {
+      return "right";
+    }
+    return "middle";
+  };
+
   return (
-    <svg width={width} height={height}>
+    <svg
+      width={width}
+      height={height}
+      style={{ fontFamily: theme.typography.fontFamily }}
+    >
       <Group top={margin.top} left={margin.left}>
         {/* green reference area designating the good glucose level ranges */}
         <rect
@@ -174,7 +211,6 @@ const Graph = props => {
             dx: "-0.25em",
             dy: "0.25em",
             fill: theme.palette.text.secondary,
-            fontFamily: theme.typography.fontFamily,
             fontSize: 12,
             textAnchor: "end"
           })}
@@ -199,7 +235,6 @@ const Graph = props => {
           tickLabelProps={({ tick, index }) => ({
             dy: "0.25em",
             fill: theme.palette.text.secondary,
-            fontFamily: theme.typography.fontFamily,
             fontSize: 12,
             textAnchor: "middle"
           })}
@@ -231,17 +266,37 @@ const Graph = props => {
           x={d => xScale(d.x)}
           y0={d => yScale(d.y)}
           y1={d => yScale(Math.max(d.y, baseline))}
-          fill={red[500]}
-          fillOpacity={0.3}
+          fill={red[600]}
+          fillOpacity={0.5}
         />
+
+        {annotation && (
+          <Group id="annotation-group" style={{ fontSize: 10 }}>
+            <AnnotationLabel
+              x={xScale(new Date(annotation.time))}
+              y={yMax}
+              ny={0}
+              dx={0}
+              color={amber[700]}
+              connector={{ end: "dot" }}
+              note={{
+                label: truncate(annotation.event, { length: 40 }),
+                align: getAnnotationAlignment(),
+                orientation: "topBottom",
+                padding: 10,
+                wrap: 100
+              }}
+            />
+          </Group>
+        )}
       </Group>
     </svg>
   );
 };
 
 EventGraph.propTypes = {
-  data: PropTypes.object.isRequired,
-  eventTime: PropTypes.object.isRequired,
+  day: PropTypes.object.isRequired,
+  event: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired
 };
 
