@@ -13,7 +13,7 @@ import { AnnotationLabel } from "react-annotation";
 import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
-import Measure from "react-measure";
+import ResponsiveWrapper from "../ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 
 /**
@@ -75,21 +75,21 @@ const EventGraph = props => {
 
   // Draw a graph that is sized to the viewport width
   return (
-    <Measure bounds>
-      {({ measureRef, contentRect }) => (
-        <div ref={measureRef} style={{ height: 180, marginBottom: 16 }}>
+    <div style={{ height: 180, marginBottom: 16 }}>
+      <ResponsiveWrapper>
+        {({ width, height }) => (
           <Graph
-            width={contentRect.bounds.width}
-            height={contentRect.bounds.height}
+            width={width}
+            height={height}
             lineSeries={lineSeries}
             areaSeries={areaSeries}
             times={times}
             theme={theme}
             annotation={overlappingEvent ? overlappingEvent.toJS() : null}
           />
-        </div>
-      )}
-    </Measure>
+        )}
+      </ResponsiveWrapper>
+    </div>
   );
 };
 
@@ -117,14 +117,14 @@ const Graph = props => {
   const baseline = areaSeries[0].y;
 
   const margin = {
-    top: 16,
-    bottom: 32,
-    left: 40,
-    right: 24
+    top: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 3,
+    bottom: theme.spacing.unit * 4,
+    left: theme.spacing.unit * 5
   };
 
   if (annotation) {
-    margin.top = 32;
+    margin.top = theme.spacing.unit * 4;
   }
 
   const xMax = width - margin.left - margin.right;
