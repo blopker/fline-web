@@ -20,12 +20,9 @@ function LogScreen(props) {
     return <div>Loading...</div>;
   }
 
-  const events = day.get("events");
-  const graph = day.get("graph");
-
-  const els = events.map((e, i) => (
-    <EventListItem key={i} eventID={i} event={e} graph={graph} />
-  ));
+  const els = day
+    .get("events")
+    .map((e, i) => <EventListItem key={i} eventID={i} event={e} day={day} />);
 
   return (
     <>

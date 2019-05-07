@@ -2,7 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 import TealButton from "./TealButton";
-import Graph from "./Graph";
+import DailyGraph from "./DailyGraph";
+import ResponsiveWrapper from "../ResponsiveWrapper";
 
 /**
  * The SuccessScreen shows when a screenshot has been successfully imported.
@@ -38,7 +39,11 @@ const SuccessScreen = props => {
           opacity: isLoading ? 0.25 : 1
         }}
       >
-        <Graph data={day.get("graph")} />
+        <ResponsiveWrapper>
+          {({ width, height }) => (
+            <DailyGraph data={day.get("graph")} width={width} height={height} />
+          )}
+        </ResponsiveWrapper>
       </div>
 
       <TealButton
