@@ -63,7 +63,7 @@ const EventGraph = props => {
   });
 
   // Bail out if there is not enough data within the time frame
-  if (lineSeries.length < 2) {
+  if (areaSeries.length < 2) {
     return <NotEnoughDataMessage />;
   }
 
