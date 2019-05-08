@@ -46,7 +46,7 @@ function isLine(pxs) {
     pxs.length * 0.7
   );
 }
-function getGraphDimentions(img) {
+function getGraphDimensions(img) {
   let minY = null;
   let maxY = 0;
   img.getColumn(Math.floor(img.width / 2)).forEach((px, i) => {
@@ -112,7 +112,7 @@ async function process(i) {
   let grey = greyImg(image.rgba8()).invert();
   let crop = getCrop(grey);
   let rawData = getRawData(crop);
-  let graphData = getGraphData(rawData, getGraphDimentions(crop));
+  let graphData = getGraphData(rawData, getGraphDimensions(crop));
   return graphData;
 }
 
