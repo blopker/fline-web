@@ -1,6 +1,8 @@
 import { Image } from "image-js";
+import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "./constants";
 
 const black = 5;
+const [glucoseMin, glucoseMax] = GLUCOSE_LEVELS.range;
 
 const median = arr => {
   const mid = Math.floor(arr.length / 2),
@@ -44,7 +46,7 @@ function isLine(pxs) {
     pxs.length * 0.7
   );
 }
-function getGraphDimentions(img) {
+function getGraphDimensions(img) {
   let minY = null;
   let maxY = 0;
   img.getColumn(Math.floor(img.width / 2)).forEach((px, i) => {
@@ -93,7 +95,7 @@ function map_coord(x, in_min, in_max, out_min, out_max) {
 function getGraphData(rawData, dems) {
   return rawData.map(d => ({
     x: map_coord(d.x, dems.minX, dems.maxX, 0, 24),
-    y: 21 - map_coord(d.y, dems.minY, dems.maxY, 0, 21)
+    y: glucoseMax - map_coord(d.y, dems.minY, dems.maxY, glucoseMin, glucoseMax)
   }));
 }
 
@@ -110,7 +112,7 @@ async function process(i) {
   let grey = greyImg(image.rgba8()).invert();
   let crop = getCrop(grey);
   let rawData = getRawData(crop);
-  let graphData = getGraphData(rawData, getGraphDimentions(crop));
+  let graphData = getGraphData(rawData, getGraphDimensions(crop));
   return graphData;
 }
 

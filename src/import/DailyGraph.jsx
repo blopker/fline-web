@@ -9,6 +9,7 @@ import { curveCatmullRom } from "@vx/curve";
 import teal from "@material-ui/core/colors/teal";
 import { Group } from "@vx/group";
 import { scaleLinear, scaleTime } from "@vx/scale";
+import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 
 /**
  * Renders a graph of glucose levels for a single day.
@@ -25,7 +26,7 @@ const DailyGraph = memo(props => {
     top: theme.spacing.unit * 2,
     right: theme.spacing.unit * 2,
     bottom: theme.spacing.unit * 4,
-    left: theme.spacing.unit * 3
+    left: theme.spacing.unit * 4
   };
 
   const xMax = width - margin.left - margin.right;
@@ -38,9 +39,11 @@ const DailyGraph = memo(props => {
 
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: [0, 21],
+    domain: GLUCOSE_LEVELS.range,
     clamp: true
   });
+
+  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.good.range;
 
   return (
     <svg
@@ -52,9 +55,9 @@ const DailyGraph = memo(props => {
         {/* green reference area designating the good glucose level ranges */}
         <rect
           x="0"
-          y={yScale(6.9)}
+          y={yScale(goodGlucoseMax)}
           width={xMax}
-          height={yScale(4) - yScale(6.9)}
+          height={yScale(goodGlucoseMin) - yScale(goodGlucoseMax)}
           style={{
             fill: "lime",
             fillOpacity: 0.06
@@ -68,7 +71,7 @@ const DailyGraph = memo(props => {
           width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.05)"
-          rowTickValues={[3, 6, 9, 12, 15, 18, 21]}
+          rowTickValues={GLUCOSE_LEVELS.gridValues}
         />
 
         {/* the y-axis tracks the glucose level */}
@@ -78,7 +81,7 @@ const DailyGraph = memo(props => {
           left={0}
           stroke={theme.palette.divider}
           tickStroke={theme.palette.divider}
-          tickValues={[3, 6, 9, 12, 15, 18, 21]}
+          tickValues={GLUCOSE_LEVELS.ticks}
           tickLabelProps={({ tick, index }) => ({
             dx: "-0.25em",
             dy: "0.25em",

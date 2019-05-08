@@ -15,6 +15,7 @@ import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
+import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 
 /**
  * Renders a graph of glucose levels for the following three hours after a food
@@ -68,14 +69,14 @@ const EventGraph = props => {
   }
 
   // Look for another event occurring around the same time window as the current
-  // event. This other events will get annotated in the graph.
+  // event. This other event will get annotated in the graph.
   const overlappingEvent = events.find(e => {
     return isWithinInterval(e.get("time"), lineInterval) && e !== event;
   });
 
   // Draw a graph that is sized to the viewport width
   return (
-    <div style={{ height: 180, marginBottom: 16 }}>
+    <div style={{ height: 180, marginBottom: theme.spacing.unit * 2 }}>
       <ResponsiveWrapper>
         {({ width, height }) => (
           <Graph
@@ -137,7 +138,7 @@ const Graph = props => {
 
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: [2, 10],
+    domain: GLUCOSE_LEVELS.zoomedIn.range,
     clamp: true
   });
 
@@ -156,6 +157,8 @@ const Graph = props => {
     return "middle";
   };
 
+  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.good.range;
+
   return (
     <svg
       width={width}
@@ -166,9 +169,9 @@ const Graph = props => {
         {/* green reference area designating the good glucose level ranges */}
         <rect
           x="0"
-          y={yScale(6.9)}
+          y={yScale(goodGlucoseMax)}
           width={xMax}
-          height={yScale(4) - yScale(6.9)}
+          height={yScale(goodGlucoseMin) - yScale(goodGlucoseMax)}
           style={{
             fill: "lime",
             fillOpacity: 0.06
@@ -189,7 +192,7 @@ const Graph = props => {
             twoHoursLater,
             threeHoursLater
           ]}
-          rowTickValues={[2, 4, 6, 8, 10]}
+          rowTickValues={GLUCOSE_LEVELS.zoomedIn.gridValues}
         />
 
         {/* redraw the event time and +2hr grid lines in a brighter color */}
@@ -214,7 +217,7 @@ const Graph = props => {
             fontSize: 12,
             textAnchor: "end"
           })}
-          numTicks={5}
+          tickValues={GLUCOSE_LEVELS.zoomedIn.ticks}
         />
 
         {/* the x-axis tracks time */}
