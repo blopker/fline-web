@@ -217,7 +217,6 @@ const Graph = props => {
             fontSize: 12,
             textAnchor: "end"
           })}
-          // numTicks={5}
           tickValues={GLUCOSE_LEVELS.zoomedIn.ticks}
         />
 
