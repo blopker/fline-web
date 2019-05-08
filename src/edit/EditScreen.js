@@ -32,13 +32,25 @@ const styles = theme => ({
   }
 });
 
+function getDefaultDate(selectedDate) {
+  // Returns a new date where the day is the selectedDate,
+  // but the time is the current time.
+  const currentTime = new Date();
+  const defaultDate = new Date(selectedDate);
+  defaultDate.setHours(currentTime.getHours());
+  defaultDate.setMinutes(currentTime.getMinutes());
+  return defaultDate;
+}
+
 function _EditScreen(props) {
   const { classes } = props;
   const title = props.event ? "Edit something" : "Add something";
 
   const defaultDescription = props.event ? props.event.get("event") : "";
   let [eventDescription, setEventDescription] = useState(defaultDescription);
-  const defaultTime = props.event ? props.event.get("time") : new Date();
+  const defaultTime = props.event
+    ? props.event.get("time")
+    : getDefaultDate(props.date);
 
   let [eventTime, setEventTime] = useState(defaultTime);
 

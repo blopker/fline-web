@@ -1,9 +1,5 @@
 import Dexie from "dexie";
-import devData from "./devData";
 import Immutable from "immutable";
-
-const date = new Date();
-const sdate = date.toLocaleDateString();
 
 class KeyValue {
   constructor(db) {

@@ -1,6 +1,5 @@
 import { Image } from "image-js";
 
-const white = 250;
 const black = 5;
 
 const median = arr => {
@@ -15,10 +14,6 @@ function greyImg(img) {
 
 function isBlack(px) {
   return px < black;
-}
-
-function isWhite(px) {
-  return px > white;
 }
 
 function getCrop(img) {
@@ -102,16 +97,8 @@ function getGraphData(rawData, dems) {
   }));
 }
 
-function print(img, id = "None") {
-  let el = document.createElement("img");
-  el.id = id;
-  el.width = 400;
-  document.body.append(el);
-  el.src = img.toDataURL();
-}
-
-// function chart(graphData, id = "None") {
-//   let el = document.createElement("div");
+// function print(img, id = "None") {
+//   let el = document.createElement("img");
 //   el.id = id;
 //   el.width = 400;
 //   document.body.append(el);
@@ -125,30 +112,6 @@ async function process(i) {
   let rawData = getRawData(crop);
   let graphData = getGraphData(rawData, getGraphDimentions(crop));
   return graphData;
-  // new Chartist.Line(
-  //   ".ct-chart",
-  //   { series: [graphData] },
-  //   {
-  //     width: "100%",
-  //     height: "100%",
-  //     showPoint: false,
-  //     fullWidth: true,
-  //     showArea: true,
-  //     axisX: {
-  //       high: 24,
-  //       low: 0,
-  //       type: Chartist.AutoScaleAxis,
-  //       onlyInteger: true
-  //     },
-  //     axisY: {
-  //       high: 21,
-  //       low: 0,
-  //       type: Chartist.AutoScaleAxis,
-  //       onlyInteger: true
-  //     }
-  //   }
-  // );
-  //   print(crop);
 }
 
 export default process;
