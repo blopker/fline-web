@@ -13,6 +13,10 @@ const BLOOD_GLUCOSE_LEVELS = {
     },
     zoomedIn: {
       range: [70, 160],
+
+      tickStep: 30,
+      gridStep: 15,
+
       ticks: [70, 100, 130, 160],
       gridValues: [70, 85, 100, 115, 130, 145, 160]
     }

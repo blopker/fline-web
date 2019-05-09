@@ -13,9 +13,16 @@ import { AnnotationLabel } from "react-annotation";
 import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
+import range from "lodash/range";
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
+
+const roundToNearestTickValue = (value, options = { round: "up" }) => {
+  const { tickStep, range } = GLUCOSE_LEVELS.zoomedIn;
+  const roundingFunction = options.round === "up" ? Math.ceil : Math.floor;
+  return roundingFunction((value - range[0]) / tickStep) * tickStep + range[0];
+};
 
 /**
  * Renders a graph of glucose levels for the following three hours after a food
@@ -136,9 +143,25 @@ const Graph = props => {
     domain: [oneHourEarlier, threeHoursLater]
   });
 
+  const yExtent = [
+    Math.min(...lineSeries.map(d => d.y)),
+    Math.max(...lineSeries.map(d => d.y))
+  ];
+
+  const yExtentNicelyRounded = [
+    roundToNearestTickValue(yExtent[0], { round: "down" }),
+    roundToNearestTickValue(yExtent[1], { round: "up" })
+  ];
+
+  // Favor the zoomedIn.range unless the Y-extent falls outside of the range
+  const yDomain = [
+    Math.min(GLUCOSE_LEVELS.zoomedIn.range[0], yExtentNicelyRounded[0]),
+    Math.max(GLUCOSE_LEVELS.zoomedIn.range[1], yExtentNicelyRounded[1])
+  ];
+
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: GLUCOSE_LEVELS.zoomedIn.range,
+    domain: yDomain,
     clamp: true
   });
 
@@ -192,7 +215,11 @@ const Graph = props => {
             twoHoursLater,
             threeHoursLater
           ]}
-          rowTickValues={GLUCOSE_LEVELS.zoomedIn.gridValues}
+          rowTickValues={range(
+            yDomain[0],
+            yDomain[1] + GLUCOSE_LEVELS.zoomedIn.gridStep,
+            GLUCOSE_LEVELS.zoomedIn.gridStep
+          )}
         />
 
         {/* redraw the event time and +2hr grid lines in a brighter color */}
@@ -217,7 +244,11 @@ const Graph = props => {
             fontSize: 12,
             textAnchor: "end"
           })}
-          tickValues={GLUCOSE_LEVELS.zoomedIn.ticks}
+          tickValues={range(
+            yDomain[0],
+            yDomain[1] + GLUCOSE_LEVELS.zoomedIn.tickStep,
+            GLUCOSE_LEVELS.zoomedIn.tickStep
+          )}
         />
 
         {/* the x-axis tracks time */}
