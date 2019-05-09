@@ -40,10 +40,11 @@ const DailyGraph = memo(props => {
   const yScale = scaleLinear({
     range: [yMax, 0],
     domain: GLUCOSE_LEVELS.range,
-    clamp: true
+    clamp: true,
+    nice: true
   });
 
-  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.good.range;
+  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
 
   return (
     <svg
@@ -71,7 +72,7 @@ const DailyGraph = memo(props => {
           width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.05)"
-          rowTickValues={GLUCOSE_LEVELS.gridValues}
+          numTicksRows={8}
         />
 
         {/* the y-axis tracks the glucose level */}
@@ -81,7 +82,8 @@ const DailyGraph = memo(props => {
           left={0}
           stroke={theme.palette.divider}
           tickStroke={theme.palette.divider}
-          tickValues={GLUCOSE_LEVELS.ticks}
+          hideZero
+          numTicks={4}
           tickLabelProps={({ tick, index }) => ({
             dx: "-0.25em",
             dy: "0.25em",
