@@ -42,6 +42,11 @@ const EventGraph = props => {
     end: times.threeHoursLater
   };
 
+  const lineIntervalAfterEvent = {
+    start: times.eventTime,
+    end: times.threeHoursLater
+  };
+
   const areaInterval = {
     start: times.eventTime,
     end: times.twoHoursLater
@@ -71,7 +76,7 @@ const EventGraph = props => {
   // Look for another event occurring around the same time window as the current
   // event. This other event will get annotated in the graph.
   const overlappingEvent = events.find(e => {
-    return isWithinInterval(e.get("time"), lineInterval) && e !== event;
+    return isWithinInterval(e.get("time"), lineIntervalAfterEvent) && e !== event;
   });
 
   // Draw a graph that is sized to the viewport width
