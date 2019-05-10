@@ -6,30 +6,14 @@ const BLOOD_GLUCOSE_LEVELS = {
   "mg/dL": {
     unit: "mg/dL",
     range: [0, 350],
-    ticks: [100, 200, 300],
-    gridValues: [0, 50, 100, 150, 200, 250, 300, 350],
-    good: {
-      range: [72, 126]
-    },
-    zoomedIn: {
-      range: [70, 160],
-      ticks: [70, 100, 130, 160],
-      gridValues: [70, 85, 100, 115, 130, 145, 160]
-    }
+    goodRange: [72, 126],
+    croppedRange: [70, 160]
   },
   "mmol/L": {
     unit: "mmol/L",
     range: [0, 21],
-    ticks: [3, 6, 9, 12, 15, 18, 21],
-    gridValues: [3, 6, 9, 12, 15, 18, 21],
-    good: {
-      range: [4, 6.9]
-    },
-    zoomedIn: {
-      range: [2, 10],
-      ticks: [2, 4, 6, 8, 10],
-      gridValues: [2, 4, 6, 8, 10]
-    }
+    goodRange: [4, 6.9],
+    croppedRange: [2, 10]
   }
 };
 

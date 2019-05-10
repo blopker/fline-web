@@ -13,6 +13,7 @@ import { AnnotationLabel } from "react-annotation";
 import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
+import range from "lodash/range";
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
@@ -22,7 +23,7 @@ import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
  * log entry, and one hour prior.
  */
 
-const EventGraph = props => {
+const EventGraph = memo(props => {
   const { event, day, theme } = props;
 
   const eventTime = event.get("time");
@@ -97,13 +98,13 @@ const EventGraph = props => {
       </ResponsiveWrapper>
     </div>
   );
-};
+});
 
 /**
  * The Graph helper component does the SVG heavy lifting.
  */
 
-const Graph = props => {
+const Graph = memo(props => {
   const { width, height, lineSeries, areaSeries, theme, annotation } = props;
 
   if (!(width && height)) {
@@ -130,6 +131,7 @@ const Graph = props => {
   };
 
   if (annotation) {
+    // Make additional room for the annotated text
     margin.top = theme.spacing.unit * 4;
   }
 
@@ -141,11 +143,36 @@ const Graph = props => {
     domain: [oneHourEarlier, threeHoursLater]
   });
 
+  const yExtent = [
+    Math.min(...lineSeries.map(d => d.y)),
+    Math.max(...lineSeries.map(d => d.y))
+  ];
+
+  // Favor a more focused scale that is cropped around the good glucose levels,
+  // but always ensure that the scale's domain fully fits the Y extent
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: GLUCOSE_LEVELS.zoomedIn.range,
-    clamp: true
+    domain: [
+      Math.min(GLUCOSE_LEVELS.croppedRange[0], yExtent[0]),
+      Math.max(GLUCOSE_LEVELS.croppedRange[1], yExtent[1])
+    ],
+    clamp: true,
+    nice: true
   });
+
+  const preferredNumberOfTicks = 4;
+  let yTicks = yScale.ticks(preferredNumberOfTicks);
+  let yGridLines = yScale.ticks(preferredNumberOfTicks);
+
+  // If D3 doesn't generate four ticks, attempt to do better manually
+  if (yTicks.length !== preferredNumberOfTicks) {
+    const [domainMin, domainMax] = yScale.domain();
+    const stepValue = (domainMax - domainMin) / (preferredNumberOfTicks - 1);
+    if (Number.isInteger(stepValue)) {
+      yTicks = range(domainMin, domainMax + stepValue, stepValue);
+      yGridLines = range(domainMin, domainMax + stepValue / 2, stepValue / 2);
+    }
+  }
 
   const getAnnotationAlignment = () => {
     // Keep the annotation's text from overflowing off the edges of the graph
@@ -162,7 +189,7 @@ const Graph = props => {
     return "middle";
   };
 
-  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.good.range;
+  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
 
   return (
     <svg
@@ -197,7 +224,7 @@ const Graph = props => {
             twoHoursLater,
             threeHoursLater
           ]}
-          rowTickValues={GLUCOSE_LEVELS.zoomedIn.gridValues}
+          tickValues={yGridLines}
         />
 
         {/* redraw the event time and +2hr grid lines in a brighter color */}
@@ -214,6 +241,7 @@ const Graph = props => {
           top={0}
           left={0}
           stroke={theme.palette.divider}
+          tickValues={yTicks}
           tickStroke={theme.palette.divider}
           tickLabelProps={({ tick, index }) => ({
             dx: "-0.25em",
@@ -222,7 +250,6 @@ const Graph = props => {
             fontSize: 12,
             textAnchor: "end"
           })}
-          tickValues={GLUCOSE_LEVELS.zoomedIn.ticks}
         />
 
         {/* the x-axis tracks time */}
@@ -300,7 +327,7 @@ const Graph = props => {
       </Group>
     </svg>
   );
-};
+});
 
 EventGraph.propTypes = {
   day: PropTypes.object.isRequired,
@@ -317,4 +344,4 @@ Graph.propTypes = {
   width: PropTypes.number
 };
 
-export default withTheme()(memo(EventGraph));
+export default withTheme()(EventGraph);
