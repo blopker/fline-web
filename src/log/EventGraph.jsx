@@ -23,7 +23,7 @@ import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
  * log entry, and one hour prior.
  */
 
-const EventGraph = props => {
+const EventGraph = memo(props => {
   const { event, day, theme } = props;
 
   const eventTime = event.get("time");
@@ -93,13 +93,13 @@ const EventGraph = props => {
       </ResponsiveWrapper>
     </div>
   );
-};
+});
 
 /**
  * The Graph helper component does the SVG heavy lifting.
  */
 
-const Graph = props => {
+const Graph = memo(props => {
   const { width, height, lineSeries, areaSeries, theme, annotation } = props;
 
   if (!(width && height)) {
@@ -322,7 +322,7 @@ const Graph = props => {
       </Group>
     </svg>
   );
-};
+});
 
 EventGraph.propTypes = {
   day: PropTypes.object.isRequired,
@@ -339,4 +339,4 @@ Graph.propTypes = {
   width: PropTypes.number
 };
 
-export default withTheme()(memo(EventGraph));
+export default withTheme()(EventGraph);
