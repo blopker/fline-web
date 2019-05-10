@@ -13,6 +13,7 @@ import { AnnotationLabel } from "react-annotation";
 import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
+import range from "lodash/range";
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
@@ -125,6 +126,7 @@ const Graph = props => {
   };
 
   if (annotation) {
+    // Make additional room for the annotated text
     margin.top = theme.spacing.unit * 4;
   }
 
@@ -141,18 +143,31 @@ const Graph = props => {
     Math.max(...lineSeries.map(d => d.y))
   ];
 
-  // Favor a cropped view, but always expand to fit the full Y extent
-  const yDomain = [
-    Math.min(GLUCOSE_LEVELS.croppedRange[0], yExtent[0]),
-    Math.max(GLUCOSE_LEVELS.croppedRange[1], yExtent[1])
-  ];
-
+  // Favor a more focused scale that is cropped around the good glucose levels,
+  // but always ensure that the scale's domain fully fits the Y extent
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: yDomain,
+    domain: [
+      Math.min(GLUCOSE_LEVELS.croppedRange[0], yExtent[0]),
+      Math.max(GLUCOSE_LEVELS.croppedRange[1], yExtent[1])
+    ],
     clamp: true,
     nice: true
   });
+
+  const preferredNumberOfTicks = 4;
+  let yTicks = yScale.ticks(preferredNumberOfTicks);
+  let yGridLines = yScale.ticks(preferredNumberOfTicks);
+
+  // If D3 doesn't generate four ticks, attempt to do better manually
+  if (yTicks.length !== preferredNumberOfTicks) {
+    const [domainMin, domainMax] = yScale.domain();
+    const stepValue = (domainMax - domainMin) / (preferredNumberOfTicks - 1);
+    if (Number.isInteger(stepValue)) {
+      yTicks = range(domainMin, domainMax + stepValue, stepValue);
+      yGridLines = range(domainMin, domainMax + stepValue / 2, stepValue / 2);
+    }
+  }
 
   const getAnnotationAlignment = () => {
     // Keep the annotation's text from overflowing off the edges of the graph
@@ -204,7 +219,7 @@ const Graph = props => {
             twoHoursLater,
             threeHoursLater
           ]}
-          numTicksRows={4}
+          tickValues={yGridLines}
         />
 
         {/* redraw the event time and +2hr grid lines in a brighter color */}
@@ -221,7 +236,7 @@ const Graph = props => {
           top={0}
           left={0}
           stroke={theme.palette.divider}
-          numTicks={4}
+          tickValues={yTicks}
           tickStroke={theme.palette.divider}
           tickLabelProps={({ tick, index }) => ({
             dx: "-0.25em",
