@@ -6,15 +6,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import Theme from "./Theme";
 import initDB from "./db";
 import Immutable from "immutable";
-// import process from "./digitizer";
 
-import * as Sentry from "@sentry/browser";
-
-if (process.env.NODE_ENV === "production") {
-  Sentry.init({
-    dsn: "https://0c534e386e7e4f27bf3e13c28dec0575@sentry.io/1454732"
-  });
-}
 
 const db = initDB();
 

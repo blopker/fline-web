@@ -15,6 +15,7 @@
     "@vx/shape": "0.0.184",
     "date-fns": "^2.0.0-alpha.27",
     "dexie": "^2.0.4",
+    "firebase": "^6.0.2",
     "image-js": "^0.21.6",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.11",
