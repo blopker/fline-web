@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Edit from "./edit/EditScreen";
 import Log from "./log/LogScreen";
+import DigitizerTest from "./testDigitizer/DigitizerTest";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Theme from "./Theme";
 import Immutable from "immutable";
@@ -88,6 +89,7 @@ function App(props) {
             );
           }}
         />
+        <Route exact path="/test/" render={() => <DigitizerTest />} />
       </Theme>
     </Router>
   );

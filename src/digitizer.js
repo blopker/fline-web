@@ -1,8 +1,15 @@
 import { Image } from "image-js";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "./constants";
 
+let _debug = false;
 const black = 5;
 const [glucoseMin, glucoseMax] = GLUCOSE_LEVELS.range;
+
+function log(msg) {
+  if (_debug) {
+    console.log(msg);
+  }
+}
 
 const median = arr => {
   const mid = Math.floor(arr.length / 2),
@@ -19,21 +26,45 @@ function isBlack(px) {
 }
 
 function getCrop(img) {
-  let maxC = 0;
+  // Image is color inverted at this point.
+  // Grab the first column of the image and start in the middle.
+  // Go up until you find the first non-black pixel, that's the top.
+  // Start in the middle again, go down until the first non-black pixel. That's the bottom.
+  // Get the row that's 2 pixels above the bottom you found and find the first non-black
+  // pixel to the right. That's the width.
+  // column[0] is the top left.
+  const column = img.getColumn(1);
+  const columnLength = column.length;
+  const columnMid = Math.floor(columnLength / 2);
+  let maxC = columnLength;
   let minC = null;
-  img.getColumn(1).forEach((px, i) => {
-    if (isBlack(px)) {
-      minC = minC || i;
-      maxC = i;
+
+  for (let i = columnMid; i < columnLength; i++) {
+    let px = column[i];
+    if (!isBlack(px)) {
+      maxC = i - 2;
+      break;
     }
-  });
+  }
+
+  for (let i = columnMid; i > 0; i--) {
+    let px = column[i];
+    if (!isBlack(px)) {
+      minC = i + 2;
+      break;
+    }
+  }
+
   let maxR = null;
-  img.getRow(maxC - 2).forEach((px, i) => {
+  img.getRow(maxC - 1).forEach((px, i) => {
     if (isBlack(px)) {
       maxR = i;
     }
   });
-  return img.crop({ y: minC, height: maxC - minC, width: maxR });
+  const crop = { y: minC, height: maxC - minC, width: maxR };
+  log("Crop:");
+  log(crop);
+  return img.crop(crop);
 }
 
 function isLine(pxs) {
@@ -67,14 +98,14 @@ function getGraphDimensions(img) {
 }
 
 function getRawData(img) {
-  img = img
-    .mask()
+  const maskImg = img
+    .mask({ threshold: 0.7 })
     .rgba8()
     .grey();
-  img = img.erode({ iterations: 2 });
+  const erodeImg = maskImg.erode({ iterations: 2 });
   const data = [];
-  for (let index = 0; index < img.width; index++) {
-    const column = img
+  for (let index = 0; index < erodeImg.width; index++) {
+    const column = erodeImg
       .getColumn(index)
       .map((v, i) => (v > 10 ? i : -1))
       .filter(a => a > 0);
@@ -85,7 +116,7 @@ function getRawData(img) {
   }
   // console.log(data);
   // print(img);
-  return data;
+  return { rawData: data, erodeImg, maskImg };
 }
 
 function map_coord(x, in_min, in_max, out_min, out_max) {
@@ -99,21 +130,19 @@ function getGraphData(rawData, dems) {
   }));
 }
 
-// function print(img, id = "None") {
-//   let el = document.createElement("img");
-//   el.id = id;
-//   el.width = 400;
-//   document.body.append(el);
-//   el.src = img.toDataURL();
-// }
-
-async function process(i) {
+async function process(i, debug) {
+  _debug = debug;
   let image = await Image.load(i);
+  log(`Processing: ${i}`);
   let grey = greyImg(image.rgba8()).invert();
   let crop = getCrop(grey);
-  let rawData = getRawData(crop);
+  let { rawData, erodeImg, maskImg } = getRawData(crop);
   let graphData = getGraphData(rawData, getGraphDimensions(crop));
-  return graphData;
+  if (debug) {
+    return { image, grey, crop, erodeImg, maskImg, rawData, graphData };
+  } else {
+    return graphData;
+  }
 }
 
 export default process;
