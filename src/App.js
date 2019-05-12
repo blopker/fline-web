@@ -4,13 +4,10 @@ import Edit from "./edit/EditScreen";
 import Log from "./log/LogScreen";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Theme from "./Theme";
-import initDB from "./db";
 import Immutable from "immutable";
 
-
-const db = initDB();
-
-function App() {
+function App(props) {
+  const { db } = props;
   const [date, setDate] = useState(new Date());
   const [day, setDay] = useState();
 
@@ -20,7 +17,7 @@ function App() {
       setDay(day);
     }
     getDay();
-  }, [date]);
+  }, [date, db]);
 
   async function saveDay(newDay) {
     await db.days.set(date.toLocaleDateString(), newDay);

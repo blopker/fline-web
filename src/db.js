@@ -16,7 +16,9 @@ class KeyValue {
     let entry = await this.db
       .table(this.tableName)
       .where({ key })
-      .first();
+      .first()
+      .catch(() => {});
+
     if (entry === undefined) {
       return entry;
     }
@@ -41,9 +43,6 @@ class Days extends KeyValue {
     this.tableName = "days";
   }
   async get(key) {
-    // if (key === sdate) {
-    //   return devData.test;
-    // }
     let day = await super.get(key);
     if (!day) {
       return Immutable.fromJS({ graph: [], events: [] });

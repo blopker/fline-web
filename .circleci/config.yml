@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - checkout
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
