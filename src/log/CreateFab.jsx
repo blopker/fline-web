@@ -1,10 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import curlArrow from "./curlyArrow.png";
+import EditDialog from "../edit/EditDialog";
 
 const styles = theme => ({
   fab: {
@@ -56,21 +56,41 @@ function _IntroFabInstructions(props) {
 
 let IntroFabInstructions = withStyles(instructionStyles)(_IntroFabInstructions);
 
-function FloatingEditButton(props) {
-  const { classes } = props;
+function _FloatingEditButton(props) {
+  const { classes, date, addEvent } = props;
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpen = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <div className={classes.fab}>
       {props.initialState === true && <IntroFabInstructions />}
-      <Link to="/create/">
-        <Fab className={classes.fabButton} color="primary" aria-label="Edit">
-          <AddIcon />
-        </Fab>
-      </Link>
+      <Fab
+        className={classes.fabButton}
+        color="primary"
+        aria-label="Edit"
+        onClick={handleOpen}
+      >
+        <AddIcon />
+      </Fab>
+      {isDialogOpen && (
+        <EditDialog
+          isOpen={isDialogOpen}
+          handleClose={handleClose}
+          date={date}
+          addEvent={addEvent}
+        />
+      )}
     </div>
   );
 }
 
-let WrapFloatingEditButton = withStyles(styles)(FloatingEditButton);
+let FloatingEditButton = withStyles(styles)(_FloatingEditButton);
 
-export default WrapFloatingEditButton;
+export default FloatingEditButton;

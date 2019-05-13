@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "./AppBar";
-import FloatingEditButton from "./Fab";
+import CreateFab from "./CreateFab";
 import List from "@material-ui/core/List";
 import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
 import EventListItem from "./EventListItem";
@@ -15,14 +15,23 @@ const styles = theme => ({
 });
 
 function LogScreen(props) {
-  const { classes, day, date, setDate, addGraph } = props;
+  const { classes, day, date, setDate, addGraph, addEvent } = props;
   if (!day) {
     return <div>Loading...</div>;
   }
 
   const els = day
     .get("events")
-    .map((e, i) => <EventListItem key={i} eventID={i} event={e} day={day} />);
+    .map((e, i) => (
+      <EventListItem
+        key={i}
+        eventID={i}
+        event={e}
+        day={day}
+        addEvent={addEvent}
+        date={date}
+      />
+    ));
 
   return (
     <>
@@ -35,7 +44,11 @@ function LogScreen(props) {
           </List>
         </>
       )}
-      <FloatingEditButton initialState={els.size === 0} />
+      <CreateFab
+        initialState={els.size === 0}
+        addEvent={addEvent}
+        date={date}
+      />
     </>
   );
 }

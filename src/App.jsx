@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Edit from "./edit/EditScreen";
 import Log from "./log/LogScreen";
 import DigitizerTest from "./testDigitizer/DigitizerTest";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -66,28 +65,14 @@ function App(props) {
           exact
           path="/"
           render={() => (
-            <Log day={day} date={date} setDate={setDate} addGraph={addGraph} />
+            <Log
+              day={day}
+              date={date}
+              setDate={setDate}
+              addGraph={addGraph}
+              addEvent={addEvent}
+            />
           )}
-        />
-        <Route
-          exact
-          path="/create/"
-          render={() => <Edit date={date} addEvent={addEvent} />}
-        />
-        <Route
-          exact
-          path="/edit/:id"
-          render={history => {
-            let match = parseInt(history.match.params.id, 10);
-            return (
-              <Edit
-                eventID={match}
-                event={day.get("events").get(match)}
-                date={date}
-                addEvent={addEvent}
-              />
-            );
-          }}
         />
         <Route exact path="/test/" render={() => <DigitizerTest />} />
       </Theme>

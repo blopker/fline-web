@@ -5,8 +5,14 @@ import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { withRouter } from "react-router-dom";
+import Slide from "@material-ui/core/Slide";
+import Dialog from "@material-ui/core/Dialog";
 
 import TimePicker from "./TimePicker";
+
+const SlideUp = props => (
+  <Slide unmountOnExit={true} direction="up" {...props} />
+);
 
 const styles = theme => ({
   subtitle: {
@@ -43,18 +49,18 @@ function getDefaultDate(selectedDate) {
 }
 
 function _EditScreen(props) {
-  const { classes } = props;
+  const { classes, isOpen, handleClose, date } = props;
   const title = props.event ? "Edit something" : "Add something";
 
   const defaultDescription = props.event ? props.event.get("event") : "";
   let [eventDescription, setEventDescription] = useState(defaultDescription);
+
   const defaultTime = props.event
     ? props.event.get("time")
-    : getDefaultDate(props.date);
-
+    : getDefaultDate(date);
   let [eventTime, setEventTime] = useState(defaultTime);
-
   let [error, setError] = useState(false);
+
   let submit = e => {
     e.preventDefault();
     if (!eventDescription) {
@@ -69,14 +75,19 @@ function _EditScreen(props) {
         },
         props.eventID
       );
-      props.history.replace("/");
+      handleClose();
     }
     doit();
   };
 
   return (
-    <>
-      <AppBar title={title} />
+    <Dialog
+      fullScreen
+      open={isOpen}
+      onClose={handleClose}
+      TransitionComponent={SlideUp}
+    >
+      <AppBar title={title} handleClose={handleClose} />
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
           <Typography
@@ -124,7 +135,7 @@ function _EditScreen(props) {
           </Button>
         </form>
       </div>
-    </>
+    </Dialog>
   );
 }
 
