@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Database Backup</title>
+    <style>
+      button {
+        font-size: 18px;
+      }
+      #dropzone {
+        width: 600px;
+        height: 20px;
+        border: 2px dotted #bbb;
+        border-radius: 10px;
+        padding: 35px;
+        color: #bbb;
+        text-align: center;
+      }
+      table {
+        text-align: left;
+      }
+      textarea {
+        width: 100%;
+        height: 300px;
+      }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js"></script>
+    <script src="https://unpkg.com/dexie-export-import"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+
+    <script>
+      // Declare Database this should match one-to-one with whats declared in src\db.js
+      var db = new Dexie("Fline");
+      db.version(1).stores({
+        days: "&key",
+        settings: "&key"
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const dropZoneDiv = document.getElementById("dropzone");
+        const exportLink = document.getElementById("exportLink");
+        const outputLog = document.getElementById("outputLog");
+        const log = msg => {
+          outputLog.value += `${msg}\n`;
+        };
+
+        showInfo().catch(log);
+
+        const progressCallback = ({ totalRows, completedRows }) => {
+          log(`Progress: ${completedRows} of ${totalRows} rows processed`);
+        };
+
+        // Configure exportLink
+        exportLink.onclick = async () => {
+          try {
+            const fileName = `fline-export-${new Date().toISOString()}.json`;
+            log(`Starting export`);
+            const blob = await db.export({
+              prettyJson: true,
+              progressCallback
+            });
+            download(blob, fileName, "application/json");
+            log(`Export completed -> ${fileName}`);
+          } catch (error) {
+            log(error);
+          }
+        };
+
+        // Configure dropZoneDiv
+        dropZoneDiv.ondragover = event => {
+          event.stopPropagation();
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "copy";
+        };
+
+        // Handle file drop:
+        dropZoneDiv.ondrop = async ev => {
+          ev.stopPropagation();
+          ev.preventDefault();
+
+          // Pick the File from the drop event (a File is also a Blob):
+          const file = ev.dataTransfer.files[0];
+          try {
+            if (!file) throw new Error(`Only files can be dropped here`);
+            log("Importing " + file.name);
+            await db.delete();
+            db = await Dexie.import(file, {
+              progressCallback
+            });
+            log("Import completed");
+            await showInfo();
+          } catch (error) {
+            log(error);
+          }
+        };
+      });
+
+      async function showInfo() {
+        const tbody = document.getElementsByTagName("tbody")[0];
+
+        const tables = await Promise.all(
+          db.tables.map(async table => ({
+            name: table.name,
+            count: await table.count(),
+            primKey: table.schema.primKey.src
+          }))
+        );
+
+        tbody.innerHTML = `
+          <tr>
+            <th>Database</th>
+            <td colspan="2">${db.name} v${db.verno}</th>
+          </tr>
+          ${tables
+            .map(
+              ({ name, count, primKey }) => `
+            <tr>
+              <th>Table: "${name}"</th>
+              <td>Primary Key: ${primKey}</td>
+              <td>Row count: ${count}</td>
+            </tr>`
+            )
+            .join("")}
+        `;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Import/Export Database</h1>
+
+    <section>
+      <h3>Database Info</h3>
+      <table border="1">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Export</h3>
+      <p>
+        <button id="exportLink">Click here to export the database</button>
+      </p>
+      <h3>Import</h3>
+      <div id="dropzone">
+        Drop JSON file here to import
+      </div>
+    </section>
+
+    <section>
+      <h3>Console</h3>
+      <textarea id="outputLog" disabled></textarea>
+    </section>
+  </body>
+</html>
