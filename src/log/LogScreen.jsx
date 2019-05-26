@@ -83,7 +83,7 @@ function LogScreen(props) {
 
   return (
     <>
-      <AppBar setDate={setDate} date={date} />
+      <AppBar setDate={setDate} date={date} menu={props.menu} />
       {logEntriesExist && (
         <>
           <ImportGlucoseDataBanner hasImportedAlready={hasImportedAlready} />
@@ -143,7 +143,8 @@ LogScreen.propTypes = {
   classes: PropTypes.object.isRequired,
   date: PropTypes.object.isRequired,
   setDate: PropTypes.func.isRequired,
-  routeProps: PropTypes.object.isRequired
+  routeProps: PropTypes.object.isRequired,
+  menu: PropTypes.element.isRequired
 };
 
 export default withStyles(styles)(LogScreen);

@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { exportDB } from "dexie-export-import";
 
 const db = new Dexie("Fline");
 
@@ -67,4 +68,10 @@ db.bloodGlucoseLevels.defineClass({
   level: Number
 });
 
-export { db };
+async function exportData() {
+  return await exportDB(db, {
+    prettyJson: true
+  });
+}
+
+export { db, exportData };

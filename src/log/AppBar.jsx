@@ -5,14 +5,16 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/CalendarToday";
+import CalendarTodayIcon from "@material-ui/icons/CalendarToday";
+
 import ArrowBack from "@material-ui/icons/ArrowBackIos";
 import ArrowForward from "@material-ui/icons/ArrowForwardIos";
 import DayPicker from "./DayPicker";
 
 const styles = theme => ({
   grow: {
-    flexGrow: 1
+    flexGrow: 1,
+    textAlign: "center"
   },
   inline: {
     display: "inline-block"
@@ -62,9 +64,7 @@ function ButtonAppBar(props) {
     <>
       <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6" color="inherit" className={classes.grow}>
-            Fline
-          </Typography>
+          {props.menu}
           <div className={classes.grow}>
             <IconButton
               onClick={onLastDate}
@@ -95,7 +95,7 @@ function ButtonAppBar(props) {
             aria-label="Day Picker"
             onClick={toggleCalendar}
           >
-            <MenuIcon />
+            <CalendarTodayIcon />
           </IconButton>
           <DayPicker
             isOpen={isOpen}
@@ -111,7 +111,8 @@ function ButtonAppBar(props) {
 }
 
 ButtonAppBar.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  menu: PropTypes.element.isRequired
 };
 
 export default withStyles(styles)(ButtonAppBar);

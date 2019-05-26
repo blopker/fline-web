@@ -32,7 +32,12 @@ const renderWithProviders = (ui, options) =>
 describe("LogScreen", () => {
   test("shows an intro message if the log is empty", async () => {
     const { findByText } = renderWithProviders(
-      <LogScreen date={new Date()} setDate={jest.fn()} routeProps={{}} />
+      <LogScreen
+        menu={<div />}
+        date={new Date()}
+        setDate={jest.fn()}
+        routeProps={{}}
+      />
     );
     await findByText(/log what happened today/i);
   });
@@ -44,6 +49,7 @@ describe("LogScreen", () => {
     });
     const { getByText, queryByText } = renderWithProviders(
       <LogScreen
+        menu={<div />}
         date={new Date("2019-07-04T00:00")}
         setDate={jest.fn()}
         routeProps={{}}
@@ -60,6 +66,7 @@ describe("LogScreen", () => {
     });
     const { getByText } = renderWithProviders(
       <LogScreen
+        menu={<div />}
         date={new Date("2019-07-04T00:00")}
         setDate={jest.fn()}
         routeProps={{}}
@@ -71,7 +78,12 @@ describe("LogScreen", () => {
 
   test("hides the import banner when the log is empty", async () => {
     const { getByText, queryByText } = renderWithProviders(
-      <LogScreen date={new Date()} setDate={jest.fn()} routeProps={{}} />
+      <LogScreen
+        menu={<div />}
+        date={new Date()}
+        setDate={jest.fn()}
+        routeProps={{}}
+      />
     );
     await waitForElementToBeRemoved(() => getByText(/loading/i));
     expect(queryByText(/add your glucose data/)).not.toBeInTheDocument();
@@ -115,7 +127,12 @@ describe("LogScreen", () => {
       queryByText,
       rerender
     } = renderWithProviders(
-      <LogScreen date={fourthOfJuly} setDate={jest.fn()} routeProps={{}} />
+      <LogScreen
+        menu={<div />}
+        date={fourthOfJuly}
+        setDate={jest.fn()}
+        routeProps={{}}
+      />
     );
     // Check that both "4th of July" entries are contained in the log
     await waitForElementToBeRemoved(() => getByText(/loading/i));
@@ -126,7 +143,12 @@ describe("LogScreen", () => {
     // Switch the log screen to Halloween
     const halloween = new Date("2019-10-31T00:00");
     rerender(
-      <LogScreen date={halloween} setDate={jest.fn()} routeProps={{}} />
+      <LogScreen
+        menu={<div />}
+        date={halloween}
+        setDate={jest.fn()}
+        routeProps={{}}
+      />
     );
     //Check that there are now two "Halloween" entries
     expect(await findAllByText(/Halloween/i)).toHaveLength(2);
@@ -136,7 +158,12 @@ describe("LogScreen", () => {
     // Finally, switch to Thanksgiving
     const thanksgiving = new Date("2019-11-28T00:00");
     rerender(
-      <LogScreen date={thanksgiving} setDate={jest.fn()} routeProps={{}} />
+      <LogScreen
+        menu={<div />}
+        date={thanksgiving}
+        setDate={jest.fn()}
+        routeProps={{}}
+      />
     );
     //Check that there are two "Thanksgiving" entries
     expect(await findAllByText(/Thanksgiving/i)).toHaveLength(2);
@@ -165,6 +192,7 @@ describe("LogScreen", () => {
     ]);
     const { getByText, getAllByTestId } = renderWithProviders(
       <LogScreen
+        menu={<div />}
         date={new Date("2019-01-01T00:00")}
         setDate={jest.fn()}
         routeProps={{}}
@@ -190,6 +218,7 @@ describe("LogScreen", () => {
       <Route
         render={routeProps => (
           <LogScreen
+            menu={<div />}
             date={new Date()}
             setDate={jest.fn()}
             routeProps={routeProps}
@@ -231,6 +260,7 @@ describe("LogScreen", () => {
       <Route
         render={routeProps => (
           <LogScreen
+            menu={<div />}
             date={new Date("2019-07-04T00:00")}
             setDate={jest.fn()}
             routeProps={routeProps}

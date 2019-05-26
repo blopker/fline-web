@@ -10,6 +10,8 @@ import { startOfDay } from "date-fns";
 import Theme from "./Theme";
 import LogScreen from "./log/LogScreen";
 import { DatabaseProvider } from "./databaseContext";
+import AppMenu from "./menu/Menu";
+import { exportData } from "./db";
 
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
@@ -21,6 +23,8 @@ function App(props) {
     const initialState = startOfDay(new Date());
     return initialState;
   });
+
+  const menu = <AppMenu export={exportData} />;
 
   return (
     <Theme>
@@ -36,6 +40,7 @@ function App(props) {
                     date={date}
                     setDate={setDate}
                     routeProps={routeProps}
+                    menu={menu}
                   />
                 )}
               />

@@ -5,15 +5,14 @@ import AppBar from "../AppBar";
 describe("AppBar", () => {
   test("renders the app title", () => {
     const { getByText } = render(
-      <AppBar date={new Date()} setDate={jest.fn()} />
+      <AppBar date={new Date()} menu={<div />} setDate={jest.fn()} />
     );
-    getByText("Fline");
   });
 
   test("renders the selected date using en-US locale", () => {
     const fourthOfJuly = new Date("2019-07-04T00:00");
     const { getByText } = render(
-      <AppBar date={fourthOfJuly} setDate={jest.fn()} />
+      <AppBar menu={<div />} date={fourthOfJuly} setDate={jest.fn()} />
     );
     getByText("7/4/2019");
   });
@@ -23,7 +22,7 @@ describe("AppBar", () => {
     const mockSetDate = jest.fn(cb => (date = cb(date)));
 
     const { getByLabelText } = render(
-      <AppBar date={date} setDate={mockSetDate} />
+      <AppBar menu={<div />} date={date} setDate={mockSetDate} />
     );
 
     const prevButton = getByLabelText(/previous date/i);
@@ -42,7 +41,7 @@ describe("AppBar", () => {
     const mockSetDate = jest.fn(cb => (date = cb(date)));
 
     const { getByLabelText } = render(
-      <AppBar date={date} setDate={mockSetDate} />
+      <AppBar menu={<div />} date={date} setDate={mockSetDate} />
     );
 
     const nextButton = getByLabelText(/next date/i);
@@ -58,7 +57,7 @@ describe("AppBar", () => {
 
   test("clicking the calendar button opens a day picker", () => {
     const { getByLabelText, getByTestId } = render(
-      <AppBar date={new Date()} setDate={jest.fn()} />
+      <AppBar menu={<div />} date={new Date()} setDate={jest.fn()} />
     );
     const calendarButton = getByLabelText("Day Picker");
     fireEvent.click(calendarButton);
