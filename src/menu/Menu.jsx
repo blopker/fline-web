@@ -29,6 +29,7 @@ function AppMenu(props) {
   }
 
   const { classes } = props;
+  const version = (process.env["REACT_APP_COMMIT_REF"] || "dev").slice(0, 7);
 
   const sideList = (
     <div className={classes.list}>
@@ -38,6 +39,11 @@ function AppMenu(props) {
         </ListItem>
       </List>
       <Divider />
+      <List>
+        <ListItem key="100">
+          <ListItemText primary={`Version: ${version}`} />
+        </ListItem>
+      </List>
     </div>
   );
 
