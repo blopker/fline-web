@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import Typography from "@material-ui/core/Typography";
@@ -6,7 +7,6 @@ import { withStyles } from "@material-ui/core/styles";
 import orange from "@material-ui/core/colors/orange";
 import teal from "@material-ui/core/colors/teal";
 import crescentMoon from "./crescentMoon.png";
-import ImportDialog from "./../import/ImportDialog";
 import CheckIcon from "@material-ui/icons/Check";
 
 const styles = theme => ({
@@ -43,20 +43,10 @@ const styles = theme => ({
  * data. Clicking on the banner brings up the ImportDialog.
  */
 const ImportGlucoseDataBanner = props => {
-  const { classes, day, addGraph } = props;
-  const dataExists = day.get("graph").size > 0;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsDialogOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsDialogOpen(false);
-  };
+  const { classes, hasImportedAlready } = props;
 
   let colorClassName, image, copy;
-  if (dataExists) {
+  if (hasImportedAlready) {
     image = <CheckIcon className={classes.checkIcon} />;
     copy = "Glucose data imported";
     colorClassName = classes.tealBanner;
@@ -70,27 +60,21 @@ const ImportGlucoseDataBanner = props => {
     <>
       <ButtonBase
         className={`${classes.banner} ${colorClassName}`}
-        onClick={handleOpen}
         focusRipple
+        component={props => <Link to={"/log/import"} {...props} />}
       >
         {image}
         <Typography variant="subtitle2" className={classes.text}>
           {copy}
         </Typography>
       </ButtonBase>
-      <ImportDialog
-        isOpen={isDialogOpen}
-        handleClose={handleClose}
-        day={day}
-        addGraph={addGraph}
-      />
     </>
   );
 };
 
 ImportGlucoseDataBanner.propTypes = {
-  day: PropTypes.object.isRequired,
-  addGraph: PropTypes.func.isRequired
+  classes: PropTypes.object.isRequired,
+  hasImportedAlready: PropTypes.bool
 };
 
 export default withStyles(styles)(ImportGlucoseDataBanner);

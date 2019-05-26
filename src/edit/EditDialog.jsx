@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import AppBar from "./AppBar";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -30,7 +31,7 @@ const styles = theme => ({
     color: theme.palette.text.secondary
   },
   textBox: {
-    marginBotttom: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     height: "100px"
   },
   timeBox: {
@@ -43,51 +44,59 @@ function getDefaultDate(selectedDate) {
   // but the time is the current time.
   const currentTime = new Date();
   const defaultDate = new Date(selectedDate);
-  defaultDate.setHours(currentTime.getHours());
-  defaultDate.setMinutes(currentTime.getMinutes());
+  defaultDate.setHours(currentTime.getHours(), currentTime.getMinutes(), 0, 0);
   return defaultDate;
 }
 
 function _EditScreen(props) {
-  const { classes, isOpen, handleClose, date } = props;
-  const title = props.event ? "Edit something" : "Add something";
+  const { classes, isOpen, onClose, date, entry, saveEntry } = props;
 
-  const defaultDescription = props.event ? props.event.get("event") : "";
-  let [eventDescription, setEventDescription] = useState(defaultDescription);
+  const [title, setTitle] = useState(
+    entry ? "Edit something" : "Add something"
+  );
+  const [entryDescription, setEntryDescription] = useState(
+    entry ? entry.description : ""
+  );
+  const [entryTime, setEntryTime] = useState(
+    entry ? entry.date : getDefaultDate(date)
+  );
+  const [error, setError] = useState(false);
 
-  const defaultTime = props.event
-    ? props.event.get("time")
-    : getDefaultDate(date);
-  let [eventTime, setEventTime] = useState(defaultTime);
-  let [error, setError] = useState(false);
+  // Reset the dialog state back to default values each time it is opened
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(entry ? "Edit something" : "Add something");
+      setEntryDescription(entry ? entry.description : "");
+      setEntryTime(entry ? entry.date : getDefaultDate(date));
+      setError(false);
+    }
+  }, [isOpen, entry, date]);
 
-  let submit = e => {
+  const submit = async e => {
     e.preventDefault();
-    if (!eventDescription) {
+    if (!entryDescription) {
       setError(true);
       return;
     }
-    async function doit() {
-      await props.addEvent(
-        {
-          event: eventDescription,
-          time: eventTime.toLocaleString()
-        },
-        props.eventID
-      );
-      handleClose();
-    }
-    doit();
+    const editedEntry = {
+      ...entry,
+      description: entryDescription,
+      date: entryTime,
+      tags: []
+    };
+    await saveEntry(editedEntry);
+    onClose();
   };
 
   return (
     <Dialog
       fullScreen
       open={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       TransitionComponent={SlideUp}
+      data-testid="editDialog"
     >
-      <AppBar title={title} handleClose={handleClose} />
+      <AppBar title={title} onClose={onClose} />
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
           <Typography
@@ -100,7 +109,7 @@ function _EditScreen(props) {
           <TextField
             error={error}
             required
-            id="event-description"
+            id="entry-description"
             label="What happened?"
             multiline
             autoFocus={true}
@@ -114,14 +123,14 @@ function _EditScreen(props) {
               if (e.target.value) {
                 setError(false);
               }
-              setEventDescription(e.target.value);
+              setEntryDescription(e.target.value);
             }}
-            value={eventDescription}
+            value={entryDescription}
           />
           <TimePicker
             className={classes.timeBox}
-            time={eventTime}
-            setTime={setEventTime}
+            time={entryTime}
+            setTime={setEntryTime}
           />
           <Button
             className={classes.timeBox}
@@ -130,6 +139,7 @@ function _EditScreen(props) {
             size="large"
             fullWidth={true}
             type="submit"
+            aria-label="Save"
           >
             Save
           </Button>
@@ -138,6 +148,14 @@ function _EditScreen(props) {
     </Dialog>
   );
 }
+
+_EditScreen.propTypes = {
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func.isRequired,
+  saveEntry: PropTypes.func.isRequired,
+  entry: PropTypes.object,
+  date: PropTypes.object.isRequired
+};
 
 let EditScreen = withStyles(styles)(withRouter(_EditScreen));
 

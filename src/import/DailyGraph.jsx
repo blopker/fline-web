@@ -16,10 +16,9 @@ import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
  */
 
 const DailyGraph = memo(props => {
-  const { theme, width, height } = props;
+  const { theme, width, height, data } = props;
 
-  const data = props.data.toJS().map(({ x, y }) => ({ x: new Date(x), y }));
-  const startTime = startOfDay(data[0].x);
+  const startTime = startOfDay(data[0].date);
   const endTime = addDays(startTime, 1);
 
   const margin = {
@@ -115,8 +114,8 @@ const DailyGraph = memo(props => {
         {/* draw a line representing the glucose level */}
         <LinePath
           data={data}
-          x={d => xScale(d.x)}
-          y={d => yScale(d.y)}
+          x={d => xScale(d.date)}
+          y={d => yScale(d.level)}
           stroke={teal[300]}
           strokeWidth={2}
           curve={curveCatmullRom}
@@ -128,7 +127,7 @@ const DailyGraph = memo(props => {
 
 DailyGraph.propTypes = {
   theme: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired
+  data: PropTypes.array.isRequired
 };
 
 export default withTheme()(DailyGraph);

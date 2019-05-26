@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import { Route } from "react-router-dom";
+import List from "@material-ui/core/List";
 import { withStyles } from "@material-ui/core/styles";
+import get from "lodash/get";
 import AppBar from "./AppBar";
 import CreateFab from "./CreateFab";
-import List from "@material-ui/core/List";
+import EntryListItem from "./EntryListItem";
 import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
-import EventListItem from "./EventListItem";
+import ImportDialog from "../import/ImportDialog";
+import EditDialog from "../edit/EditDialog";
+
+import { useDatabase } from "../databaseContext";
 
 const styles = theme => ({
   log: {
@@ -15,46 +21,129 @@ const styles = theme => ({
 });
 
 function LogScreen(props) {
-  const { classes, day, date, setDate, addGraph, addEvent } = props;
-  if (!day) {
+  const { date, setDate, routeProps, classes } = props;
+  const db = useDatabase();
+
+  // Any entries and graph data corresponding to the selected date
+  const [logData, setLogData] = useState({
+    logEntries: null,
+    bloodGlucoseLevels: null
+  });
+
+  const { logEntries, bloodGlucoseLevels } = logData;
+
+  // PERF: Avoid re-creating the function on every re-render
+  const loadLogData = useCallback(
+    async date => {
+      const [logEntries, bloodGlucoseLevels] = await Promise.all([
+        db.getLogEntriesForDay(date),
+        db.getBloodGlucoseLevelsForDay(date)
+      ]);
+      setLogData({ logEntries, bloodGlucoseLevels });
+    },
+    [setLogData, db]
+  );
+
+  // Any time the date changes, invalidate and reload the logData
+  useEffect(() => {
+    loadLogData(date);
+  }, [date, loadLogData]);
+
+  const saveLogEntryAndReload = useCallback(
+    async entry => {
+      await db.saveLogEntry(entry);
+      await loadLogData(date);
+    },
+    [date, loadLogData, db]
+  );
+
+  const saveBloodGlucoseLevelsAndReload = useCallback(
+    async digitizedData => {
+      await db.saveBloodGlucoseLevels(date, digitizedData);
+      await loadLogData(date);
+    },
+    [date, loadLogData, db]
+  );
+
+  const handleCloseDialog = () => {
+    const { history } = routeProps;
+    if (history.length > 1) {
+      history.goBack();
+    } else {
+      history.replace("/log");
+    }
+  };
+
+  if (logEntries === null) {
     return <div>Loading...</div>;
   }
 
-  const els = day
-    .get("events")
-    .map((e, i) => (
-      <EventListItem
-        key={i}
-        eventID={i}
-        event={e}
-        day={day}
-        addEvent={addEvent}
-        date={date}
-      />
-    ));
+  const logEntriesExist = logEntries.length > 0;
+  const hasImportedAlready = bloodGlucoseLevels.length > 0;
 
   return (
     <>
       <AppBar setDate={setDate} date={date} />
-      {els.size !== 0 && (
+      {logEntriesExist && (
         <>
-          <ImportGlucoseDataBanner day={day} addGraph={addGraph} />
+          <ImportGlucoseDataBanner hasImportedAlready={hasImportedAlready} />
           <List dense className={classes.log}>
-            {els}
+            {logEntries.map((entry, idx) => (
+              <EntryListItem
+                key={entry.id}
+                entry={entry}
+                subsequentEntry={logEntries[idx + 1]}
+                bloodGlucoseLevels={bloodGlucoseLevels}
+              />
+            ))}
           </List>
         </>
       )}
+
       <CreateFab
-        initialState={els.size === 0}
-        addEvent={addEvent}
+        initialState={!logEntriesExist}
+        addEvent={saveLogEntryAndReload}
         date={date}
       />
+
+      <Route path={`/log/import`}>
+        {routeProps => (
+          <ImportDialog
+            isOpen={routeProps.match !== null}
+            onClose={handleCloseDialog}
+            bloodGlucoseLevels={bloodGlucoseLevels}
+            onImport={saveBloodGlucoseLevelsAndReload}
+          />
+        )}
+      </Route>
+
+      <Route path={`/log/edit/:entryId?`}>
+        {routeProps => {
+          let entry;
+          const entryId = parseInt(get(routeProps, "match.params.entryId"), 10);
+          if (entryId) {
+            entry = logEntries.find(e => e.id === entryId);
+          }
+          return (
+            <EditDialog
+              isOpen={routeProps.match !== null}
+              onClose={handleCloseDialog}
+              saveEntry={saveLogEntryAndReload}
+              entry={entry}
+              date={date}
+            />
+          );
+        }}
+      </Route>
     </>
   );
 }
 
 LogScreen.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  date: PropTypes.object.isRequired,
+  setDate: PropTypes.func.isRequired,
+  routeProps: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(LogScreen);

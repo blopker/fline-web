@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import curlArrow from "./curlyArrow.png";
-import EditDialog from "../edit/EditDialog";
 
 const styles = theme => ({
   fab: {
@@ -57,16 +57,7 @@ function _IntroFabInstructions(props) {
 let IntroFabInstructions = withStyles(instructionStyles)(_IntroFabInstructions);
 
 function _FloatingEditButton(props) {
-  const { classes, date, addEvent } = props;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsDialogOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsDialogOpen(false);
-  };
+  const { classes } = props;
 
   return (
     <div className={classes.fab}>
@@ -74,19 +65,11 @@ function _FloatingEditButton(props) {
       <Fab
         className={classes.fabButton}
         color="primary"
-        aria-label="Edit"
-        onClick={handleOpen}
+        aria-label="Create Entry"
+        component={props => <Link to="/log/edit/" {...props} />}
       >
         <AddIcon />
       </Fab>
-      {isDialogOpen && (
-        <EditDialog
-          isOpen={isDialogOpen}
-          handleClose={handleClose}
-          date={date}
-          addEvent={addEvent}
-        />
-      )}
     </div>
   );
 }

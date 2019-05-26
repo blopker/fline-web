@@ -1,75 +1,70 @@
 import Dexie from "dexie";
-import Immutable from "immutable";
 
-class KeyValue {
-  constructor(db) {
-    this.db = db;
-  }
-  async getAll() {
-    let arr = await this.db.table(this.tableName).toArray();
-    return arr.reduce((obj, item) => {
-      obj[item.key] = Immutable.fromJS(item.value);
-      return obj;
-    }, {});
-  }
-  async get(key) {
-    let entry = await this.db
-      .table(this.tableName)
-      .where({ key })
-      .first()
-      .catch(() => {});
+const db = new Dexie("Fline");
 
-    if (entry === undefined) {
-      return entry;
+// Version declarations should be listed in ascending order, otherwise upgrades
+// will fail. Keep previous version declarations around as long as there are
+// users out there with that version running.
+
+db.version(1).stores({
+  days: "&key",
+  settings: "&key"
+});
+
+// Version 2 splits up the `day` object store into separate `logEntries` and
+// `bloodGlucoseLevels` stores that have an index on their date property
+db.version(2)
+  .stores({
+    logEntries: "++id, date, *tags",
+    bloodGlucoseLevels: "&date"
+  })
+  .upgrade(async tx => {
+    // Split out day.value into logEntries and bloodGlucoseLevels
+    const logEntries = [];
+    const bloodGlucoseLevels = [];
+    const days = await tx.days.toArray();
+
+    for (const { key, value } of days) {
+      const day = new Date(key);
+      const migratedEntries = value.events.map(e => {
+        const entry = {
+          date: new Date(e.time),
+          description: e.event,
+          tags: []
+        };
+        // Verify the integrity of the entry date, there was a bug where some
+        // events were created with the correct time but for the wrong day
+        entry.date.setFullYear(
+          day.getFullYear(),
+          day.getMonth(),
+          day.getDate()
+        );
+        return entry;
+      });
+
+      const migratedGlucoseLevels = value.graph.map(d => ({
+        date: new Date(d.x),
+        level: d.y
+      }));
+
+      logEntries.push(...migratedEntries);
+      bloodGlucoseLevels.push(...migratedGlucoseLevels);
     }
-    return Immutable.fromJS(entry.value);
-  }
-  async set(key, value) {
-    value = value.toJS();
-    await this.db.table(this.tableName).put({ key, value });
-  }
-}
 
-class Settings extends KeyValue {
-  constructor(db) {
-    super(db);
-    this.tableName = "settings";
-  }
-}
-
-class Days extends KeyValue {
-  constructor(db) {
-    super(db);
-    this.tableName = "days";
-  }
-  async get(key) {
-    let day = await super.get(key);
-    if (!day) {
-      return Immutable.fromJS({ graph: [], events: [] });
-    }
-    day = day.set(
-      "events",
-      day.get("events").map(e => {
-        return Immutable.fromJS({
-          event: e.get("event"),
-          time: new Date(e.get("time"))
-        });
-      })
-    );
-    return day;
-  }
-}
-
-function init() {
-  const _db = new Dexie("Fline");
-  _db.version(1).stores({
-    days: "&key",
-    settings: "&key"
+    await tx.logEntries.bulkAdd(logEntries);
+    await tx.bloodGlucoseLevels.bulkAdd(bloodGlucoseLevels);
   });
-  return {
-    settings: new Settings(_db),
-    days: new Days(_db)
-  };
-}
 
-export default init;
+db.logEntries.defineClass({
+  id: Number,
+  date: Date,
+  description: String,
+  tags: Array
+});
+
+db.bloodGlucoseLevels.defineClass({
+  date: Date,
+  level: Number
+});
+
+export { db };

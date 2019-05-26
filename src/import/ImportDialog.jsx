@@ -29,7 +29,7 @@ const HIDDEN_INPUT_FIELD_ID = "select-image-file-input";
 // When an image is selected, attempt to digitize it and persist to the DB.
 const fileChangedHandler = async (
   event,
-  addGraph,
+  onImport,
   setErrorOccurred,
   setIsLoading
 ) => {
@@ -43,7 +43,7 @@ const fileChangedHandler = async (
     try {
       const graphData = await process(objectUrl);
       // Save the digitized results
-      await addGraph(graphData);
+      await onImport(graphData);
       setErrorOccurred(false);
     } catch (err) {
       console.error(err);
@@ -56,14 +56,14 @@ const fileChangedHandler = async (
 };
 
 // Create an invisible input file field to store a screenshot to be imported.
-const HiddenFileInputField = ({ addGraph, setErrorOccurred, setIsLoading }) => (
+const HiddenFileInputField = ({ onImport, setErrorOccurred, setIsLoading }) => (
   <input
     accept="image/*"
     style={{ display: "none" }}
     id={HIDDEN_INPUT_FIELD_ID}
     type="file"
     onChange={evt =>
-      fileChangedHandler(evt, addGraph, setErrorOccurred, setIsLoading)
+      fileChangedHandler(evt, onImport, setErrorOccurred, setIsLoading)
     }
   />
 );
@@ -98,10 +98,10 @@ const SelectImageButton = ({ repick = false }) => {
  */
 
 const ImportDialog = props => {
-  const { classes, isOpen, day, addGraph } = props;
+  const { classes, isOpen, bloodGlucoseLevels, onClose, onImport } = props;
   const [errorOccurred, setErrorOccurred] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const dataExists = day.get("graph").size > 0;
+  const dataExists = bloodGlucoseLevels.length > 0;
   const showInstructions = !dataExists || (dataExists && errorOccurred);
   const pickImageButton = <SelectImageButton disabled={isLoading} />;
   const repickImageButton = <SelectImageButton repick disabled={isLoading} />;
@@ -109,7 +109,7 @@ const ImportDialog = props => {
   const handleClose = () => {
     // Reset any errors when the dialog is closed
     setErrorOccurred(false);
-    props.handleClose();
+    onClose();
   };
 
   // The dialog contents will vary depending on the situation:
@@ -127,7 +127,7 @@ const ImportDialog = props => {
       <SuccessScreen
         repickImageButton={repickImageButton}
         handleClose={handleClose}
-        day={day}
+        bloodGlucoseLevels={bloodGlucoseLevels}
         isLoading={isLoading}
       />
     );
@@ -158,7 +158,7 @@ const ImportDialog = props => {
     >
       <AppBar handleClose={handleClose} />
       <HiddenFileInputField
-        addGraph={addGraph}
+        onImport={onImport}
         setErrorOccurred={setErrorOccurred}
         setIsLoading={setIsLoading}
       />
@@ -182,9 +182,9 @@ const ImportDialog = props => {
 
 ImportDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  day: PropTypes.object.isRequired,
-  addGraph: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
+  bloodGlucoseLevels: PropTypes.array.isRequired,
+  onImport: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ImportDialog);

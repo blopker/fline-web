@@ -30,6 +30,7 @@ const styles = theme => ({
 function MyPicker(props) {
   return (
     <Modal
+      data-testid="dayPicker"
       open={props.isOpen}
       onClose={props.onRequestClose}
       disablePortal={true}

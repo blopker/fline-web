@@ -6,10 +6,10 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 
-const ButtonAppBar = ({ handleClose, title }) => (
+const ButtonAppBar = ({ onClose, title }) => (
   <AppBar position="sticky">
     <Toolbar>
-      <IconButton color="inherit" onClick={handleClose} aria-label="Close">
+      <IconButton color="inherit" onClick={onClose} aria-label="Close">
         <CloseIcon />
       </IconButton>
       <Typography variant="h6">{title}</Typography>
@@ -18,7 +18,7 @@ const ButtonAppBar = ({ handleClose, title }) => (
 );
 
 ButtonAppBar.propTypes = {
-  handleClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired
 };
 
 export default ButtonAppBar;

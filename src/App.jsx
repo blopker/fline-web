@@ -1,82 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { Suspense, lazy, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from "react-router-dom";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Log from "./log/LogScreen";
-import DigitizerTest from "./testDigitizer/DigitizerTest";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { startOfDay } from "date-fns";
 import Theme from "./Theme";
-import Immutable from "immutable";
+import LogScreen from "./log/LogScreen";
+import { DatabaseProvider } from "./databaseContext";
+
+const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
 function App(props) {
   const { db } = props;
-  const [date, setDate] = useState(new Date());
-  const [day, setDay] = useState();
 
-  useEffect(() => {
-    async function getDay() {
-      let day = await db.days.get(date.toLocaleDateString());
-      setDay(day);
-    }
-    getDay();
-  }, [date, db]);
-
-  async function saveDay(newDay) {
-    await db.days.set(date.toLocaleDateString(), newDay);
-    newDay = await db.days.get(date.toLocaleDateString());
-    setDay(newDay);
-  }
-
-  async function addEvent(event, index = null) {
-    event = Immutable.fromJS(event);
-    let events = day.get("events");
-    if (index !== null) {
-      events = events.set(index, event);
-    } else {
-      events = events.push(event);
-    }
-    const newDay = day.set("events", events);
-    await saveDay(newDay);
-  }
-
-  async function addGraph(graphData) {
-    // Convert the digitizer X coordinates into ISO date format
-    const dateTimeFormatter = ({ x, y }) => {
-      const d = new Date(date);
-      // Convert fractional hours into HH:MM (eg: 10.5 -> 10:30)
-      d.setHours(0, 0, x * 3600, 0);
-      return {
-        x: d.toISOString(),
-        y: y
-      };
-    };
-    const formattedGraphData = graphData.map(dateTimeFormatter);
-    const newDay = day.set("graph", formattedGraphData);
-    await saveDay(newDay);
-  }
-
-  if (!day) {
-    return <div>Loading...</div>;
-  }
+  // The selected date the LogScreen is displaying
+  const [date, setDate] = useState(() => {
+    const initialState = startOfDay(new Date());
+    return initialState;
+  });
 
   return (
-    <Router>
-      <Theme>
-        <CssBaseline />
-        <Route
-          exact
-          path="/"
-          render={() => (
-            <Log
-              day={day}
-              date={date}
-              setDate={setDate}
-              addGraph={addGraph}
-              addEvent={addEvent}
-            />
-          )}
-        />
-        <Route exact path="/test/" render={() => <DigitizerTest />} />
-      </Theme>
-    </Router>
+    <Theme>
+      <CssBaseline />
+      <DatabaseProvider db={db}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Router>
+            <Switch>
+              <Route
+                path="/log"
+                render={routeProps => (
+                  <LogScreen
+                    date={date}
+                    setDate={setDate}
+                    routeProps={routeProps}
+                  />
+                )}
+              />
+              <Route exact path="/test" render={() => <DigitizerTest />} />
+              <Redirect to="/log" />
+            </Switch>
+          </Router>
+        </Suspense>
+      </DatabaseProvider>
+    </Theme>
   );
 }
 export default App;

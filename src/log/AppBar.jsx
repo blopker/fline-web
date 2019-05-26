@@ -66,7 +66,11 @@ function ButtonAppBar(props) {
             Fline
           </Typography>
           <div className={classes.grow}>
-            <IconButton onClick={onLastDate} className={classes.inline}>
+            <IconButton
+              onClick={onLastDate}
+              className={classes.inline}
+              aria-label="Previous Date"
+            >
               <ArrowBack className={`${classes.arrow} ${classes.arrowBack}`} />
             </IconButton>
             <Typography
@@ -76,7 +80,11 @@ function ButtonAppBar(props) {
             >
               {d.toLocaleDateString("en-US")}
             </Typography>
-            <IconButton onClick={onNextDate} className={classes.inline}>
+            <IconButton
+              onClick={onNextDate}
+              className={classes.inline}
+              aria-label="Next Date"
+            >
               <ArrowForward
                 className={`${classes.arrow} ${classes.arrowForward}`}
               />
@@ -84,7 +92,7 @@ function ButtonAppBar(props) {
           </div>
           <IconButton
             color="inherit"
-            aria-label="Date"
+            aria-label="Day Picker"
             onClick={toggleCalendar}
           >
             <MenuIcon />

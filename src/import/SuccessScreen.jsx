@@ -12,7 +12,12 @@ import ResponsiveWrapper from "../ResponsiveWrapper";
  */
 
 const SuccessScreen = props => {
-  const { day, repickImageButton, handleClose, isLoading } = props;
+  const {
+    bloodGlucoseLevels,
+    repickImageButton,
+    handleClose,
+    isLoading
+  } = props;
 
   let message;
   if (isLoading) {
@@ -41,7 +46,11 @@ const SuccessScreen = props => {
       >
         <ResponsiveWrapper>
           {({ width, height }) => (
-            <DailyGraph data={day.get("graph")} width={width} height={height} />
+            <DailyGraph
+              data={bloodGlucoseLevels}
+              width={width}
+              height={height}
+            />
           )}
         </ResponsiveWrapper>
       </div>
@@ -61,7 +70,7 @@ const SuccessScreen = props => {
 };
 
 SuccessScreen.propTypes = {
-  day: PropTypes.object.isRequired,
+  bloodGlucoseLevels: PropTypes.array.isRequired,
   repickImageButton: PropTypes.node.isRequired,
   handleClose: PropTypes.func.isRequired
 };

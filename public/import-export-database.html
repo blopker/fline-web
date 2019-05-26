@@ -29,12 +29,56 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
 
     <script>
-      // Declare Database this should match one-to-one with whats declared in src\db.js
+      // Declare Database
+      // this should match one-to-one with whats declared in src\db.js
       var db = new Dexie("Fline");
+
       db.version(1).stores({
         days: "&key",
         settings: "&key"
       });
+
+      db.version(2)
+        .stores({
+          logEntries: "++id, date, *tags",
+          bloodGlucoseLevels: "&date"
+        })
+        .upgrade(async tx => {
+          // Split out day.value into logEntries and bloodGlucoseLevels
+          const logEntries = [];
+          const bloodGlucoseLevels = [];
+          const days = await tx.days.toArray();
+
+          for (const { key, value } of days) {
+            const day = new Date(key);
+            const migratedEntries = value.events.map(e => {
+              const entry = {
+                date: new Date(e.time),
+                description: e.event,
+                tags: []
+              };
+              // Verify the integrity of the entry date, there was a bug where some
+              // events were created with the correct time but for the wrong day
+              entry.date.setFullYear(
+                day.getFullYear(),
+                day.getMonth(),
+                day.getDate()
+              );
+              return entry;
+            });
+
+            const migratedGlucoseLevels = value.graph.map(d => ({
+              date: new Date(d.x),
+              level: d.y
+            }));
+
+            logEntries.push(...migratedEntries);
+            bloodGlucoseLevels.push(...migratedGlucoseLevels);
+          }
+
+          await tx.logEntries.bulkAdd(logEntries);
+          await tx.bloodGlucoseLevels.bulkAdd(bloodGlucoseLevels);
+        });
 
       document.addEventListener("DOMContentLoaded", () => {
         const dropZoneDiv = document.getElementById("dropzone");

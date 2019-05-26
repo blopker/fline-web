@@ -23,19 +23,16 @@ import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
  * log entry, and one hour prior.
  */
 
-const EventGraph = memo(props => {
-  const { event, day, theme } = props;
-
-  const eventTime = event.get("time");
-  const data = day.get("graph");
-  const events = day.get("events");
+const EntryGraph = memo(props => {
+  const { entry, subsequentEntry, bloodGlucoseLevels, theme } = props;
+  const entryDate = entry.date;
 
   const times = {
-    eventTime: eventTime,
-    oneHourEarlier: addHours(eventTime, -1),
-    oneHourLater: addHours(eventTime, 1),
-    twoHoursLater: addHours(eventTime, 2),
-    threeHoursLater: addHours(eventTime, 3)
+    entryDate: entryDate,
+    oneHourEarlier: addHours(entryDate, -1),
+    oneHourLater: addHours(entryDate, 1),
+    twoHoursLater: addHours(entryDate, 2),
+    threeHoursLater: addHours(entryDate, 3)
   };
 
   const lineInterval = {
@@ -43,22 +40,17 @@ const EventGraph = memo(props => {
     end: times.threeHoursLater
   };
 
-  const lineIntervalAfterEvent = {
-    start: times.eventTime,
-    end: times.threeHoursLater
-  };
-
   const areaInterval = {
-    start: times.eventTime,
+    start: times.entryDate,
     end: times.twoHoursLater
   };
 
   const lineSeries = [];
   const areaSeries = [];
 
-  data.toJS().forEach(d => {
-    const x = new Date(d.x);
-    const y = d.y;
+  bloodGlucoseLevels.forEach(reading => {
+    const x = reading.date;
+    const y = reading.level;
 
     if (isWithinInterval(x, lineInterval)) {
       lineSeries.push({ x, y });
@@ -74,11 +66,12 @@ const EventGraph = memo(props => {
     return <NotEnoughDataMessage />;
   }
 
-  // Look for another event occurring around the same time window as the current
-  // event. This other event will get annotated in the graph.
-  const overlappingEvent = events.find(e => {
-    return isWithinInterval(e.get("time"), lineIntervalAfterEvent) && e !== event;
-  });
+  // Inspect the next log entry in chronological order. If it occurs within 3
+  // hours of current entry, it will be marked and annotated on the graph.
+  let annotation = null;
+  if (subsequentEntry && subsequentEntry.date <= times.threeHoursLater) {
+    annotation = subsequentEntry;
+  }
 
   // Draw a graph that is sized to the viewport width
   return (
@@ -92,7 +85,7 @@ const EventGraph = memo(props => {
             areaSeries={areaSeries}
             times={times}
             theme={theme}
-            annotation={overlappingEvent ? overlappingEvent.toJS() : null}
+            annotation={annotation}
           />
         )}
       </ResponsiveWrapper>
@@ -112,14 +105,14 @@ const Graph = memo(props => {
   }
 
   const {
-    eventTime,
+    entryDate,
     oneHourEarlier,
     oneHourLater,
     twoHoursLater,
     threeHoursLater
   } = props.times;
 
-  // The baseline is where the glucose level started off at the logged event
+  // The baseline is where the glucose level started off at the logged entry
   // time. Any glucose increases/decrease from the baseline will be shaded in.
   const baseline = areaSeries[0].y;
 
@@ -176,7 +169,7 @@ const Graph = memo(props => {
 
   const getAnnotationAlignment = () => {
     // Keep the annotation's text from overflowing off the edges of the graph
-    const annotationX = xScale(new Date(annotation.time));
+    const annotationX = xScale(annotation.date);
     const [xMin, xMax] = xScale.range();
     const threshold = 25;
     const nearLeftEdge = xMin + threshold > annotationX;
@@ -219,7 +212,7 @@ const Graph = memo(props => {
           stroke="rgba(255, 255, 255, 0.05)"
           columnTickValues={[
             oneHourEarlier,
-            eventTime,
+            entryDate,
             oneHourLater,
             twoHoursLater,
             threeHoursLater
@@ -232,7 +225,7 @@ const Graph = memo(props => {
           scale={xScale}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.4)"
-          tickValues={[eventTime, twoHoursLater]}
+          tickValues={[entryDate, twoHoursLater]}
         />
 
         {/* the y-axis tracks the glucose level */}
@@ -258,7 +251,7 @@ const Graph = memo(props => {
           top={yMax}
           stroke={theme.palette.divider}
           tickStroke={"rgba(255, 255, 255, 0.4)"}
-          tickValues={[eventTime, twoHoursLater]}
+          tickValues={[entryDate, twoHoursLater]}
           tickFormat={x => {
             if (x === twoHoursLater) {
               return "+2 hours";
@@ -308,14 +301,14 @@ const Graph = memo(props => {
         {annotation && (
           <Group id="annotation-group" style={{ fontSize: 10 }}>
             <AnnotationLabel
-              x={xScale(new Date(annotation.time))}
+              x={xScale(annotation.date)}
               y={yMax}
               ny={0}
               dx={0}
               color={amber[700]}
               connector={{ end: "dot" }}
               note={{
-                label: truncate(annotation.event, { length: 40 }),
+                label: truncate(annotation.description, { length: 40 }),
                 align: getAnnotationAlignment(),
                 orientation: "topBottom",
                 padding: 10,
@@ -329,9 +322,10 @@ const Graph = memo(props => {
   );
 });
 
-EventGraph.propTypes = {
-  day: PropTypes.object.isRequired,
-  event: PropTypes.object.isRequired,
+EntryGraph.propTypes = {
+  entry: PropTypes.object.isRequired,
+  subsequentEntry: PropTypes.object,
+  bloodGlucoseLevels: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired
 };
 
@@ -344,4 +338,4 @@ Graph.propTypes = {
   width: PropTypes.number
 };
 
-export default withTheme()(EventGraph);
+export default withTheme()(EntryGraph);
