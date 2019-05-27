@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import AppBar from "./AppBar";
 import { withStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import { withRouter } from "react-router-dom";
-import Slide from "@material-ui/core/Slide";
+import Chip from "@material-ui/core/Chip";
 import Dialog from "@material-ui/core/Dialog";
-
+import Slide from "@material-ui/core/Slide";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import { ENTRY_TAGS } from "../constants";
+import AppBar from "./AppBar";
 import TimePicker from "./TimePicker";
 
 const SlideUp = React.forwardRef((props, ref) => (
@@ -16,26 +16,23 @@ const SlideUp = React.forwardRef((props, ref) => (
 ));
 
 const styles = theme => ({
-  subtitle: {
-    textAlign: "center"
-  },
   root: {
     flexGrow: 1,
-    margin: "20px auto",
+    margin: `${theme.spacing(3)}px auto`,
     padding: `0 ${theme.spacing(1)}px`,
     maxWidth: "500px"
   },
-  paper: {
-    padding: theme.spacing(1),
-    textAlign: "center",
-    color: theme.palette.text.secondary
+  chipsList: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(5),
+    marginLeft: -theme.spacing(0.5),
+    marginRight: -theme.spacing(0.5)
   },
-  textBox: {
-    marginBottom: theme.spacing(1),
-    height: "100px"
+  chip: {
+    margin: theme.spacing(0.5)
   },
-  timeBox: {
-    marginTop: theme.spacing(2)
+  addTransparentBorder: {
+    border: "solid 1px transparent"
   }
 });
 
@@ -48,7 +45,7 @@ function getDefaultDate(selectedDate) {
   return defaultDate;
 }
 
-function _EditScreen(props) {
+function _EditDialog(props) {
   const { classes, isOpen, onClose, date, entry, saveEntry } = props;
 
   const [title, setTitle] = useState(
@@ -60,6 +57,7 @@ function _EditScreen(props) {
   const [entryTime, setEntryTime] = useState(
     entry ? entry.date : getDefaultDate(date)
   );
+  const [entryTag, setEntryTag] = useState(entry ? entry.tags[0] : null);
   const [error, setError] = useState(false);
 
   // Reset the dialog state back to default values each time it is opened
@@ -68,6 +66,7 @@ function _EditScreen(props) {
       setTitle(entry ? "Edit something" : "Add something");
       setEntryDescription(entry ? entry.description : "");
       setEntryTime(entry ? entry.date : getDefaultDate(date));
+      setEntryTag(entry ? entry.tags[0] : null);
       setError(false);
     }
   }, [isOpen, entry, date]);
@@ -82,10 +81,17 @@ function _EditScreen(props) {
       ...entry,
       description: entryDescription,
       date: entryTime,
-      tags: []
+      tags: entryTag ? [entryTag] : []
     };
     await saveEntry(editedEntry);
     onClose();
+  };
+
+  const handleChipClick = e => {
+    // Toggle the selected tag
+    const newTag = e.currentTarget.textContent;
+    if (!newTag) return;
+    setEntryTag(prevTag => (prevTag === newTag ? null : newTag));
   };
 
   return (
@@ -100,12 +106,14 @@ function _EditScreen(props) {
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
           <Typography
-            className={classes.paper}
+            color="textSecondary"
+            align="center"
             variant="subtitle1"
-            gutterBottom
+            paragraph
           >
             Add a meal, a feeling, a workout...
           </Typography>
+
           <TextField
             error={error}
             required
@@ -116,7 +124,6 @@ function _EditScreen(props) {
             fullWidth={true}
             rowsMax="4"
             rows="4"
-            className={classes.textBox}
             margin="normal"
             variant="filled"
             onChange={e => {
@@ -127,13 +134,31 @@ function _EditScreen(props) {
             }}
             value={entryDescription}
           />
-          <TimePicker
-            className={classes.timeBox}
-            time={entryTime}
-            setTime={setEntryTime}
-          />
+
+          <div>
+            <TimePicker time={entryTime} setTime={setEntryTime} />
+          </div>
+
+          <div className={classes.chipsList}>
+            {ENTRY_TAGS.map(currentTag => {
+              return (
+                <Chip
+                  key={currentTag}
+                  label={currentTag}
+                  aria-label={currentTag}
+                  className={classes.chip}
+                  onClick={handleChipClick}
+                  variant={entryTag === currentTag ? "default" : "outlined"}
+                  color={entryTag === currentTag ? "secondary" : "default"}
+                  // Adding a transparent outline fixes some resize jitter when
+                  // a chip switches variants after being clicked
+                  classes={{ colorSecondary: classes.addTransparentBorder }}
+                />
+              );
+            })}
+          </div>
+
           <Button
-            className={classes.timeBox}
             variant="contained"
             color="primary"
             size="large"
@@ -149,7 +174,8 @@ function _EditScreen(props) {
   );
 }
 
-_EditScreen.propTypes = {
+_EditDialog.propTypes = {
+  classes: PropTypes.object.isRequired,
   isOpen: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   saveEntry: PropTypes.func.isRequired,
@@ -157,6 +183,6 @@ _EditScreen.propTypes = {
   date: PropTypes.object.isRequired
 };
 
-let EditScreen = withStyles(styles)(withRouter(_EditScreen));
+const EditDialog = withStyles(styles)(_EditDialog);
 
-export default EditScreen;
+export default EditDialog;
