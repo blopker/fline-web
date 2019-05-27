@@ -40,7 +40,7 @@ function AppMenu(props) {
     });
   }
 
-  async function exportAction() {
+  function exportAction() {
     if (navigator.share) {
       // Use Web Share API if on mobile web
       navigator
@@ -55,6 +55,10 @@ function AppMenu(props) {
     }
   }
 
+  function refreshAction() {
+    window.location.reload(true);
+  }
+
   const { classes } = props;
   const version = (process.env.REACT_APP_COMMIT_REF || "dev").slice(0, 7);
 
@@ -63,6 +67,9 @@ function AppMenu(props) {
       <List>
         <ListItem button key="0" onClick={exportAction} disabled={!!!dbDump}>
           <ListItemText primary="Export" />
+        </ListItem>
+        <ListItem button key="1" onClick={refreshAction}>
+          <ListItemText primary="Reload" />
         </ListItem>
       </List>
       <Divider />
