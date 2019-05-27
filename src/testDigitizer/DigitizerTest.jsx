@@ -3,7 +3,6 @@ import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import process from "../digitizer";
 import DailyGraph from "../import/DailyGraph";
-import Immutable from "immutable";
 
 const styles = theme => ({});
 
@@ -38,14 +37,13 @@ const iosImages = [
   "img8.PNG"
 ];
 
-// Convert the digitizer X coordinates into ISO date format
 const dateTimeFormatter = ({ x, y }) => {
   const d = new Date();
   // Convert fractional hours into HH:MM (eg: 10.5 -> 10:30)
   d.setHours(0, 0, x * 3600, 0);
   return {
-    x: d.toISOString(),
-    y: y
+    date: d,
+    level: y
   };
 };
 
@@ -58,9 +56,7 @@ function ImageTest(props) {
   useEffect(() => {
     const processImage = async () => {
       const result = await process(path, true);
-      result.graphData = Immutable.fromJS(
-        result.graphData.map(dateTimeFormatter)
-      );
+      result.graphData = result.graphData.map(dateTimeFormatter);
       setData(result);
     };
 

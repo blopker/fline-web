@@ -19,7 +19,6 @@
     "downloadjs": "^1.4.7",
     "firebase": "^6.0.2",
     "image-js": "^0.21.6",
-    "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.11",
     "material-ui-pickers": "^2.2.4",
     "react": "^16.8.6",
