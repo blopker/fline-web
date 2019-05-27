@@ -18,14 +18,41 @@ const styles = {
 
 function AppMenu(props) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dbDump, setDbDump] = useState();
   const toggleDrawer = open => () => {
+    setDbDump();
     setIsOpen(open);
+    if (open) {
+      dumpDB();
+    }
   };
 
-  async function exportDB() {
-    const fileName = `fline-export-${new Date().toISOString()}.json`;
-    const blob = await props.export();
-    download(blob, fileName, "application/json");
+  function dumpDB() {
+    // Dump the db and enable the export button when done.
+    // We have to dump the database optimistically when the menu opens because
+    // the Web Share API wont work if triggered async, e.g. in a promise.
+    props.export().then(blob => {
+      var reader = new FileReader();
+      reader.addEventListener("loadend", function() {
+        setDbDump(reader.result);
+      });
+      reader.readAsText(blob);
+    });
+  }
+
+  async function exportAction() {
+    if (navigator.share) {
+      // Use Web Share API if on mobile web
+      navigator
+        .share({
+          text: dbDump
+        })
+        .catch(error => console.log("Error sharing", error));
+    } else {
+      // Just download the file otherwise
+      const fileName = `fline-export-${new Date().toISOString()}.json`;
+      download(dbDump, fileName, "application/json");
+    }
   }
 
   const { classes } = props;
@@ -34,7 +61,7 @@ function AppMenu(props) {
   const sideList = (
     <div className={classes.list}>
       <List>
-        <ListItem button key="0" onClick={exportDB}>
+        <ListItem button key="0" onClick={exportAction} disabled={!!!dbDump}>
           <ListItemText primary="Export" />
         </ListItem>
       </List>
