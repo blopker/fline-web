@@ -6,7 +6,7 @@ import shareDailyGraph from "./shareDailyGraph.png";
 
 const styles = theme => ({
   paragraph: {
-    margin: `${theme.spacing.unit * 3}px 0`
+    margin: `${theme.spacing(3)}px 0`
   },
 
   img: {

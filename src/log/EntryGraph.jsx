@@ -75,7 +75,7 @@ const EntryGraph = memo(props => {
 
   // Draw a graph that is sized to the viewport width
   return (
-    <div style={{ height: 180, marginBottom: theme.spacing.unit * 2 }}>
+    <div style={{ height: 180, marginBottom: theme.spacing(2) }}>
       <ResponsiveWrapper>
         {({ width, height }) => (
           <Graph
@@ -117,15 +117,15 @@ const Graph = memo(props => {
   const baseline = areaSeries[0].y;
 
   const margin = {
-    top: theme.spacing.unit * 2,
-    right: theme.spacing.unit * 3,
-    bottom: theme.spacing.unit * 4,
-    left: theme.spacing.unit * 5
+    top: theme.spacing(2),
+    right: theme.spacing(3),
+    bottom: theme.spacing(4),
+    left: theme.spacing(5)
   };
 
   if (annotation) {
     // Make additional room for the annotated text
-    margin.top = theme.spacing.unit * 4;
+    margin.top = theme.spacing(4);
   }
 
   const xMax = width - margin.left - margin.right;
@@ -338,4 +338,4 @@ Graph.propTypes = {
   width: PropTypes.number
 };
 
-export default withTheme()(EntryGraph);
+export default withTheme(EntryGraph);

@@ -7,7 +7,7 @@ import Paper from "@material-ui/core/Paper";
 
 const styles = theme => ({
   root: {
-    margin: `0 ${theme.spacing.unit * 2}px ${theme.spacing.unit * 2}px`,
+    margin: `0 ${theme.spacing(2)}px ${theme.spacing(2)}px`,
     backgroundColor: orange[200],
     color: theme.palette.grey["A400"]
   }

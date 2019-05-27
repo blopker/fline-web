@@ -8,7 +8,7 @@ import curlArrow from "./curlyArrow.png";
 
 const styles = theme => ({
   fab: {
-    margin: theme.spacing.unit * 2,
+    margin: theme.spacing(2),
     position: "fixed",
     bottom: 0,
     right: 0,
@@ -58,7 +58,9 @@ let IntroFabInstructions = withStyles(instructionStyles)(_IntroFabInstructions);
 
 function _FloatingEditButton(props) {
   const { classes } = props;
-
+  const LogEditLink = React.forwardRef((props, ref) => (
+    <Link innerRef={ref} to="/log/edit/" {...props} />
+  ));
   return (
     <div className={classes.fab}>
       {props.initialState === true && <IntroFabInstructions />}
@@ -66,7 +68,7 @@ function _FloatingEditButton(props) {
         className={classes.fabButton}
         color="primary"
         aria-label="Create Entry"
-        component={props => <Link to="/log/edit/" {...props} />}
+        component={LogEditLink}
       >
         <AddIcon />
       </Fab>

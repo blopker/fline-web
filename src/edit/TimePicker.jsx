@@ -2,7 +2,7 @@ import "date-fns";
 import React from "react";
 import PropTypes from "prop-types";
 import DateFnsUtils from "@date-io/date-fns";
-import { MuiPickersUtilsProvider, TimePicker } from "material-ui-pickers";
+import { MuiPickersUtilsProvider, TimePicker } from "@material-ui/pickers";
 
 function MaterialUIPickers(props) {
   const { time, setTime } = props;

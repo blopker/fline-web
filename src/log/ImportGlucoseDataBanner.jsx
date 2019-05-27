@@ -11,7 +11,7 @@ import CheckIcon from "@material-ui/icons/Check";
 
 const styles = theme => ({
   banner: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
     display: "flex",
     width: "100%",
     justifyContent: "flex-start",
@@ -30,11 +30,11 @@ const styles = theme => ({
   },
   moonIcon: {
     height: 32,
-    marginRight: theme.spacing.unit * 2
+    marginRight: theme.spacing(2)
   },
   checkIcon: {
     fontSize: 32,
-    marginRight: theme.spacing.unit * 2
+    marginRight: theme.spacing(2)
   }
 });
 
@@ -56,12 +56,16 @@ const ImportGlucoseDataBanner = props => {
     colorClassName = classes.orangeBanner;
   }
 
+  const LogImportLink = React.forwardRef((props, ref) => (
+    <Link innerRef={ref} to={"/log/import"} {...props} />
+  ));
+
   return (
     <>
       <ButtonBase
         className={`${classes.banner} ${colorClassName}`}
         focusRipple
-        component={props => <Link to={"/log/import"} {...props} />}
+        component={LogImportLink}
       >
         {image}
         <Typography variant="subtitle2" className={classes.text}>

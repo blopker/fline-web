@@ -20,20 +20,23 @@ const styles = theme => ({
     flex: "0 0 auto",
     textAlign: "left",
     padding: 0,
+    paddingRight: theme.spacing(1),
     minWidth: 55
   }
 });
 
 const EntryListItem = props => {
   const { classes, entry, subsequentEntry, bloodGlucoseLevels = [] } = props;
-
+  const LogEditLink = React.forwardRef((props, ref) => (
+    <Link innerRef={ref} to={`/log/edit/${entry.id}`} {...props} />
+  ));
   return (
     <>
       <ListItem
         data-testid="entryListItem"
         button
         className={classes.item}
-        component={props => <Link to={`/log/edit/${entry.id}`} {...props} />}
+        component={LogEditLink}
       >
         <ListItemText className={classes.time} data-testid="entryListItemTime">
           <time dateTime={entry.date.toISOString()}>

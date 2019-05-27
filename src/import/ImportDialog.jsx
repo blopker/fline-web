@@ -12,15 +12,17 @@ import process from "../digitizer";
 import SuccessScreen from "./SuccessScreen";
 import TealButton from "./TealButton";
 
-const SlideUp = props => <Slide direction="up" {...props} />;
+const SlideUp = React.forwardRef((props, ref) => (
+  <Slide ref={ref} direction="up" {...props} />
+));
 
 const styles = theme => ({
   section: {
-    margin: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
+    margin: `${theme.spacing(3)}px ${theme.spacing(2)}px`,
     textAlign: "center"
   },
   paragraph: {
-    margin: `${theme.spacing.unit * 3}px 0`
+    margin: `${theme.spacing(3)}px 0`
   }
 });
 

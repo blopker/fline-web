@@ -11,9 +11,9 @@ import Dialog from "@material-ui/core/Dialog";
 
 import TimePicker from "./TimePicker";
 
-const SlideUp = props => (
-  <Slide unmountOnExit={true} direction="up" {...props} />
-);
+const SlideUp = React.forwardRef((props, ref) => (
+  <Slide ref={ref} direction="up" {...props} />
+));
 
 const styles = theme => ({
   subtitle: {
@@ -22,20 +22,20 @@ const styles = theme => ({
   root: {
     flexGrow: 1,
     margin: "20px auto",
-    padding: `0 ${theme.spacing.unit}px`,
+    padding: `0 ${theme.spacing(1)}px`,
     maxWidth: "500px"
   },
   paper: {
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
     textAlign: "center",
     color: theme.palette.text.secondary
   },
   textBox: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     height: "100px"
   },
   timeBox: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   }
 });
 

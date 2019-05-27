@@ -22,10 +22,10 @@ const DailyGraph = memo(props => {
   const endTime = addDays(startTime, 1);
 
   const margin = {
-    top: theme.spacing.unit * 2,
-    right: theme.spacing.unit * 2,
-    bottom: theme.spacing.unit * 4,
-    left: theme.spacing.unit * 4
+    top: theme.spacing(2),
+    right: theme.spacing(2),
+    bottom: theme.spacing(4),
+    left: theme.spacing(4)
   };
 
   const xMax = width - margin.left - margin.right;
@@ -130,4 +130,4 @@ DailyGraph.propTypes = {
   data: PropTypes.array.isRequired
 };
 
-export default withTheme()(DailyGraph);
+export default withTheme(DailyGraph);
