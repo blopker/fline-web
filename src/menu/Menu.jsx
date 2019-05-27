@@ -29,7 +29,7 @@ function AppMenu(props) {
   }
 
   const { classes } = props;
-  const version = (process.env["REACT_APP_COMMIT_REF"] || "dev").slice(0, 7);
+  const version = (process.env.REACT_APP_COMMIT_REF || "dev").slice(0, 7);
 
   const sideList = (
     <div className={classes.list}>
