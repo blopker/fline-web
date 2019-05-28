@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import get from "lodash/get";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
@@ -57,7 +58,7 @@ function _EditDialog(props) {
   const [entryTime, setEntryTime] = useState(
     entry ? entry.date : getDefaultDate(date)
   );
-  const [entryTag, setEntryTag] = useState(entry ? entry.tags[0] : null);
+  const [entryTag, setEntryTag] = useState(get(entry, ["tags", 0]));
   const [error, setError] = useState(false);
 
   // Reset the dialog state back to default values each time it is opened
@@ -66,7 +67,7 @@ function _EditDialog(props) {
       setTitle(entry ? "Edit something" : "Add something");
       setEntryDescription(entry ? entry.description : "");
       setEntryTime(entry ? entry.date : getDefaultDate(date));
-      setEntryTag(entry ? entry.tags[0] : null);
+      setEntryTag(get(entry, ["tags", 0]));
       setError(false);
     }
   }, [isOpen, entry, date]);
