@@ -33,6 +33,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "coverage": "react-scripts test --coverage --watchAll=false && (open ./coverage/lcov-report/index.html || start chrome ./coverage/lcov-report/index.html)",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -47,6 +48,7 @@
     "@types/jest": "^24.0.13",
     "fake-indexeddb": "^2.1.0",
     "jest-dom": "^3.2.2",
+    "mockdate": "^2.0.2",
     "react-testing-library": "^7.0.1"
   }
 }

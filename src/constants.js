@@ -20,4 +20,15 @@ const BLOOD_GLUCOSE_LEVELS = {
 // This could potentially be configurable via User Settings down the road.
 const LOCALE_BLOOD_GLUCOSE_LEVELS = BLOOD_GLUCOSE_LEVELS["mg/dL"];
 
-export { LOCALE_BLOOD_GLUCOSE_LEVELS };
+const ENTRY_TAGS = [
+  "breakfast",
+  "meal",
+  "snack",
+  "beverage",
+  "alcohol",
+  "exercise",
+  "feeling",
+  "other"
+];
+
+export { LOCALE_BLOOD_GLUCOSE_LEVELS, ENTRY_TAGS };
