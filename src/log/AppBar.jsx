@@ -50,7 +50,7 @@ function ButtonAppBar(props) {
             <IconButton onClick={onPrevDate} aria-label="Previous Date">
               <ArrowBack viewBox="0 0 16 24" />
             </IconButton>
-            <Box textAlign="center">
+            <Box minWidth="10ch" textAlign="center">
               <Typography variant="h6">{formattedDate}</Typography>
             </Box>
             <IconButton onClick={onNextDate} aria-label="Next Date">
