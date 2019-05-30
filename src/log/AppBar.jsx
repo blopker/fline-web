@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import CalendarTodayIcon from "@material-ui/icons/CalendarToday";
-
 import ArrowBack from "@material-ui/icons/ArrowBackIos";
 import ArrowForward from "@material-ui/icons/ArrowForwardIos";
-import DayPicker from "./DayPicker";
+import ExploreIcon from "@material-ui/icons/Explore";
 
 const styles = theme => ({
   grow: {
@@ -26,22 +25,11 @@ const styles = theme => ({
   spacer: theme.mixins.toolbar
 });
 
+const ExploreLink = React.forwardRef((props, ref) => (
+  <Link to="/log/explore" innerRef={ref} {...props} />
+));
+
 function ButtonAppBar(props) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleCalendar(e) {
-    e && e.preventDefault();
-
-    setIsOpen(isOpen => {
-      return !isOpen;
-    });
-  }
-
-  function onDateChange(date) {
-    props.setDate(date);
-    toggleCalendar();
-  }
-
   function onNextDate() {
     props.setDate(date => {
       var result = new Date(date);
@@ -92,17 +80,11 @@ function ButtonAppBar(props) {
           </div>
           <IconButton
             color="inherit"
-            aria-label="Day Picker"
-            onClick={toggleCalendar}
+            aria-label="Explore"
+            component={ExploreLink}
           >
-            <CalendarTodayIcon />
+            <ExploreIcon />
           </IconButton>
-          <DayPicker
-            isOpen={isOpen}
-            onRequestClose={toggleCalendar}
-            onDateChange={onDateChange}
-            selectedDay={d}
-          />
         </Toolbar>
       </AppBar>
       <div className={classes.spacer} />
@@ -112,7 +94,9 @@ function ButtonAppBar(props) {
 
 ButtonAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
-  menu: PropTypes.element.isRequired
+  date: PropTypes.object.isRequired,
+  menu: PropTypes.element.isRequired,
+  setDate: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ButtonAppBar);
