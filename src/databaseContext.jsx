@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, addHours } from "date-fns";
+import sortBy from "lodash/sortBy";
+import { ENTRY_TAGS } from "./constants";
 
 const DatabaseContext = React.createContext();
 
@@ -46,6 +48,16 @@ function DatabaseProvider(props) {
     );
   };
 
+  /**
+   * Returns any BloodGlucoseLevels around the time window of a given LogEntry
+   */
+  const getBloodGlucoseLevelsForLogEntry = async entry => {
+    return await getBloodGlucoseLevelsBetweenDates(
+      addHours(entry.date, -1),
+      addHours(entry.date, 3)
+    );
+  };
+
   const getBloodGlucoseLevelsBetweenDates = async (startDate, endDate) => {
     return await db.bloodGlucoseLevels
       .where("date")
@@ -76,11 +88,34 @@ function DatabaseProvider(props) {
     });
   };
 
+  /**
+   *  Returns any tags that have been used at least once to categorize an entry
+   */
+  const getUtilizedTags = async () => {
+    const tagsInUse = await db.logEntries.orderBy("tags").uniqueKeys();
+    // Sort the tags by the order they're defined in ENTRY_TAGS
+    return sortBy(tagsInUse, t => ENTRY_TAGS.indexOf(t));
+  };
+
+  /**
+   * Returns LogEntries matching a given tag in alphabetical order (case-insensitive)
+   */
+  const getLogEntriesForTag = async tag => {
+    const entries = await db.logEntries
+      .where("tags")
+      .equals(tag)
+      .toArray();
+    return sortBy(entries, e => e.description.toLowerCase());
+  };
+
   const contextValue = {
     saveLogEntry,
     getLogEntriesForDay,
     saveBloodGlucoseLevels,
-    getBloodGlucoseLevelsForDay
+    getBloodGlucoseLevelsForDay,
+    getBloodGlucoseLevelsForLogEntry,
+    getUtilizedTags,
+    getLogEntriesForTag
   };
 
   return <DatabaseContext.Provider value={contextValue} {...props} />;
