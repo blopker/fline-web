@@ -10,6 +10,7 @@ import EntryListItem from "./EntryListItem";
 import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
 import ImportDialog from "../import/ImportDialog";
 import EditDialog from "../edit/EditDialog";
+import ExploreDialog from "../explore/ExploreDialog";
 
 import { useDatabase } from "../databaseContext";
 
@@ -134,6 +135,15 @@ function LogScreen(props) {
             />
           );
         }}
+      </Route>
+
+      <Route path={`/log/explore`}>
+        {routeProps => (
+          <ExploreDialog
+            isOpen={routeProps.match !== null}
+            onClose={handleCloseDialog}
+          />
+        )}
       </Route>
     </>
   );
