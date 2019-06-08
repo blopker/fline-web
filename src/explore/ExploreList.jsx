@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Box from "@material-ui/core/Box";
@@ -18,6 +18,10 @@ const useStyles = makeStyles(
     },
     subheader: {
       textTransform: "capitalize"
+    },
+    compact: {
+      paddingTop: theme.spacing(0.25),
+      paddingBottom: theme.spacing(0.25)
     }
   }),
   { name: "ExploreList" }
@@ -33,6 +37,12 @@ const ExploreList = props => {
     onClick,
     selectedTag
   } = props;
+
+  // Reset the scroll position of the list when changing Tags
+  const listRef = useRef(null);
+  useLayoutEffect(() => {
+    listRef.current.scrollTop = 0;
+  }, [selectedTag]);
 
   const [entriesWithData, entriesWithoutData] = partition(
     entries,
@@ -51,17 +61,13 @@ const ExploreList = props => {
   );
 
   const renderEntryWithoutData = entry => (
-    <ListItem
-      key={entry.id}
-      divider
-      style={{ paddingTop: 2, paddingBottom: 2 }}
-    >
+    <ListItem key={entry.id} className={classes.compact} divider>
       <ListItemText secondary={entry.description} />
     </ListItem>
   );
 
   return (
-    <List dense className={classes.logEntriesList}>
+    <List dense className={classes.logEntriesList} ref={listRef}>
       {entriesWithData.length > 0 && (
         <>
           <ListSubheader className={classes.subheader} disableSticky>
@@ -79,6 +85,7 @@ const ExploreList = props => {
           {entriesWithoutData.map(renderEntryWithoutData)}
         </>
       )}
+      <Box marginBottom={5} />
     </List>
   );
 };
