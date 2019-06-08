@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-
+import pick from "lodash/pick";
+import omit from "lodash/omit";
+import { differenceInSeconds } from "date-fns";
 import { withTheme } from "@material-ui/core/styles";
-import { format } from "date-fns";
+import teal from "@material-ui/core/colors/teal";
+import orange from "@material-ui/core/colors/orange";
 import { Grid, GridColumns } from "@vx/grid";
 import { AxisBottom, AxisLeft } from "@vx/axis";
 import { LinePath } from "@vx/shape";
 import { curveCatmullRom } from "@vx/curve";
-import teal from "@material-ui/core/colors/teal";
-import orange from "@material-ui/core/colors/orange";
 import { Group } from "@vx/group";
-import { scaleLinear, scaleTime } from "@vx/scale";
-import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
+import { scaleLinear } from "@vx/scale";
 import ResponsiveWrapper from "../ResponsiveWrapper";
+import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 
 const ResponsiveComparisonGraph = props => {
   return (
@@ -30,20 +31,28 @@ const ComparisonGraph = props => {
   const {
     width,
     height,
-    series,
+    entries,
     theme,
     highlightedEntryId,
-    selectedTag
+    selectedTag,
+    checkedEntryIds
   } = props;
-  if (!(width && height)) {
-    return null;
-  }
 
   const margin = {
     top: theme.spacing(2),
     right: theme.spacing(2),
     bottom: theme.spacing(4),
-    left: theme.spacing(4)
+    left: theme.spacing(5)
+  };
+
+  const SECONDS_PER_HOUR = 60 * 60;
+
+  const times = {
+    entryDate: 0,
+    oneHourEarlier: SECONDS_PER_HOUR * -1,
+    oneHourLater: SECONDS_PER_HOUR,
+    twoHoursLater: SECONDS_PER_HOUR * 2,
+    threeHoursLater: SECONDS_PER_HOUR * 3
   };
 
   const xMax = width - margin.left - margin.right;
@@ -51,18 +60,42 @@ const ComparisonGraph = props => {
 
   const xScale = scaleLinear({
     range: [0, xMax],
-    domain: [-60 * 60, 60 * 60 * 3]
+    domain: [times.oneHourEarlier, times.threeHoursLater]
   });
 
   const yScale = scaleLinear({
     range: [yMax, 0],
     domain: GLUCOSE_LEVELS.range,
-    clamp: true,
-    nice: true
+    clamp: true
   });
 
   const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
-  const { [highlightedEntryId]: orangeSeries, ...tealSeries } = series;
+
+  // Tack on an extra property tracking the elapsed number of seconds
+  // since the LogEntry time for each of the blood glucose readings
+  const series = useMemo(() => {
+    const result = {};
+    entries.forEach(entry => {
+      const baseLine = entry.bloodGlucoseLevels.find(
+        lvl => lvl.date >= entry.date
+      );
+      result[entry.id] = entry.bloodGlucoseLevels.map(lvl => ({
+        ...lvl,
+        timeDelta: differenceInSeconds(lvl.date, entry.date),
+        levelDelta: lvl.level - baseLine
+      }));
+    });
+    return result;
+  }, [entries]);
+
+  const orangeSeries = series[highlightedEntryId];
+  let tealSeries = pick(series, checkedEntryIds);
+  tealSeries = omit(tealSeries, highlightedEntryId);
+
+  // const tealSeries = pickBy(series, (value, id) => {
+  //   debugger;
+  //   return checkedEntryIds.includes(id) && id !== highlightedEntryId;
+  // });
 
   return (
     <svg
@@ -90,15 +123,15 @@ const ComparisonGraph = props => {
           width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.05)"
-          // numTicksRows={8}
-          // numTicksColumns={4}
+          numTicksRows={5}
+          columnTickValues={Object.values(times)}
         />
 
         <GridColumns
           scale={xScale}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.4)"
-          tickValues={[0, 60 * 60 * 2]}
+          tickValues={[times.entryDate, times.twoHoursLater]}
         />
 
         {/* the y-axis tracks the glucose level */}
@@ -124,9 +157,9 @@ const ComparisonGraph = props => {
           top={yMax}
           stroke={theme.palette.divider}
           tickStroke={"rgba(255, 255, 255, 0.4)"}
-          tickValues={[0, 60 * 60 * 2]}
+          tickValues={[times.entryDate, times.twoHoursLater]}
           tickFormat={x => {
-            if (x === 0) {
+            if (x === times.entryDate) {
               return selectedTag;
             } else {
               return "+2 hours";
@@ -145,7 +178,7 @@ const ComparisonGraph = props => {
             <LinePath
               key={entryId}
               data={data}
-              x={d => xScale(d.entryTimeDelta)}
+              x={d => xScale(d.timeDelta)}
               y={d => yScale(d.level)}
               stroke={teal[300]}
               strokeWidth={2}
@@ -158,7 +191,7 @@ const ComparisonGraph = props => {
           <LinePath
             key={highlightedEntryId}
             data={orangeSeries}
-            x={d => xScale(d.entryTimeDelta)}
+            x={d => xScale(d.timeDelta)}
             y={d => yScale(d.level)}
             stroke={orange[500]}
             strokeWidth={3}
@@ -172,8 +205,9 @@ const ComparisonGraph = props => {
 
 ComparisonGraph.propTypes = {
   selectedTag: PropTypes.string.isRequired,
-  series: PropTypes.object.isRequired,
+  entries: PropTypes.array.isRequired,
   theme: PropTypes.object.isRequired,
+  checkedEntryIds: PropTypes.array,
   highlightedEntryId: PropTypes.number
 };
 
