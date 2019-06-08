@@ -12,6 +12,9 @@ import { LinePath } from "@vx/shape";
 import { curveCatmullRom } from "@vx/curve";
 import { Group } from "@vx/group";
 import { scaleLinear } from "@vx/scale";
+
+import AnimatedLinePath from "./AnimatedLinePath";
+
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 
@@ -175,7 +178,7 @@ const ComparisonGraph = props => {
 
         {tealSeries &&
           Object.entries(tealSeries).map(([entryId, data]) => (
-            <LinePath
+            <AnimatedLinePath
               key={entryId}
               data={data}
               x={d => xScale(d.timeDelta)}
