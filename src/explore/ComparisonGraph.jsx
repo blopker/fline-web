@@ -1,22 +1,17 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import pick from "lodash/pick";
-import omit from "lodash/omit";
 import { differenceInSeconds } from "date-fns";
 import { withTheme } from "@material-ui/core/styles";
 import teal from "@material-ui/core/colors/teal";
 import orange from "@material-ui/core/colors/orange";
 import { Grid, GridColumns } from "@vx/grid";
 import { AxisBottom, AxisLeft } from "@vx/axis";
-import { LinePath } from "@vx/shape";
 import { curveCatmullRom } from "@vx/curve";
 import { Group } from "@vx/group";
 import { scaleLinear } from "@vx/scale";
-
-import AnimatedLinePath from "./AnimatedLinePath";
-
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
+import AnimatedLinePath from "./AnimatedLinePath";
 
 const ResponsiveComparisonGraph = props => {
   return (
@@ -48,8 +43,10 @@ const ComparisonGraph = props => {
     left: theme.spacing(5)
   };
 
+  // In order to compare LogEntries across different dates, we need to use a
+  // uniform time scale. Zero out the entry date then consider only the number
+  // of seconds elapsed since that entry date.
   const SECONDS_PER_HOUR = 60 * 60;
-
   const times = {
     entryDate: 0,
     oneHourEarlier: SECONDS_PER_HOUR * -1,
@@ -57,6 +54,37 @@ const ComparisonGraph = props => {
     twoHoursLater: SECONDS_PER_HOUR * 2,
     threeHoursLater: SECONDS_PER_HOUR * 3
   };
+
+  // Normalize the times of all of the entries under the current Tag by
+  // slapping on an extra property tracking the elapsed number of seconds
+  // since the LogEntry time for each of the blood glucose readings.
+  const normalizedData = useMemo(() => {
+    const result = {};
+    entries.forEach(entry => {
+      const baseLine = entry.bloodGlucoseLevels.find(
+        lvl => lvl.date >= entry.date
+      );
+      result[entry.id] = entry.bloodGlucoseLevels.map(lvl => ({
+        ...lvl,
+        timeDelta: differenceInSeconds(lvl.date, entry.date),
+        levelDelta: lvl.level - baseLine
+      }));
+    });
+    return result;
+  }, [entries]);
+
+  // From the list of checked entries, figure out what needs plotting.
+  // Note that the checkedEntryIDs are not limited to the current set of entries
+  // and IDs from previously explored Tags may be still be checked.
+  const entryIdsToPlot = checkedEntryIds.filter(
+    id => id in normalizedData && id !== highlightedEntryId
+  );
+
+  if (highlightedEntryId in normalizedData) {
+    // The highlighted line should be added LAST to the list, it should be drawn
+    // after all previously painted entries to mimic a higher z-index
+    entryIdsToPlot.push(highlightedEntryId);
+  }
 
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
@@ -73,32 +101,6 @@ const ComparisonGraph = props => {
   });
 
   const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
-
-  // Tack on an extra property tracking the elapsed number of seconds
-  // since the LogEntry time for each of the blood glucose readings
-  const series = useMemo(() => {
-    const result = {};
-    entries.forEach(entry => {
-      const baseLine = entry.bloodGlucoseLevels.find(
-        lvl => lvl.date >= entry.date
-      );
-      result[entry.id] = entry.bloodGlucoseLevels.map(lvl => ({
-        ...lvl,
-        timeDelta: differenceInSeconds(lvl.date, entry.date),
-        levelDelta: lvl.level - baseLine
-      }));
-    });
-    return result;
-  }, [entries]);
-
-  const orangeSeries = series[highlightedEntryId];
-  let tealSeries = pick(series, checkedEntryIds);
-  tealSeries = omit(tealSeries, highlightedEntryId);
-
-  // const tealSeries = pickBy(series, (value, id) => {
-  //   debugger;
-  //   return checkedEntryIds.includes(id) && id !== highlightedEntryId;
-  // });
 
   return (
     <svg
@@ -130,6 +132,7 @@ const ComparisonGraph = props => {
           columnTickValues={Object.values(times)}
         />
 
+        {/* redraw the event time and +2hr grid lines in a brighter color */}
         <GridColumns
           scale={xScale}
           height={yMax}
@@ -155,6 +158,7 @@ const ComparisonGraph = props => {
           })}
         />
 
+        {/* the x-axis tracks time */}
         <AxisBottom
           scale={xScale}
           top={yMax}
@@ -176,31 +180,18 @@ const ComparisonGraph = props => {
           })}
         />
 
-        {tealSeries &&
-          Object.entries(tealSeries).map(([entryId, data]) => (
-            <AnimatedLinePath
-              key={entryId}
-              data={data}
-              x={d => xScale(d.timeDelta)}
-              y={d => yScale(d.level)}
-              stroke={teal[300]}
-              strokeWidth={2}
-              curve={curveCatmullRom}
-            />
-          ))}
-
-        {/* The highlighted entry is painted last, on top of the other lines */}
-        {orangeSeries && (
-          <LinePath
-            key={highlightedEntryId}
-            data={orangeSeries}
+        {/* animate a glucose line for each checked entry */}
+        {entryIdsToPlot.map(entryId => (
+          <AnimatedLinePath
+            key={entryId}
+            data={normalizedData[entryId]}
             x={d => xScale(d.timeDelta)}
             y={d => yScale(d.level)}
-            stroke={orange[500]}
-            strokeWidth={3}
+            stroke={highlightedEntryId === entryId ? orange[500] : teal[300]}
+            strokeWidth={2}
             curve={curveCatmullRom}
           />
-        )}
+        ))}
       </Group>
     </svg>
   );
