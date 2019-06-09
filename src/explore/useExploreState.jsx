@@ -141,11 +141,6 @@ const useExploreState = () => {
 
   const { tags, selectedTag, tagsDateLoaded, exploreEntriesDateLoaded } = state;
 
-  // TODO!
-  console.groupCollapsed("useExploreState called");
-  console.log(state);
-  console.groupEnd();
-
   const {
     getUtilizedTags,
     getLogEntriesForTag,
@@ -162,7 +157,6 @@ const useExploreState = () => {
       });
     }
     initializeTags();
-    console.debug(`initialize tags was called`, { refreshToken });
   }, [refreshToken, getUtilizedTags]);
 
   // Load the Entries for the selected Tag anytime the selected Tag changes
@@ -192,14 +186,11 @@ const useExploreState = () => {
         return exploreEntry;
       });
 
-      console.debug("exploreEntries were loaded!", { exploreEntries }); // TODO TODO
       dispatch({
         type: "ENTRIES_LOADED",
         payload: { exploreEntries, dateLoaded: Date.now() }
       });
     }
-
-    console.debug(`should load entries? ${Boolean(selectedTag)}`);
 
     if (selectedTag) {
       loadEntries(selectedTag);

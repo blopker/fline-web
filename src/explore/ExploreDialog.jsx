@@ -53,7 +53,6 @@ const ExploreDialog = props => {
 
   useEffect(() => {
     if (isOpen) {
-      console.warn("refreshing");
       refresh();
     }
   }, [isOpen, refresh]);
