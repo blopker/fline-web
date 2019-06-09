@@ -15,7 +15,7 @@ import AnimatedLinePath from "./AnimatedLinePath";
 
 const ResponsiveComparisonGraph = props => {
   return (
-    <div style={{ width: "100%", height: 180 }}>
+    <div style={{ width: "100%", height: "30vh", minHeight: 180 }}>
       <ResponsiveWrapper>
         {({ width, height }) => (
           <ComparisonGraph width={width} height={height} {...props} />
@@ -188,7 +188,7 @@ const ComparisonGraph = props => {
             x={d => xScale(d.timeDelta)}
             y={d => yScale(d.level)}
             stroke={highlightedEntryId === entryId ? orange[500] : teal[300]}
-            strokeWidth={2}
+            strokeWidth={highlightedEntryId === entryId ? 3 : 2}
             curve={curveCatmullRom}
           />
         ))}
