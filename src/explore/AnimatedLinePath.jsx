@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 import { LinePath } from "@vx/shape";
-import { Spring, animated } from "react-spring/renderprops";
+import { Spring, animated } from "react-spring/renderprops.cjs";
 
 /**
  * @vx/LinePath that is animated to look like it's drawing itself
