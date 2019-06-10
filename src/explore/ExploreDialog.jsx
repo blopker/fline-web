@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/styles";
@@ -46,16 +46,9 @@ const ExploreDialog = props => {
     deselectAll,
     highlightEntry,
     toggleEntry,
-    refresh,
     isEmpty,
     isLoading
-  } = useExploreState();
-
-  useEffect(() => {
-    if (isOpen) {
-      refresh();
-    }
-  }, [isOpen, refresh]);
+  } = useExploreState(isOpen);
 
   return (
     <Dialog
@@ -69,7 +62,7 @@ const ExploreDialog = props => {
 
       {isLoading && (
         <Box display="flex" justifyContent={"center"} margin={5}>
-          <CircularProgress />
+          <CircularProgress aria-label={"loading"} />
         </Box>
       )}
 

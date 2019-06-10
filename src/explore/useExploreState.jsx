@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer, useMemo } from "react";
+import { useEffect, useReducer, useMemo } from "react";
 import { addHours, isWithinInterval } from "date-fns";
 import union from "lodash/union";
 import without from "lodash/without";
@@ -126,9 +126,7 @@ const exploreReducer = (state, action) => {
 |--------------------------------------------------
 */
 
-const useExploreState = () => {
-  const [refreshToken, setRefreshToken] = useState(() => Date.now());
-
+const useExploreState = isDialogOpen => {
   const [state, dispatch] = useReducer(exploreReducer, {
     tags: [],
     tagsDateLoaded: null,
@@ -156,8 +154,10 @@ const useExploreState = () => {
         payload: { tags: utilizedTags, dateLoaded: Date.now() }
       });
     }
-    initializeTags();
-  }, [refreshToken, getUtilizedTags]);
+    if (isDialogOpen) {
+      initializeTags();
+    }
+  }, [isDialogOpen, getUtilizedTags]);
 
   // Load the Entries for the selected Tag anytime the selected Tag changes
   // Also reload anytime tagsDateLoaded has changed due to a refresh
@@ -212,8 +212,7 @@ const useExploreState = () => {
       highlightEntry: entryId =>
         dispatch({ type: "HIGHLIGHT_ENTRY", payload: entryId }),
       toggleEntry: entryId =>
-        dispatch({ type: "TOGGLE_ENTRY_CHECKED", payload: entryId }),
-      refresh: () => setRefreshToken(() => Date.now())
+        dispatch({ type: "TOGGLE_ENTRY_CHECKED", payload: entryId })
     }),
     [dispatch]
   );
