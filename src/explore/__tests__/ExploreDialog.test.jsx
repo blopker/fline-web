@@ -2,19 +2,16 @@ import React from "react";
 import {
   render,
   fireEvent,
-  waitForElementToBeRemoved,
-  waitForDomChange
+  waitForElementToBeRemoved
 } from "react-testing-library";
 import ExploreDialog from "../ExploreDialog";
 import { db } from "../../db";
 import Theme from "../../Theme";
 import { DatabaseProvider } from "../../databaseContext";
-import { MemoryRouter, Route } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 
 jest.mock("../../ResponsiveWrapper");
 jest.mock("../AnimatedLinePath");
-
-jest.mock("@material-ui/core/Dialog", () => ({ children }) => children);
 
 // Wipe the DB across tests
 beforeEach(async () => {
@@ -249,40 +246,40 @@ describe("ExploreDialog", () => {
       .closest("li")
       .querySelector("input");
 
-    // The first element should be auto checked
-    expect(hotDogInput.checked).toBe(true);
-    expect(turkeyInput.checked).toBe(false);
-    expect(graph.querySelectorAll("path")).toHaveLength(1);
-    expect(getByTestId("path-100")).toBeInTheDocument();
-    expect(queryByTestId("path-200")).not.toBeInTheDocument();
-
-    fireEvent.click(turkeyInput);
+    // The all element should be checked by default initially
     expect(hotDogInput.checked).toBe(true);
     expect(turkeyInput.checked).toBe(true);
     expect(graph.querySelectorAll("path")).toHaveLength(2);
     expect(getByTestId("path-100")).toBeInTheDocument();
     expect(getByTestId("path-200")).toBeInTheDocument();
 
-    fireEvent.click(hotDogInput);
-    expect(hotDogInput.checked).toBe(false);
-    expect(turkeyInput.checked).toBe(true);
-    expect(graph.querySelectorAll("path")).toHaveLength(1);
-    expect(queryByTestId("path-100")).not.toBeInTheDocument();
-    expect(getByTestId("path-200")).toBeInTheDocument();
-
     fireEvent.click(turkeyInput);
+    expect(hotDogInput.checked).toBe(true);
+    expect(turkeyInput.checked).toBe(false);
+    expect(graph.querySelectorAll("path")).toHaveLength(1);
+    expect(getByTestId("path-100")).toBeInTheDocument();
+    expect(queryByTestId("path-200")).not.toBeInTheDocument();
+
+    fireEvent.click(hotDogInput);
     expect(hotDogInput.checked).toBe(false);
     expect(turkeyInput.checked).toBe(false);
     expect(graph.querySelectorAll("path")).toHaveLength(0);
     expect(queryByTestId("path-100")).not.toBeInTheDocument();
     expect(queryByTestId("path-200")).not.toBeInTheDocument();
 
+    fireEvent.click(turkeyInput);
+    expect(hotDogInput.checked).toBe(false);
+    expect(turkeyInput.checked).toBe(true);
+    expect(graph.querySelectorAll("path")).toHaveLength(1);
+    expect(queryByTestId("path-100")).not.toBeInTheDocument();
+    expect(getByTestId("path-200")).toBeInTheDocument();
+
     fireEvent.click(hotDogInput);
     expect(hotDogInput.checked).toBe(true);
-    expect(turkeyInput.checked).toBe(false);
-    expect(graph.querySelectorAll("path")).toHaveLength(1);
+    expect(turkeyInput.checked).toBe(true);
+    expect(graph.querySelectorAll("path")).toHaveLength(2);
     expect(getByTestId("path-100")).toBeInTheDocument();
-    expect(queryByTestId("path-200")).not.toBeInTheDocument();
+    expect(getByTestId("path-200")).toBeInTheDocument();
   });
 
   test("Highlighting an entry highlights a path", async () => {
@@ -325,10 +322,12 @@ describe("ExploreDialog", () => {
     const hotDogLine = getByTestId("path-100");
     const hotDogText = getByText(/hot dog/i);
     expect(hotDogLine).toBeInTheDocument();
+    expect(hotDogLine).toHaveAttribute("stroke", "#ff9800");
+
+    fireEvent.click(hotDogText);
     expect(hotDogLine).not.toHaveAttribute("stroke", "#ff9800");
+
     fireEvent.click(hotDogText);
     expect(hotDogLine).toHaveAttribute("stroke", "#ff9800");
-    fireEvent.click(hotDogText);
-    expect(hotDogLine).not.toHaveAttribute("stroke", "#ff9800");
   });
 });

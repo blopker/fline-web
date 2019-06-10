@@ -27,20 +27,25 @@ const selectTag = (state, action) => {
 };
 
 const entriesLoaded = (state, action) => {
-  const { exploreEntries, dateLoaded } = action.payload;
-  let { checkedEntryIds } = state;
-  // Check the first entry by default is no other entries are already checked
-  if (!exploreEntries.some(entry => checkedEntryIds.includes(entry.id))) {
-    const firstEntryWithData = exploreEntries.find(e => e.hasEnoughData);
-    if (firstEntryWithData) {
-      checkedEntryIds = union(checkedEntryIds, [firstEntryWithData.id]);
-    }
+  const { exploreEntries, tag, dateLoaded } = action.payload;
+  let { checkedEntryIds, visitedTags, highlightedEntryId } = state;
+
+  // If it's our first time loading this tag, check all the entries by default
+  // and highlight the first entry
+  if (!visitedTags.includes(tag)) {
+    const ids = exploreEntries.filter(e => e.hasEnoughData).map(e => e.id);
+    highlightedEntryId = ids[0] || highlightedEntryId;
+    checkedEntryIds = union(checkedEntryIds, ids);
+    visitedTags = union(visitedTags, [tag]);
   }
+
   return {
     ...state,
     exploreEntries,
     exploreEntriesDateLoaded: dateLoaded,
-    checkedEntryIds
+    checkedEntryIds,
+    visitedTags,
+    highlightedEntryId
   };
 };
 
@@ -134,7 +139,8 @@ const useExploreState = isDialogOpen => {
     exploreEntries: [],
     exploreEntriesDateLoaded: null,
     highlightedEntryId: null,
-    checkedEntryIds: []
+    checkedEntryIds: [],
+    visitedTags: []
   });
 
   const { tags, selectedTag, tagsDateLoaded, exploreEntriesDateLoaded } = state;
@@ -188,7 +194,7 @@ const useExploreState = isDialogOpen => {
 
       dispatch({
         type: "ENTRIES_LOADED",
-        payload: { exploreEntries, dateLoaded: Date.now() }
+        payload: { exploreEntries, tag, dateLoaded: Date.now() }
       });
     }
 
