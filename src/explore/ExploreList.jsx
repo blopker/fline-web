@@ -13,7 +13,7 @@ import ExploreListItem from "./ExploreListItem";
 
 const useStyles = makeStyles(
   theme => ({
-    logEntriesList: {
+    root: {
       overflowY: "auto"
     },
     subheader: {
@@ -67,26 +67,30 @@ const ExploreList = props => {
   );
 
   return (
-    <List dense className={classes.logEntriesList} ref={listRef}>
+    <div className={classes.root} ref={listRef}>
       {entriesWithData.length > 0 && (
         <>
-          <ListSubheader className={classes.subheader} disableSticky>
-            {selectedTag} Entries
-          </ListSubheader>
-          {entriesWithData.map(renderEntryWithData)}
-          <Box marginBottom={3} />
+          <List dense data-testid="entriesWithData">
+            <ListSubheader className={classes.subheader} disableSticky>
+              {selectedTag} Entries
+            </ListSubheader>
+            {entriesWithData.map(renderEntryWithData)}
+          </List>
+          <Box marginBottom={1} />
         </>
       )}
       {entriesWithoutData.length > 0 && (
         <>
-          <ListSubheader className={classes.subheader} disableSticky>
-            {selectedTag} Entries Without Enough Data
-          </ListSubheader>
-          {entriesWithoutData.map(renderEntryWithoutData)}
+          <List dense data-testid="entriesWithoutData">
+            <ListSubheader className={classes.subheader} disableSticky>
+              {selectedTag} Entries Without Enough Data
+            </ListSubheader>
+            {entriesWithoutData.map(renderEntryWithoutData)}
+          </List>
         </>
       )}
       <Box marginBottom={5} />
-    </List>
+    </div>
   );
 };
 

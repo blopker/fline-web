@@ -107,6 +107,7 @@ const ComparisonGraph = props => {
       width={width}
       height={height}
       style={{ fontFamily: theme.typography.fontFamily }}
+      data-testid="comparisonGraph"
     >
       <Group top={margin.top} left={margin.left}>
         {/* green reference area designating the good glucose level ranges */}
@@ -185,6 +186,7 @@ const ComparisonGraph = props => {
           <AnimatedLinePath
             key={entryId}
             data={normalizedData[entryId]}
+            data-testid={`path-${entryId}`}
             x={d => xScale(d.timeDelta)}
             y={d => yScale(d.level)}
             stroke={highlightedEntryId === entryId ? orange[500] : teal[300]}
