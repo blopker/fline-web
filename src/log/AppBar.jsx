@@ -1,110 +1,68 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
+import { Link } from "react-router-dom";
+import { withStyles } from "@material-ui/styles";
 import AppBar from "@material-ui/core/AppBar";
+import Box from "@material-ui/core/Box";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import CalendarTodayIcon from "@material-ui/icons/CalendarToday";
-
 import ArrowBack from "@material-ui/icons/ArrowBackIos";
 import ArrowForward from "@material-ui/icons/ArrowForwardIos";
-import DayPicker from "./DayPicker";
+import ExploreIcon from "@material-ui/icons/Explore";
+import { isSameDay, addDays } from "date-fns";
 
 const styles = theme => ({
-  grow: {
-    flexGrow: 1,
-    textAlign: "center"
-  },
-  inline: {
-    display: "inline-block"
-  },
-  date: {
-    top: "3px",
-    position: "relative"
-  },
   spacer: theme.mixins.toolbar
 });
 
+const ExploreLink = React.forwardRef((props, ref) => (
+  <Link to="/log/explore" innerRef={ref} {...props} />
+));
+
 function ButtonAppBar(props) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleCalendar(e) {
-    e && e.preventDefault();
-
-    setIsOpen(isOpen => {
-      return !isOpen;
-    });
-  }
-
-  function onDateChange(date) {
-    props.setDate(date);
-    toggleCalendar();
-  }
-
   function onNextDate() {
-    props.setDate(date => {
-      var result = new Date(date);
-      result.setDate(result.getDate() + 1);
-      return result;
-    });
+    props.setDate(date => addDays(date, 1));
   }
 
-  function onLastDate() {
-    props.setDate(date => {
-      var result = new Date(date);
-      result.setDate(result.getDate() - 1);
-      return result;
-    });
+  function onPrevDate() {
+    props.setDate(date => addDays(date, -1));
   }
 
-  const { classes } = props;
-  let d = props.date;
+  const { date, menu, classes } = props;
+
+  const formattedDate = isSameDay(date, new Date())
+    ? "Today"
+    : date.toLocaleDateString("en-US");
+
   return (
     <>
       <AppBar position="fixed">
         <Toolbar>
-          {props.menu}
-          <div className={classes.grow}>
-            <IconButton
-              onClick={onLastDate}
-              className={classes.inline}
-              aria-label="Previous Date"
-            >
-              <ArrowBack className={`${classes.arrow} ${classes.arrowBack}`} />
-            </IconButton>
-            <Typography
-              variant="h6"
-              color="inherit"
-              className={`${classes.inline} ${classes.date}`}
-            >
-              {d.toLocaleDateString("en-US")}
-            </Typography>
-            <IconButton
-              onClick={onNextDate}
-              className={classes.inline}
-              aria-label="Next Date"
-            >
-              <ArrowForward
-                className={`${classes.arrow} ${classes.arrowForward}`}
-              />
-            </IconButton>
-          </div>
-          <IconButton
-            color="inherit"
-            aria-label="Day Picker"
-            onClick={toggleCalendar}
+          {menu}
+          <Box
+            display="flex"
+            flexGrow={1}
+            justifyContent="center"
+            alignItems="center"
+            fontSize="h6.fontSize"
           >
-            <CalendarTodayIcon />
+            <IconButton onClick={onPrevDate} aria-label="Previous Date">
+              <ArrowBack viewBox="0 0 16 24" />
+            </IconButton>
+            <Box minWidth="10ch" textAlign="center">
+              <Typography variant="h6">{formattedDate}</Typography>
+            </Box>
+            <IconButton onClick={onNextDate} aria-label="Next Date">
+              <ArrowForward />
+            </IconButton>
+          </Box>
+          <IconButton aria-label="Explore" component={ExploreLink}>
+            <ExploreIcon />
           </IconButton>
-          <DayPicker
-            isOpen={isOpen}
-            onRequestClose={toggleCalendar}
-            onDateChange={onDateChange}
-            selectedDay={d}
-          />
         </Toolbar>
       </AppBar>
+      {/* Add a dummy spacer so page content is not covered up by the AppBar */}
       <div className={classes.spacer} />
     </>
   );
@@ -112,7 +70,9 @@ function ButtonAppBar(props) {
 
 ButtonAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
-  menu: PropTypes.element.isRequired
+  date: PropTypes.object.isRequired,
+  menu: PropTypes.node.isRequired,
+  setDate: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ButtonAppBar);

@@ -7,6 +7,7 @@ import {
 } from "react-testing-library";
 import LogScreen from "../LogScreen";
 import { db } from "../../db";
+import Theme from "../../Theme";
 import { DatabaseProvider } from "../../databaseContext";
 import { MemoryRouter, Route } from "react-router-dom";
 
@@ -20,9 +21,11 @@ afterAll(async () => {
 });
 
 const AllTheProviders = ({ children }) => (
-  <DatabaseProvider db={db}>
-    <MemoryRouter initialEntries={["/log"]}>{children}</MemoryRouter>
-  </DatabaseProvider>
+  <Theme>
+    <DatabaseProvider db={db}>
+      <MemoryRouter initialEntries={["/log"]}>{children}</MemoryRouter>
+    </DatabaseProvider>
+  </Theme>
 );
 
 // Re-usable helper function for setting up data providers between test cases

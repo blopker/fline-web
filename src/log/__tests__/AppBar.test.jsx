@@ -1,17 +1,39 @@
 import React from "react";
 import { render, fireEvent } from "react-testing-library";
+import { MemoryRouter, Route } from "react-router-dom";
+import MockDate from "mockdate";
+import Theme from "../../Theme";
 import AppBar from "../AppBar";
 
+afterEach(() => {
+  MockDate.reset();
+});
+
+const AllTheProviders = ({ children }) => (
+  <Theme>
+    <MemoryRouter initialEntries={["/log"]}>{children}</MemoryRouter>
+  </Theme>
+);
+
+// Re-usable helper function for setting up data providers between test cases
+const renderWithProviders = (ui, options) =>
+  render(ui, { wrapper: AllTheProviders, ...options });
+
 describe("AppBar", () => {
-  test("renders the app title", () => {
-    const { getByText } = render(
-      <AppBar date={new Date()} menu={<div />} setDate={jest.fn()} />
+  test("renders the word today if the selected date is today", () => {
+    MockDate.set("2019-07-04T12:30");
+    const fourthOfJuly = new Date("2019-07-04T00:00");
+    const { getByText } = renderWithProviders(
+      <AppBar date={fourthOfJuly} menu={<div />} setDate={jest.fn()} />
     );
+    getByText(/today/i);
   });
 
-  test("renders the selected date using en-US locale", () => {
+  test("renders the selected date in en-US locale if not today's date", () => {
+    const secondOfJuly = new Date("2019-07-02T00:00");
     const fourthOfJuly = new Date("2019-07-04T00:00");
-    const { getByText } = render(
+    MockDate.set(secondOfJuly);
+    const { getByText } = renderWithProviders(
       <AppBar menu={<div />} date={fourthOfJuly} setDate={jest.fn()} />
     );
     getByText("7/4/2019");
@@ -21,7 +43,7 @@ describe("AppBar", () => {
     let date = new Date("2019-07-04T00:00");
     const mockSetDate = jest.fn(cb => (date = cb(date)));
 
-    const { getByLabelText } = render(
+    const { getByLabelText } = renderWithProviders(
       <AppBar menu={<div />} date={date} setDate={mockSetDate} />
     );
 
@@ -40,7 +62,7 @@ describe("AppBar", () => {
     let date = new Date("2019-07-04T00:00");
     const mockSetDate = jest.fn(cb => (date = cb(date)));
 
-    const { getByLabelText } = render(
+    const { getByLabelText } = renderWithProviders(
       <AppBar menu={<div />} date={date} setDate={mockSetDate} />
     );
 
@@ -55,12 +77,19 @@ describe("AppBar", () => {
     expect(date.toString()).toBe(new Date("2019-07-06T00:00").toString());
   });
 
-  test("clicking the calendar button opens a day picker", () => {
-    const { getByLabelText, getByTestId } = render(
-      <AppBar menu={<div />} date={new Date()} setDate={jest.fn()} />
+  test("clicking the explore button navigates to the explore screen", () => {
+    let location;
+    const { getByLabelText } = renderWithProviders(
+      <Route>
+        {routeProps => {
+          location = routeProps.location;
+          return (
+            <AppBar menu={<div />} date={new Date()} setDate={jest.fn()} />
+          );
+        }}
+      </Route>
     );
-    const calendarButton = getByLabelText("Day Picker");
-    fireEvent.click(calendarButton);
-    getByTestId("dayPicker");
+    fireEvent.click(getByLabelText("Explore"));
+    expect(location.pathname).toBe("/log/explore");
   });
 });
