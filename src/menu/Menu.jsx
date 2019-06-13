@@ -66,7 +66,7 @@ function AppMenu(props) {
     <div className={classes.list}>
       <List>
         <ListItem button key="0" onClick={exportAction} disabled={!!!dbDump}>
-          <ListItemText primary="Export" />
+          <ListItemText primary="Export data for all days" />
         </ListItem>
         <ListItem button key="1" onClick={refreshAction}>
           <ListItemText primary="Reload" />
