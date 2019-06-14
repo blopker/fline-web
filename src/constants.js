@@ -5,7 +5,7 @@
 const BLOOD_GLUCOSE_LEVELS = {
   "mg/dL": {
     unit: "mg/dL",
-    range: [0, 250],
+    range: [0, 350],
     goodRange: [72, 126],
     croppedRange: [70, 160]
   },
