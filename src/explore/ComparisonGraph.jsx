@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { differenceInSeconds } from "date-fns";
+import flatten from "lodash/flatten";
 import { withTheme } from "@material-ui/core/styles";
 import teal from "@material-ui/core/colors/teal";
 import orange from "@material-ui/core/colors/orange";
@@ -94,10 +95,21 @@ const ComparisonGraph = props => {
     domain: [times.oneHourEarlier, times.threeHoursLater]
   });
 
+  const yExtent = useMemo(() => {
+    const levels = flatten(Object.values(normalizedData)).map(lvl => lvl.level);
+    const min = Math.min(...levels);
+    const max = Math.max(...levels);
+    return [min, max];
+  }, [normalizedData]);
+
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: GLUCOSE_LEVELS.range,
-    clamp: true
+    domain: [
+      Math.min(GLUCOSE_LEVELS.croppedRange[0], yExtent[0]),
+      Math.max(GLUCOSE_LEVELS.croppedRange[1], yExtent[1])
+    ],
+    clamp: true,
+    nice: true
   });
 
   const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
@@ -129,7 +141,7 @@ const ComparisonGraph = props => {
           width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.05)"
-          numTicksRows={5}
+          numTicksRows={4}
           columnTickValues={Object.values(times)}
         />
 
