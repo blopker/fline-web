@@ -12,7 +12,7 @@ import { Group } from "@vx/group";
 import { scaleLinear } from "@vx/scale";
 import ResponsiveWrapper from "../ResponsiveWrapper";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
-import AnimatedLinePath from "./AnimatedLinePath";
+import AnimatedLinePath from "../AnimatedLinePath";
 
 const ResponsiveComparisonGraph = props => {
   return (

@@ -4,12 +4,12 @@ import { withTheme } from "@material-ui/core/styles";
 import { format, startOfDay, addDays } from "date-fns";
 import { Grid } from "@vx/grid";
 import { AxisBottom, AxisLeft } from "@vx/axis";
-import { LinePath } from "@vx/shape";
 import { curveCatmullRom } from "@vx/curve";
 import teal from "@material-ui/core/colors/teal";
 import { Group } from "@vx/group";
 import { scaleLinear, scaleTime } from "@vx/scale";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
+import AnimatedLinePath from "../AnimatedLinePath";
 
 /**
  * Renders a graph of glucose levels for a single day.
@@ -112,7 +112,8 @@ const DailyGraph = memo(props => {
         />
 
         {/* draw a line representing the glucose level */}
-        <LinePath
+        <AnimatedLinePath
+          key={data}
           data={data}
           x={d => xScale(d.date)}
           y={d => yScale(d.level)}
