@@ -14,7 +14,7 @@ import { curveCatmullRom } from "@vx/curve";
 import { format, addHours, isWithinInterval } from "date-fns";
 import truncate from "lodash/truncate";
 import range from "lodash/range";
-import ResponsiveWrapper from "../ResponsiveWrapper";
+import ResponsiveWrapper from "../common/ResponsiveWrapper";
 import NotEnoughDataMessage from "./NotEnoughDataMessage";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 
