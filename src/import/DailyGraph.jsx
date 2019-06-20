@@ -9,7 +9,7 @@ import teal from "@material-ui/core/colors/teal";
 import { Group } from "@vx/group";
 import { scaleLinear, scaleTime } from "@vx/scale";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
-import AnimatedLinePath from "../AnimatedLinePath";
+import AnimatedLinePath from "../common/AnimatedLinePath";
 
 /**
  * Renders a graph of glucose levels for a single day.

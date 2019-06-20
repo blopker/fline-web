@@ -10,8 +10,8 @@ import Theme from "../../Theme";
 import { DatabaseProvider } from "../../databaseContext";
 import { MemoryRouter } from "react-router-dom";
 
-jest.mock("../../ResponsiveWrapper");
-jest.mock("../AnimatedLinePath");
+jest.mock("../../common/ResponsiveWrapper");
+jest.mock("../../common/AnimatedLinePath");
 
 // Wipe the DB across tests
 beforeEach(async () => {

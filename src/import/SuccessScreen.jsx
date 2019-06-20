@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 import TealButton from "./TealButton";
 import DailyGraph from "./DailyGraph";
-import ResponsiveWrapper from "../ResponsiveWrapper";
+import ResponsiveWrapper from "../common/ResponsiveWrapper";
 
 /**
  * The SuccessScreen shows when a screenshot has been successfully imported.
