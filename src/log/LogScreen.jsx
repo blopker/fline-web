@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import { isSameDay, startOfDay } from "date-fns";
 import { Route } from "react-router-dom";
 import List from "@material-ui/core/List";
 import { withStyles } from "@material-ui/core/styles";
@@ -49,6 +50,22 @@ function LogScreen(props) {
   useEffect(() => {
     loadLogData(date);
   }, [date, loadLogData]);
+
+  // Always land on today's date whenever the app comes to the foreground
+  useEffect(() => {
+    const ensureCurrentDate = () => {
+      const becameVisible = !document.hidden;
+      const dateMismatch = !isSameDay(date, new Date());
+      if (becameVisible && dateMismatch) {
+        setDate(startOfDay(new Date()));
+        routeProps.history.replace("/log");
+      }
+    };
+    document.addEventListener("visibilitychange", ensureCurrentDate);
+    return function cleanup() {
+      document.removeEventListener("visibilitychange", ensureCurrentDate);
+    };
+  });
 
   const saveLogEntryAndReload = useCallback(
     async entry => {
