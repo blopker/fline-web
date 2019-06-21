@@ -56,7 +56,8 @@ function LogScreen(props) {
     const ensureCurrentDate = () => {
       const becameVisible = !document.hidden;
       const dateMismatch = !isSameDay(date, new Date());
-      if (becameVisible && dateMismatch) {
+      const mightBeImporting = routeProps.location.pathname === "/log/import";
+      if (becameVisible && dateMismatch && !mightBeImporting) {
         setDate(startOfDay(new Date()));
         routeProps.history.replace("/log");
       }
