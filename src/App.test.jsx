@@ -1,5 +1,5 @@
 import React from "react";
-import { render, waitForDomChange } from "react-testing-library";
+import { render, waitForDomChange } from "@testing-library/react";
 import App from "./App";
 import { db } from "./db";
 

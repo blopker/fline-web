@@ -1,6 +1,6 @@
 import React from "react";
 import { MemoryRouter, Route } from "react-router-dom";
-import { render, fireEvent } from "react-testing-library";
+import { render, fireEvent } from "@testing-library/react";
 import EntryListItem from "../EntryListItem";
 
 const FAKE_ENTRY = {

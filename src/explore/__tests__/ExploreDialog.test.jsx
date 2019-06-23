@@ -3,7 +3,7 @@ import {
   render,
   fireEvent,
   waitForElementToBeRemoved
-} from "react-testing-library";
+} from "@testing-library/react";
 import ExploreDialog from "../ExploreDialog";
 import { db } from "../../db";
 import Theme from "../../Theme";

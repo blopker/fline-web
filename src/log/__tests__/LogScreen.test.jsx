@@ -4,7 +4,7 @@ import {
   fireEvent,
   wait,
   waitForElementToBeRemoved
-} from "react-testing-library";
+} from "@testing-library/react";
 import LogScreen from "../LogScreen";
 import { db } from "../../db";
 import Theme from "../../Theme";

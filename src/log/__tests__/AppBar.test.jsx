@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent } from "react-testing-library";
+import { render, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route } from "react-router-dom";
 import MockDate from "mockdate";
 import Theme from "../../Theme";
