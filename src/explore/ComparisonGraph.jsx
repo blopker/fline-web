@@ -5,13 +5,12 @@ import flatten from "lodash/flatten";
 import { withTheme } from "@material-ui/core/styles";
 import teal from "@material-ui/core/colors/teal";
 import orange from "@material-ui/core/colors/orange";
-import { Grid, GridColumns } from "@vx/grid";
+import { Grid } from "@vx/grid";
 import { AxisBottom, AxisLeft } from "@vx/axis";
 import { curveCatmullRom } from "@vx/curve";
 import { Group } from "@vx/group";
 import { scaleLinear } from "@vx/scale";
 import ResponsiveWrapper from "../common/ResponsiveWrapper";
-import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../constants";
 import AnimatedLinePath from "../common/AnimatedLinePath";
 
 const ResponsiveComparisonGraph = props => {
@@ -68,7 +67,7 @@ const ComparisonGraph = props => {
       result[entry.id] = entry.bloodGlucoseLevels.map(lvl => ({
         ...lvl,
         timeDelta: differenceInSeconds(lvl.date, entry.date),
-        levelDelta: lvl.level - baseLine
+        levelDelta: lvl.level - baseLine.level
       }));
     });
     return result;
@@ -96,7 +95,9 @@ const ComparisonGraph = props => {
   });
 
   const yExtent = useMemo(() => {
-    const levels = flatten(Object.values(normalizedData)).map(lvl => lvl.level);
+    const levels = flatten(Object.values(normalizedData)).map(
+      lvl => lvl.levelDelta
+    );
     const min = Math.min(...levels);
     const max = Math.max(...levels);
     return [min, max];
@@ -104,15 +105,10 @@ const ComparisonGraph = props => {
 
   const yScale = scaleLinear({
     range: [yMax, 0],
-    domain: [
-      Math.min(GLUCOSE_LEVELS.croppedRange[0], yExtent[0]),
-      Math.max(GLUCOSE_LEVELS.croppedRange[1], yExtent[1])
-    ],
+    domain: [Math.min(-20, yExtent[0]), Math.max(60, yExtent[1])],
     clamp: true,
     nice: true
   });
-
-  const [goodGlucoseMin, goodGlucoseMax] = GLUCOSE_LEVELS.goodRange;
 
   return (
     <svg
@@ -122,18 +118,6 @@ const ComparisonGraph = props => {
       data-testid="comparisonGraph"
     >
       <Group top={margin.top} left={margin.left}>
-        {/* green reference area designating the good glucose level ranges */}
-        <rect
-          x="0"
-          y={yScale(goodGlucoseMax)}
-          width={xMax}
-          height={yScale(goodGlucoseMin) - yScale(goodGlucoseMax)}
-          style={{
-            fill: "lime",
-            fillOpacity: 0.06
-          }}
-        />
-
         {/* the background grid lines */}
         <Grid
           xScale={xScale}
@@ -141,27 +125,29 @@ const ComparisonGraph = props => {
           width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.05)"
-          numTicksRows={4}
+          numTicksRows={8}
           columnTickValues={Object.values(times)}
         />
 
-        {/* redraw the event time and +2hr grid lines in a brighter color */}
-        <GridColumns
-          scale={xScale}
+        {/* redraw major grid lines in a brighter color */}
+        <Grid
+          xScale={xScale}
+          yScale={yScale}
+          width={xMax}
           height={yMax}
           stroke="rgba(255, 255, 255, 0.4)"
-          tickValues={[times.entryDate, times.twoHoursLater]}
+          columnTickValues={[times.entryDate, times.twoHoursLater]}
+          rowTickValues={[0]}
         />
 
-        {/* the y-axis tracks the glucose level */}
+        {/* the y-axis tracks the relative glucose change */}
         <AxisLeft
           scale={yScale}
           top={0}
           left={0}
           stroke={theme.palette.divider}
           tickStroke={theme.palette.divider}
-          hideZero
-          numTicks={4}
+          numTicks={8}
           tickLabelProps={({ tick, index }) => ({
             dx: "-0.25em",
             dy: "0.25em",
@@ -169,6 +155,15 @@ const ComparisonGraph = props => {
             fontSize: 12,
             textAnchor: "end"
           })}
+          tickFormat={x => {
+            if (x > 0) {
+              return `+${x}`;
+            } else if (x < 0) {
+              return `-${x}`;
+            } else {
+              return "0";
+            }
+          }}
         />
 
         {/* the x-axis tracks time */}
@@ -200,7 +195,7 @@ const ComparisonGraph = props => {
             data={normalizedData[entryId]}
             data-testid={`path-${entryId}`}
             x={d => xScale(d.timeDelta)}
-            y={d => yScale(d.level)}
+            y={d => yScale(d.levelDelta)}
             stroke={highlightedEntryId === entryId ? orange[500] : teal[300]}
             strokeWidth={highlightedEntryId === entryId ? 3 : 2}
             curve={curveCatmullRom}
