@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Box from "@material-ui/core/Box";
@@ -9,16 +8,12 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBack from "@material-ui/icons/ArrowBackIos";
 import ArrowForward from "@material-ui/icons/ArrowForwardIos";
-import ExploreIcon from "@material-ui/icons/Explore";
 import { isSameDay, addDays } from "date-fns";
+import ExploreButton from "./ExploreButton";
 
 const styles = theme => ({
   spacer: theme.mixins.toolbar
 });
-
-const ExploreLink = React.forwardRef((props, ref) => (
-  <Link to="/log/explore" innerRef={ref} {...props} />
-));
 
 function ButtonAppBar(props) {
   function onNextDate() {
@@ -57,9 +52,7 @@ function ButtonAppBar(props) {
               <ArrowForward />
             </IconButton>
           </Box>
-          <IconButton aria-label="Explore" component={ExploreLink}>
-            <ExploreIcon />
-          </IconButton>
+          <ExploreButton />
         </Toolbar>
       </AppBar>
       {/* Add a dummy spacer so page content is not covered up by the AppBar */}

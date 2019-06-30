@@ -110,6 +110,7 @@ function DatabaseProvider(props) {
     };
 
     return {
+      db,
       saveLogEntry,
       getLogEntriesForDay,
       saveBloodGlucoseLevels,

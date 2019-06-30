@@ -2,6 +2,8 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route } from "react-router-dom";
 import MockDate from "mockdate";
+import { db } from "../../db";
+import { DatabaseProvider } from "../../databaseContext";
 import Theme from "../../Theme";
 import AppBar from "../AppBar";
 
@@ -11,7 +13,9 @@ afterEach(() => {
 
 const AllTheProviders = ({ children }) => (
   <Theme>
-    <MemoryRouter initialEntries={["/log"]}>{children}</MemoryRouter>
+    <DatabaseProvider db={db}>
+      <MemoryRouter initialEntries={["/log"]}>{children}</MemoryRouter>
+    </DatabaseProvider>
   </Theme>
 );
 
