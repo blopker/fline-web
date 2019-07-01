@@ -4,6 +4,12 @@ import App from "./App";
 import { db } from "./db";
 
 it("renders without crashing", async () => {
-  render(<App db={db} />);
+  const mock_fb = {
+    auth: {
+      currentUser: { name: "testUser", email: "test@test.com" },
+      onAuthStateChanged: () => () => {}
+    }
+  };
+  render(<App db={db} fb={mock_fb} />);
   await waitForDomChange();
 });

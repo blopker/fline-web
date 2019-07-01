@@ -19,6 +19,7 @@ const styles = {
 function AppMenu(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [dbDump, setDbDump] = useState();
+
   const toggleDrawer = open => () => {
     setDbDump();
     setIsOpen(open);
