@@ -10,9 +10,6 @@ function FirebaseProvider(props) {
   if (error) {
     Sentry.captureException(error);
   }
-  if (user && !user.email) {
-    user.updateEmail(`user@${window.location.hostname}`);
-  }
   // If user isn't logged in already, make them an Anon user
   if (!user && !initialising) {
     fb.auth.signInAnonymously().catch(function(error) {
