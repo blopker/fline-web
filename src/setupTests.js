@@ -3,7 +3,7 @@
 import "@testing-library/react/cleanup-after-each";
 
 // this adds jest-dom's custom assertions
-import "jest-dom/extend-expect";
+import "@testing-library/jest-dom/extend-expect";
 
 // window.indexedDB is not available when running in headless mode using Jest,
 // stub in a pure JS in-memory implementation of the IndexedDB API for testing
