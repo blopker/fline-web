@@ -1,6 +1,8 @@
 import app from "firebase/app";
 import "firebase/performance";
 import "firebase/auth";
+import "firebase/firestore";
+import "firebase/storage";
 
 var config;
 if (process.env.NODE_ENV === "production") {
@@ -19,7 +21,7 @@ if (process.env.NODE_ENV === "production") {
     authDomain: "firebase-web.fline.ai",
     databaseURL: "https://fline-app-dev.firebaseio.com",
     projectId: "fline-app-dev",
-    storageBucket: "",
+    storageBucket: "fline-app-dev.appspot.com",
     messagingSenderId: "213415012311",
     appId: "1:213415012311:web:e90269ceed17ee3d"
   };
@@ -31,6 +33,11 @@ class Firebase {
     app.performance();
     this.app = app;
     this.auth = app.auth();
+    this.db = app.firestore();
+    this.db.enablePersistence().catch(function(err) {
+      console.log(err.code);
+    });
+    this.storage = app.storage();
   }
 }
 

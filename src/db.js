@@ -68,6 +68,24 @@ db.bloodGlucoseLevels.defineClass({
   level: Number
 });
 
+async function markDirty() {
+  // When was the data last updated?
+  await db.settings.put({ key: "lastChanged", date: new Date() });
+}
+
+db.logEntries.hook("updating", function() {
+  setTimeout(markDirty, 100);
+});
+db.logEntries.hook("creating", function() {
+  setTimeout(markDirty, 100);
+});
+db.bloodGlucoseLevels.hook("creating", function() {
+  setTimeout(markDirty, 100);
+});
+db.bloodGlucoseLevels.hook("updating", function() {
+  setTimeout(markDirty, 100);
+});
+
 async function exportData() {
   return await exportDB(db, {
     prettyJson: true

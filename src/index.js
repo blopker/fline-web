@@ -6,6 +6,7 @@ import { Firebase } from "./firebase";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "./index.css";
+import initSync from "./sync";
 
 if (process.env.NODE_ENV === "production") {
   Sentry.init({
@@ -14,12 +15,13 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-ReactDOM.render(
-  <App db={db} fb={new Firebase()} />,
-  document.getElementById("root")
-);
+const fb = new Firebase();
+
+initSync(db, fb);
+
+ReactDOM.render(<App db={db} fb={fb} />, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+serviceWorker.register();
