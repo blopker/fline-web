@@ -64,6 +64,10 @@ const ComparisonGraph = props => {
       const baseLine = entry.bloodGlucoseLevels.find(
         lvl => lvl.date >= entry.date
       );
+      if (!baseLine) {
+        // Not enough data for a baseline. Won't show up in graph.
+        return;
+      }
       result[entry.id] = entry.bloodGlucoseLevels.map(lvl => ({
         ...lvl,
         timeDelta: differenceInSeconds(lvl.date, entry.date),
