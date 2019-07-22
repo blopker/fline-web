@@ -77,6 +77,7 @@ function isLine(pxs) {
     pxs.length * 0.7
   );
 }
+
 function getGraphDimensions(img) {
   let minY = null;
   let maxY = 0;
@@ -97,25 +98,34 @@ function getGraphDimensions(img) {
   return { maxY, minY, maxX, minX };
 }
 
-function getRawData(img) {
+function getRawData(img, dims) {
+  // Create a mask to drop all pixels below 0.7
   const maskImg = img
     .mask({ threshold: 0.7 })
     .rgba8()
     .grey();
+  // erode mask to get rid of thin lines
   const erodeImg = maskImg.erode({ iterations: 2 });
+
+  // iterate over columns
   const data = [];
   for (let index = 0; index < erodeImg.width; index++) {
+    // for each column, find the position of white pixels
+    // first map the column to just positions, but set the weak pixels to -1 (> 10)
+    // then filter out the weak pixels,
+    // then filter out pixels that are not within the graph dimensions,
+    // next, use the median of all the left over white pixels' positions,
+    // this should be the center-ish to get one position per column.
     const column = erodeImg
       .getColumn(index)
       .map((v, i) => (v > 10 ? i : -1))
-      .filter(a => a > 0);
+      .filter(a => a > 0)
+      .filter(a => a < dims.maxY && a > dims.minY);
     let med = median(column);
     if (med) {
       data.push({ x: index, y: med });
     }
   }
-  // console.log(data);
-  // print(img);
   return { rawData: data, erodeImg, maskImg };
 }
 
@@ -136,8 +146,9 @@ async function process(i, debug) {
   log(`Processing: ${i}`);
   let grey = greyImg(image.rgba8()).invert();
   let crop = getCrop(grey);
-  let { rawData, erodeImg, maskImg } = getRawData(crop);
-  let graphData = getGraphData(rawData, getGraphDimensions(crop));
+  let dims = getGraphDimensions(crop);
+  let { rawData, erodeImg, maskImg } = getRawData(crop, dims);
+  let graphData = getGraphData(rawData, dims);
   if (debug) {
     return { image, grey, crop, erodeImg, maskImg, rawData, graphData };
   } else {
