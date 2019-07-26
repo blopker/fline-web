@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -108,6 +108,19 @@ const ImportDialog = props => {
   const pickImageButton = <SelectImageButton disabled={isLoading} />;
   const repickImageButton = <SelectImageButton repick disabled={isLoading} />;
 
+  // Ensure that the loading indicator is scrolled into view after the user has
+  // picked an image and processing has begun.
+  const scrollContainerRef = useRef();
+  useEffect(() => {
+    if (isLoading && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth"
+      });
+    }
+  }, [isLoading]);
+
   const handleClose = () => {
     // Reset any errors when the dialog is closed
     setErrorOccurred(false);
@@ -157,6 +170,7 @@ const ImportDialog = props => {
       open={isOpen}
       onClose={handleClose}
       TransitionComponent={SlideUp}
+      PaperProps={{ ref: scrollContainerRef }}
     >
       <AppBar handleClose={handleClose} />
       <HiddenFileInputField
