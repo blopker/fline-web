@@ -13,6 +13,8 @@ import { DatabaseProvider } from "./databaseContext";
 import AppMenu from "./menu/Menu";
 import { exportData } from "./db";
 import { FirebaseProvider } from "./firebase";
+import ErrorBoundary from "./common/ErrorBoundary";
+import ErrorScreen from "./error/ErrorScreen";
 
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
@@ -33,23 +35,25 @@ function App(props) {
       <FirebaseProvider fb={fb}>
         <DatabaseProvider db={db}>
           <Suspense fallback={<div>Loading...</div>}>
-            <Router>
-              <Switch>
-                <Route exact path="/test" render={() => <DigitizerTest />} />
-                <Route
-                  path="/log"
-                  render={routeProps => (
-                    <LogScreen
-                      date={date}
-                      setDate={setDate}
-                      routeProps={routeProps}
-                      menu={menu}
-                    />
-                  )}
-                />
-                <Redirect to="/log" />
-              </Switch>
-            </Router>
+            <ErrorBoundary fallback={<ErrorScreen menu={menu} />}>
+              <Router>
+                <Switch>
+                  <Route exact path="/test" render={() => <DigitizerTest />} />
+                  <Route
+                    path="/log"
+                    render={routeProps => (
+                      <LogScreen
+                        date={date}
+                        setDate={setDate}
+                        routeProps={routeProps}
+                        menu={menu}
+                      />
+                    )}
+                  />
+                  <Redirect to="/log" />
+                </Switch>
+              </Router>
+            </ErrorBoundary>
           </Suspense>
         </DatabaseProvider>
       </FirebaseProvider>
