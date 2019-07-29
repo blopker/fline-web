@@ -48,11 +48,11 @@ const ImportGlucoseDataBanner = props => {
   let colorClassName, image, copy;
   if (hasImportedAlready) {
     image = <CheckIcon className={classes.checkIcon} />;
-    copy = "Glucose data imported";
+    copy = "Glucose data added";
     colorClassName = classes.tealBanner;
   } else {
     image = <img className={classes.moonIcon} src={crescentMoon} alt="moon" />;
-    copy = "At the end of the day, add your glucose data";
+    copy = "At the end of the day, tap here.";
     colorClassName = classes.orangeBanner;
   }
 
