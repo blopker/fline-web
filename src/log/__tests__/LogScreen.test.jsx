@@ -76,7 +76,7 @@ describe("LogScreen", () => {
       />
     );
     await waitForElementToBeRemoved(() => getByText(/loading/i));
-    expect(getByText(/add your glucose data/)).toBeInTheDocument();
+    expect(getByText(/tap here/)).toBeInTheDocument();
   });
 
   test("hides the import banner when the log is empty", async () => {
