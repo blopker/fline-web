@@ -37,7 +37,7 @@ describe("EditDialog", () => {
         onClose={jest.fn()}
       />
     );
-    expect(getByLabelText(/what happened/i)).toHaveFocus();
+    expect(getByLabelText(/describe/i)).toHaveFocus();
   });
 
   test("shows an error when trying to save an entry with a blank description", () => {
@@ -51,10 +51,10 @@ describe("EditDialog", () => {
         onClose={jest.fn()}
       />
     );
-    expect(getByLabelText(/what happened/i).value).toBe("");
+    expect(getByLabelText(/describe/i).value).toBe("");
     fireEvent.click(getByLabelText(/save/i));
     expect(saveEntry).not.toHaveBeenCalled();
-    expect(getByText(/what happened/i)).toHaveStyle("color: #f44336");
+    expect(getByText(/describe/i)).toHaveStyle("color: #f44336");
   });
 
   test("displays default form values when creating new entry", () => {
@@ -73,7 +73,7 @@ describe("EditDialog", () => {
     );
 
     expect(getByText(/add something/i)).toBeInTheDocument();
-    const descriptionField = getByLabelText(/what happened/i);
+    const descriptionField = getByLabelText(/describe/i);
     expect(descriptionField.value).toBe("");
     const timeField = getByText(/when/i).nextSibling.querySelector("input");
     expect(timeField.value).toBe("12:30 PM");
@@ -103,7 +103,7 @@ describe("EditDialog", () => {
     );
 
     expect(getByText(/edit something/i)).toBeInTheDocument();
-    const descriptionField = getByLabelText(/what happened/i);
+    const descriptionField = getByLabelText(/describe/i);
     expect(descriptionField.value).toBe("Hot Dog");
     const timeField = getByText(/when/i).nextSibling.querySelector("input");
     expect(timeField.value).toBe("12:30 PM");
@@ -190,7 +190,7 @@ describe("EditDialog", () => {
       />
     );
 
-    fireEvent.change(getByLabelText(/what happened/i), {
+    fireEvent.change(getByLabelText(/describe/i), {
       target: { value: "Hot Dog" }
     });
     fireEvent.click(getByLabelText(/meal/i));
@@ -222,7 +222,7 @@ describe("EditDialog", () => {
       />
     );
 
-    fireEvent.change(getByLabelText(/what happened/i), {
+    fireEvent.change(getByLabelText(/describe/i), {
       target: { value: "Beer" }
     });
     fireEvent.click(getByLabelText(/alcohol/i));

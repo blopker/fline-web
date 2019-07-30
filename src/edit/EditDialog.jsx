@@ -106,20 +106,12 @@ function _EditDialog(props) {
       <AppBar title={title} onClose={onClose} />
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
-          <Typography
-            color="textSecondary"
-            align="center"
-            variant="subtitle1"
-            paragraph
-          >
-            Add a meal, a feeling, a workout...
-          </Typography>
 
           <TextField
             error={error}
             required
             id="entry-description"
-            label="What happened?"
+            label="Describe the food, workout, feeling..."
             multiline
             autoFocus={true}
             fullWidth={true}

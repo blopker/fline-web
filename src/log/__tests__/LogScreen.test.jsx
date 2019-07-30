@@ -235,7 +235,7 @@ describe("LogScreen", () => {
     // Try and create a pizza entry
     fireEvent.click(getByLabelText(/create entry/i));
     await findByTestId("editDialog");
-    fireEvent.change(getByLabelText(/what happened/i), {
+    fireEvent.change(getByLabelText(/describe/i), {
       target: { value: "Pizza" }
     });
     fireEvent.click(getByLabelText(/save/i));
@@ -278,7 +278,7 @@ describe("LogScreen", () => {
     // Click on the hot dog entry and make edits
     fireEvent.click(getByText(/hot dog/i));
     await findByTestId("editDialog");
-    fireEvent.change(getByLabelText(/what happened/i), {
+    fireEvent.change(getByLabelText(/describe/i), {
       target: { value: "4th of July Cheeseburger" }
     });
     fireEvent.click(getByLabelText(/save/i));
