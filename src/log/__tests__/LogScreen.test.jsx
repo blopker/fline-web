@@ -42,7 +42,7 @@ describe("LogScreen", () => {
         routeProps={{}}
       />
     );
-    await findByText(/log what happened today/i);
+    await findByText(/add a meal/i);
   });
 
   test("hides the intro message when the log is not empty", async () => {

@@ -45,9 +45,8 @@ function _IntroFabInstructions(props) {
   return (
     <div className={props.classes.main}>
       <Typography className={props.classes.text} variant="body1" gutterBottom>
-        Log what happened today - a meal, <br />
-        a feeling, a workout, anything <br />
-        goes.
+        Add a meal, a drink,<br />
+        a feeling, a workout...
       </Typography>
       <img className={props.classes.arrow} src={curlArrow} alt="" />
     </div>
