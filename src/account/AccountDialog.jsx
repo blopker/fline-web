@@ -11,8 +11,9 @@ import Slide from "@material-ui/core/Slide";
 import { useFirebase } from "../firebase";
 import AnonymousUserView from "./AnonymousUserView";
 import IdentifiedUserView from "./IdentifiedUserView";
-import ConnectionSuccessView from "./ConnectionSuccessView";
-import ConnectionFailureView from "./ConnectionFailureView";
+import LinkResultView from "./LinkResultView";
+import UnlinkResultView from "./UnlinkResultView";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
   appBar: {
@@ -21,6 +22,10 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginLeft: theme.spacing(2),
     flex: 1
+  },
+  spinner: {
+    alignSelf: "center",
+    marginTop: theme.spacing(4)
   },
   heading: {
     marginTop: theme.spacing(8),
@@ -52,24 +57,24 @@ const AccountDialog = props => {
   const classes = useStyles();
   const { user, accountDialogInfo, closeAccountDialog } = useFirebase();
 
-  if (!user) {
-    // Don't do anything if Firebase hasn't initialized the auth user
-    return null;
-  }
-
   let view;
-  if (accountDialogInfo.redirectResult) {
-    // The dialog was opened via a redirect back to the app after successfully
-    // connecting to an identity provider
-    view = <ConnectionSuccessView />;
-  } else if (accountDialogInfo.error) {
-    // Dialog opened via redirect but failed to connect to a provider
-    view = <ConnectionFailureView />;
+
+  if (!user) {
+    // Don't show anything if Firebase hasn't initialized the auth user
+    view = <CircularProgress className={classes.spinner} />;
+  } else if (accountDialogInfo.view === "LinkResultView") {
+    // The dialog was opened via a redirect back to the app after attempting to
+    // link to an identity provider.
+    view = <LinkResultView />;
+  } else if (accountDialogInfo.view === "UnlinkResultView") {
+    // Dialog opened via redirect after attempting to delete/unlink a user
+    view = <UnlinkResultView />;
   } else if (user.email) {
     // User manually opened the dialog from the menu and has previously provided
     // their email address
     view = <IdentifiedUserView />;
   } else {
+    // User manually opened the dialog and has no email on record
     view = <AnonymousUserView />;
   }
 

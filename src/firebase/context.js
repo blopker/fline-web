@@ -24,33 +24,71 @@ function FirebaseProvider(props) {
     });
   }
 
-  // Handle the results of any authentication provider account linking flow.
-  // If the OAuth provider has redirected back to the app, then bring up the
-  // AccountDialog which will display either a success or error message.
-  if (!alreadyProcessedRedirectResult.current) {
+  // Process any ongoing authentication provider account linking or
+  // unlinking flow. After the OAuth provider has redirected back to the app,
+  // bring up the AccountDialog which will display either a success or error
+  // message depending on the current workflow.
+  if (user && !alreadyProcessedRedirectResult.current) {
     alreadyProcessedRedirectResult.current = true;
-    fb.auth
-      .getRedirectResult()
-      .then(redirectResult => {
-        if (redirectResult.user !== null) {
-          setAccountDialogInfo({ isOpen: true, redirectResult, error: null });
-        }
-      })
-      .catch(error => {
-        setAccountDialogInfo({ isOpen: true, error, redirectResult: null });
-        Sentry.captureException(error);
-        console.error(error);
-      });
+
+    const isLinkingAccount = sessionStorage.getItem(
+      "firebaseLinkAccountWorkflowStarted"
+    );
+    const isDeletingAccount = sessionStorage.getItem(
+      "firebaseDeleteAccountWorkflowStarted"
+    );
+    sessionStorage.removeItem("firebaseLinkAccountWorkflowStarted");
+    sessionStorage.removeItem("firebaseDeleteAccountWorkflowStarted");
+
+    if (isLinkingAccount) {
+      fb.auth
+        .getRedirectResult()
+        .then(redirectResult => {
+          if (redirectResult.user !== null) {
+            setAccountDialogInfo({ isOpen: true, view: "LinkResultView" });
+          }
+        })
+        .catch(error => {
+          setAccountDialogInfo({
+            isOpen: true,
+            view: "LinkResultView",
+            error
+          });
+          Sentry.captureException(error);
+          console.error(error);
+        });
+    } else if (isDeletingAccount) {
+      fb.auth
+        .getRedirectResult()
+        .then(redirectResult => {
+          if (redirectResult.user !== null) {
+            return user.delete().then(() => {
+              setAccountDialogInfo({
+                isOpen: true,
+                view: "UnlinkResultView"
+              });
+            });
+          }
+        })
+        .catch(error => {
+          setAccountDialogInfo({
+            isOpen: true,
+            view: "UnlinkResultView",
+            error
+          });
+          Sentry.captureException(error);
+          console.error(error);
+        });
+    }
   }
 
   const contextValue = {
     fb,
     user,
     accountDialogInfo,
-    openAccountDialog: () =>
-      setAccountDialogInfo({ isOpen: true, redirectResult: null, error: null }),
+    openAccountDialog: () => setAccountDialogInfo({ isOpen: true }),
     closeAccountDialog: () =>
-      setAccountDialogInfo({ isOpen: false, redirectResult: null, error: null })
+      setAccountDialogInfo(prev => ({ ...prev, isOpen: false }))
   };
   return <FirebaseContext.Provider value={contextValue} {...props} />;
 }
