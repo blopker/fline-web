@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -14,6 +14,8 @@ import IdentifiedUserView from "./IdentifiedUserView";
 import LinkResultView from "./LinkResultView";
 import UnlinkResultView from "./UnlinkResultView";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { useDatabase } from "../databaseContext";
+import { differenceInDays, isSameDay } from "date-fns";
 
 const useStyles = makeStyles(theme => ({
   appBar: {
@@ -55,7 +57,70 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const AccountDialog = props => {
   const classes = useStyles();
-  const { user, accountDialogInfo, closeAccountDialog } = useFirebase();
+  const { db } = useDatabase();
+  const {
+    user,
+    accountDialogInfo,
+    openAccountDialog,
+    closeAccountDialog
+  } = useFirebase();
+
+  // After saving a log entry on 2 separate days, bring up the account dialog.
+  const promptToCreateAccountIfNecessary = useCallback(async () => {
+    // Bail out if this user already has linked their account.
+    if (user.email) {
+      return;
+    }
+
+    // Bail out if we've already shown the dialog in the past 5 days.
+    const lastPrompted = await db.settings.get(
+      "dateLastPromptedToCreateAccount"
+    );
+    if (lastPrompted) {
+      const daysSinceLastPrompt = differenceInDays(
+        new Date(),
+        lastPrompted.value
+      );
+      if (daysSinceLastPrompt < 5) {
+        return;
+      }
+    }
+
+    // Bail out if there is not at least 2 log entries.
+    const entryDates = await db.logEntries.orderBy("date").keys();
+    if (entryDates.length < 2) {
+      return;
+    }
+    // Bail out if the entries are not across different days.
+    const firstDate = entryDates[0];
+    const hasEntriesForMoreThanASingleDay = entryDates.some(
+      d => !isSameDay(firstDate, d)
+    );
+    if (!hasEntriesForMoreThanASingleDay) {
+      return;
+    }
+
+    // Otherwise, open the dialog if we've gotten this far.
+    await db.settings.put({
+      key: "dateLastPromptedToCreateAccount",
+      value: new Date()
+    });
+    setTimeout(openAccountDialog, 2000);
+  }, [user, db, openAccountDialog]);
+
+  // Fire promptToCreateAccountIfNecessary whenever a LogEntry is added.
+  useEffect(() => {
+    const createLogEntryListener = (primaryKey, logEntry, transaction) => {
+      transaction.on("complete", promptToCreateAccountIfNecessary);
+    };
+
+    // Every time an entry is saved, perform the account check.
+    db.logEntries.hook("creating", createLogEntryListener);
+
+    return function cleanup() {
+      db.logEntries.hook("creating").unsubscribe(createLogEntryListener);
+    };
+  }, [db, promptToCreateAccountIfNecessary]);
 
   let view;
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import * as Sentry from "@sentry/browser";
 
@@ -7,12 +7,22 @@ const FirebaseContext = React.createContext();
 function FirebaseProvider(props) {
   const { fb } = props;
   const [user, initializing, error] = useAuthState(fb.auth);
+  const alreadyProcessedRedirectResult = useRef(false);
   const [accountDialogInfo, setAccountDialogInfo] = useState({
     isOpen: false,
     redirectResult: null,
     error: null
   });
-  const alreadyProcessedRedirectResult = useRef(false);
+
+  const openAccountDialog = useCallback(
+    () => setAccountDialogInfo({ isOpen: true }),
+    [setAccountDialogInfo]
+  );
+
+  const closeAccountDialog = useCallback(
+    () => setAccountDialogInfo(prev => ({ ...prev, isOpen: false })),
+    [setAccountDialogInfo]
+  );
 
   if (error) {
     Sentry.captureException(error);
@@ -86,9 +96,8 @@ function FirebaseProvider(props) {
     fb,
     user,
     accountDialogInfo,
-    openAccountDialog: () => setAccountDialogInfo({ isOpen: true }),
-    closeAccountDialog: () =>
-      setAccountDialogInfo(prev => ({ ...prev, isOpen: false }))
+    openAccountDialog,
+    closeAccountDialog
   };
   return <FirebaseContext.Provider value={contextValue} {...props} />;
 }
