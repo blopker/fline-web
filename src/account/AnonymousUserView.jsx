@@ -53,7 +53,7 @@ const AnonymousUserView = () => {
 
   return (
     <Container>
-      <Typography variant="h5" className={classes.introHeading}>
+      <Typography variant="h6" className={classes.introHeading}>
         Hi{" "}
         <span role="img" aria-label="Waving Hand">
           👋
