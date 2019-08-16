@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import React from "react";
 import { useFirebase } from "../firebase";
-// import FacebookIcon from "./FacebookIcon";
+import FacebookIcon from "./FacebookIcon";
 import GoogleIcon from "./GoogleIcon";
 
 const useStyles = makeStyles(theme => ({
@@ -43,13 +43,13 @@ const AnonymousUserView = () => {
     user.linkWithRedirect(googleAuth);
   };
 
-  // const handleConnectFacebookClick = e => {
-  //   const facebookAuth = new fb.app.auth.FacebookAuthProvider();
-  //   facebookAuth.addScope("default");
-  //   facebookAuth.addScope("email");
-  //   sessionStorage.setItem("firebaseLinkAccountWorkflowStarted", Date.now());
-  //   user.linkWithRedirect(facebookAuth);
-  // };
+  const handleConnectFacebookClick = e => {
+    const facebookAuth = new fb.app.auth.FacebookAuthProvider();
+    facebookAuth.addScope("default");
+    facebookAuth.addScope("email");
+    sessionStorage.setItem("firebaseLinkAccountWorkflowStarted", Date.now());
+    user.linkWithRedirect(facebookAuth);
+  };
 
   return (
     <Container>
@@ -74,7 +74,7 @@ const AnonymousUserView = () => {
           Connect Google
         </Button>
 
-        {/* <Button
+        <Button
           variant="contained"
           size="large"
           fullWidth
@@ -83,7 +83,7 @@ const AnonymousUserView = () => {
         >
           <FacebookIcon />
           Connect Facebook
-        </Button> */}
+        </Button>
       </Box>
 
       <Typography variant="body2" className={classes.termsOfService}>
