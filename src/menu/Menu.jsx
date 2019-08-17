@@ -9,6 +9,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import IconButton from "@material-ui/core/IconButton";
 import download from "downloadjs";
+import { useFirebase } from "../firebase";
 
 const styles = {
   list: {
@@ -19,6 +20,7 @@ const styles = {
 function AppMenu(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [dbDump, setDbDump] = useState();
+  const { openAccountDialog } = useFirebase();
 
   const toggleDrawer = open => () => {
     setDbDump();
@@ -60,16 +62,24 @@ function AppMenu(props) {
     window.location.reload(true);
   }
 
+  const handleYourAccountClick = () => {
+    openAccountDialog();
+    setIsOpen(false);
+  };
+
   const { classes } = props;
   const version = (process.env.REACT_APP_COMMIT_REF || "dev").slice(0, 7);
 
   const sideList = (
     <div className={classes.list}>
       <List>
-        <ListItem button key="0" onClick={exportAction} disabled={!!!dbDump}>
+        <ListItem button onClick={handleYourAccountClick}>
+          <ListItemText primary="Your Account" />
+        </ListItem>
+        <ListItem button onClick={exportAction} disabled={!!!dbDump}>
           <ListItemText primary="Export data for all days" />
         </ListItem>
-        <ListItem button key="1" onClick={refreshAction}>
+        <ListItem button onClick={refreshAction}>
           <ListItemText primary="Reload" />
         </ListItem>
       </List>

@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "production") {
 } else {
   config = {
     apiKey: "AIzaSyCNN8dOITJXNTPvLF0RNWCgVlMqhHrzBpw",
-    authDomain: "firebase-web.fline.ai",
+    authDomain: "fline-app-dev.firebaseapp.com",
     databaseURL: "https://fline-app-dev.firebaseio.com",
     projectId: "fline-app-dev",
     storageBucket: "fline-app-dev.appspot.com",
@@ -33,9 +33,11 @@ class Firebase {
     app.performance();
     this.app = app;
     this.auth = app.auth();
+    // The signed in user should be indefinitely persisted
+    this.auth.setPersistence(this.app.auth.Auth.Persistence.LOCAL);
     this.db = app.firestore();
     this.db.enablePersistence().catch(function(err) {
-      console.log(err.code);
+      console.error(err.code);
     });
     this.storage = app.storage();
   }

@@ -15,6 +15,7 @@ import { exportData } from "./db";
 import { FirebaseProvider } from "./firebase";
 import ErrorBoundary from "./common/ErrorBoundary";
 import ErrorScreen from "./error/ErrorScreen";
+import AccountDialog from "./account/AccountDialog";
 
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
@@ -32,10 +33,11 @@ function App(props) {
   return (
     <Theme>
       <CssBaseline />
-      <FirebaseProvider fb={fb}>
-        <DatabaseProvider db={db}>
+      <DatabaseProvider db={db}>
+        <FirebaseProvider fb={fb}>
           <Suspense fallback={<div>Loading...</div>}>
             <ErrorBoundary fallback={<ErrorScreen menu={menu} />}>
+              <AccountDialog />
               <Router>
                 <Switch>
                   <Route exact path="/test" render={() => <DigitizerTest />} />
@@ -55,8 +57,8 @@ function App(props) {
               </Router>
             </ErrorBoundary>
           </Suspense>
-        </DatabaseProvider>
-      </FirebaseProvider>
+        </FirebaseProvider>
+      </DatabaseProvider>
     </Theme>
   );
 }

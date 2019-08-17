@@ -7,7 +7,8 @@ it("renders without crashing", async () => {
   const mock_fb = {
     auth: {
       currentUser: { name: "testUser", email: "test@test.com" },
-      onAuthStateChanged: () => () => {}
+      onAuthStateChanged: () => () => {},
+      getRedirectResult: () => Promise.resolve({ user: null })
     }
   };
   render(<App db={db} fb={mock_fb} />);
