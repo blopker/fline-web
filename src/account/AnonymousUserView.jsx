@@ -45,7 +45,6 @@ const AnonymousUserView = () => {
 
   const handleConnectFacebookClick = e => {
     const facebookAuth = new fb.app.auth.FacebookAuthProvider();
-    facebookAuth.addScope("default");
     facebookAuth.addScope("email");
     sessionStorage.setItem("firebaseLinkAccountWorkflowStarted", Date.now());
     user.linkWithRedirect(facebookAuth);
