@@ -7,7 +7,6 @@ import Chip from "@material-ui/core/Chip";
 import Dialog from "@material-ui/core/Dialog";
 import Slide from "@material-ui/core/Slide";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 import { ENTRY_TAGS } from "../constants";
 import AppBar from "./AppBar";
 import TimePicker from "./TimePicker";
@@ -106,7 +105,6 @@ function _EditDialog(props) {
       <AppBar title={title} onClose={onClose} />
       <div className={classes.root}>
         <form noValidate autoComplete="off" onSubmit={submit}>
-
           <TextField
             error={error}
             required
