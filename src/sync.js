@@ -1,6 +1,6 @@
 import { exportData } from "./db";
 let timer;
-const ONE_DAY = 1000 * 60 * 60 * 24;
+const ONE_DAY = 1000 * 60 * 60; //not a day anymore, changed it to an hour
 const ONE_MIN = 1000 * 60;
 // const ONE_DAY = 1000 * 60;
 // const ONE_MIN = 1000;
