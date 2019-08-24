@@ -16,6 +16,7 @@ import { FirebaseProvider } from "./firebase";
 import ErrorBoundary from "./common/ErrorBoundary";
 import ErrorScreen from "./error/ErrorScreen";
 import AccountDialog from "./account/AccountDialog";
+import AddToHomeScreen from "./addToHome/AddToHomeScreen";
 
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
@@ -30,6 +31,10 @@ function App(props) {
 
   const menu = <AppMenu export={exportData} />;
 
+  const launchedFromHomeScreen =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    ("standalone" in window.navigator && window.navigator.standalone);
+
   return (
     <Theme>
       <CssBaseline />
@@ -37,6 +42,7 @@ function App(props) {
         <FirebaseProvider fb={fb}>
           <Suspense fallback={<div>Loading...</div>}>
             <ErrorBoundary fallback={<ErrorScreen menu={menu} />}>
+              {!launchedFromHomeScreen && <AddToHomeScreen />}
               <AccountDialog />
               <Router>
                 <Switch>
