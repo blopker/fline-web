@@ -36,7 +36,7 @@ const MobileChromeView = props => {
   }
 
   return (
-    <Box textAlign="center" mx={4}>
+    <Box textAlign="center" mx={4} marginTop={4}>
       <Button
         variant="contained"
         size="large"
@@ -50,7 +50,12 @@ const MobileChromeView = props => {
 };
 
 const MobileSafariView = props => {
-  return <MobileSafariBalloon />;
+  return (
+    <Box textAlign="center" marginTop={4}>
+      Arrow image goes here
+      <MobileSafariBalloon />
+    </Box>
+  );
 };
 
 const AddToHomeScreen = props => {
@@ -111,7 +116,11 @@ const AddToHomeScreen = props => {
             🥑
           </span>
         </Typography>
-        <Typography variant="h6">Your glucose discoveries await.</Typography>
+        <Typography variant="h5">
+          Your glucose discoveries
+          <br />
+          await.
+        </Typography>
         {isMobileChrome && <MobileChromeView installPrompt={installPrompt} />}
         {isMobileSafari && <MobileSafariView />}
       </Container>

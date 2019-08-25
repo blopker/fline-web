@@ -18,13 +18,14 @@ const useStyles = makeStyles(theme => ({
     color: "rgba(0, 0, 0, 0.87)",
     boxShadow: theme.shadows[1],
     fontSize: theme.typography.fontSize,
-    padding: theme.spacing(1.5),
-    lineHeight: 1.5
+    padding: theme.spacing(1.5, 2, 2, 2),
+    lineHeight: 1.5,
+    textAlign: "center"
   },
 
   arrow: {
     position: "absolute",
-    fontSize: 6,
+    fontSize: 12,
     "&::before": {
       content: '""',
       margin: "auto",
@@ -57,6 +58,7 @@ const MobileSafariBalloon = props => {
   return (
     <Tooltip
       open
+      placement="top"
       classes={classes}
       PopperProps={{
         popperOptions: {
@@ -70,12 +72,12 @@ const MobileSafariBalloon = props => {
       }}
       {...props}
       title={
-        <React.Fragment>
+        <>
           First, you need our app: Please tap{" "}
           <SafariShareIcon style={{ verticalAlign: "text-bottom" }} /> and{" "}
           <strong>Add to Home Screen</strong>.
           <span className={arrow} ref={setArrowRef} />
-        </React.Fragment>
+        </>
       }
     >
       <div className={positionGuide}></div>
