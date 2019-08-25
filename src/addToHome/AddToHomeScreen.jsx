@@ -6,10 +6,12 @@ import Dialog from "@material-ui/core/Dialog";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 
+import MobileSafariBalloon from "./MobileSafariBalloon";
+
 const useStyles = makeStyles(theme => ({
-  introHeading: {
-    marginTop: theme.spacing(8),
-    marginBottom: theme.spacing(2),
+  container: {
+    paddingTop: theme.spacing(8),
+
     textAlign: "center"
   }
 }));
@@ -47,14 +49,21 @@ const MobileChromeView = props => {
   );
 };
 
+const MobileSafariView = props => {
+  return <MobileSafariBalloon />;
+};
+
 const AddToHomeScreen = props => {
   const classes = useStyles();
 
   const [installPrompt, setInstallPrompt] = useState(null);
 
+  // Intercept the add to home screen prompt
   useEffect(() => {
     const captureInstallPrompt = e => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
+      // Save the prompt so it can be displayed when the user wants
       setInstallPrompt(e);
     };
     window.addEventListener("beforeinstallprompt", captureInstallPrompt);
@@ -90,8 +99,8 @@ const AddToHomeScreen = props => {
 
   return (
     <Dialog fullScreen open>
-      <Container>
-        <Typography variant="h6" className={classes.introHeading}>
+      <Container className={classes.container}>
+        <Typography variant="h5" paragraph>
           <span role="img" aria-label="Pray">
             🙏
           </span>
@@ -102,18 +111,9 @@ const AddToHomeScreen = props => {
             🥑
           </span>
         </Typography>
-        <Typography variant="h6" className={classes.introHeading}>
-          Your glucose discoveries await.
-        </Typography>
-
+        <Typography variant="h6">Your glucose discoveries await.</Typography>
         {isMobileChrome && <MobileChromeView installPrompt={installPrompt} />}
-
-        {isMobileSafari && (
-          <Box textAlign="center" mx={4}>
-            First, you need our app: Please tap ICON and{" "}
-            <strong>Add to Home Screen</strong>.
-          </Box>
-        )}
+        {isMobileSafari && <MobileSafariView />}
       </Container>
     </Dialog>
   );
