@@ -11,16 +11,37 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(8),
     marginBottom: theme.spacing(2),
     textAlign: "center"
-  },
-  button: {
-    marginBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(6),
-    "& svg": {
-      position: "absolute",
-      left: theme.spacing(2)
-    }
   }
 }));
+
+const MobileChromeView = props => {
+  const [wasInstalled, setWasInstalled] = useState(false);
+  const { installPrompt } = props;
+  const handleInstallClick = () => {
+    installPrompt.prompt().then(() => setWasInstalled(true));
+  };
+
+  if (!installPrompt || wasInstalled) {
+    return (
+      <Box textAlign="center" mx={4}>
+        Please launch Fline from your device's home screen.
+      </Box>
+    );
+  }
+
+  return (
+    <Box textAlign="center" mx={4}>
+      <Button
+        variant="contained"
+        size="large"
+        fullWidth
+        onClick={handleInstallClick}
+      >
+        Install
+      </Button>
+    </Box>
+  );
+};
 
 const AddToHomeScreen = props => {
   const classes = useStyles();
@@ -50,7 +71,7 @@ const AddToHomeScreen = props => {
     ua.indexOf("Safari") > -1 &&
     ua.indexOf("CriOS") < 0;
 
-  const isCompatible = isMobileSafari || (isMobileChrome && installPrompt);
+  const isCompatible = isMobileSafari || isMobileChrome;
 
   console.log({
     ua,
@@ -81,17 +102,12 @@ const AddToHomeScreen = props => {
           Your glucose discoveries await.
         </Typography>
 
-        {isMobileChrome && (
+        {isMobileChrome && <MobileChromeView installPrompt={installPrompt} />}
+
+        {isMobileSafari && (
           <Box textAlign="center" mx={4}>
-            <Button
-              variant="contained"
-              size="large"
-              fullWidth
-              onClick={() => installPrompt.prompt()}
-              className={classes.button}
-            >
-              Install
-            </Button>
+            First, you need our app: Please tap ICON and{" "}
+            <strong>Add to Home Screen</strong>.
           </Box>
         )}
       </Container>
