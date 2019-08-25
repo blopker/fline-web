@@ -18,7 +18,11 @@ const MobileChromeView = props => {
   const [wasInstalled, setWasInstalled] = useState(false);
   const { installPrompt } = props;
   const handleInstallClick = () => {
-    installPrompt.prompt().then(() => setWasInstalled(true));
+    installPrompt.prompt().then(choice => {
+      if (choice.outcome === "accepted") {
+        setWasInstalled(true);
+      }
+    });
   };
 
   if (!installPrompt || wasInstalled) {
