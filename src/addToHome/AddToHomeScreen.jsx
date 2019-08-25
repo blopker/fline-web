@@ -7,15 +7,28 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 
 import MobileSafariBalloon from "./MobileSafariBalloon";
+import DownArrowDoodle from "./DownArrowDoodle";
 
 const useStyles = makeStyles(theme => ({
   container: {
     paddingTop: theme.spacing(8),
-
     textAlign: "center"
   }
 }));
 
+// The Safari view displays a tooltip indicating that the user needs to tap
+// the share button in order to add the app to the home screen.
+const MobileSafariView = props => {
+  return (
+    <Box textAlign="center" marginTop={8}>
+      <DownArrowDoodle style={{ width: 128, height: 128 }} />
+      <MobileSafariBalloon />
+    </Box>
+  );
+};
+
+// The Chrome view opens up a built-in modal dialog, asking the user to to add
+// the app to their home screen.
 const MobileChromeView = props => {
   const [wasInstalled, setWasInstalled] = useState(false);
   const { installPrompt } = props;
@@ -38,6 +51,7 @@ const MobileChromeView = props => {
   return (
     <Box textAlign="center" mx={4} marginTop={4}>
       <Button
+        color="primary"
         variant="contained"
         size="large"
         fullWidth
@@ -49,26 +63,17 @@ const MobileChromeView = props => {
   );
 };
 
-const MobileSafariView = props => {
-  return (
-    <Box textAlign="center" marginTop={4}>
-      Arrow image goes here
-      <MobileSafariBalloon />
-    </Box>
-  );
-};
-
+// The <AddToHomeScreen> Screen notifies the user that the app should be
+// installed. It provides varying install instructions depending on what browser
+// the user is actively running.
 const AddToHomeScreen = props => {
   const classes = useStyles();
-
   const [installPrompt, setInstallPrompt] = useState(null);
 
-  // Intercept the add to home screen prompt
+  // Intercept and save a reference to Chrome's built-in Add2Home prompt
   useEffect(() => {
     const captureInstallPrompt = e => {
-      // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
-      // Save the prompt so it can be displayed when the user wants
       setInstallPrompt(e);
     };
     window.addEventListener("beforeinstallprompt", captureInstallPrompt);
@@ -91,13 +96,7 @@ const AddToHomeScreen = props => {
 
   const isCompatible = isMobileSafari || isMobileChrome;
 
-  console.log({
-    ua,
-    isMobileChrome,
-    isMobileSafari,
-    isCompatible
-  });
-
+  // Don't promote adding to the home screen to non-compatible browsers.
   if (!isCompatible) {
     return null;
   }

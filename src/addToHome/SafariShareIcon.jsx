@@ -1,6 +1,7 @@
 import React from "react";
 import SvgIcon from "@material-ui/core/SvgIcon";
 
+// The Apple share icon, a box with an arrow jumping up
 const SafariShareIcon = props => (
   <SvgIcon viewBox="0 0 128 128" {...props}>
     <path
