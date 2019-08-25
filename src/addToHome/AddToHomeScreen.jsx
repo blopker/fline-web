@@ -80,7 +80,7 @@ const AddToHomeScreen = props => {
     ua.indexOf("Version") === -1;
 
   const isMobileSafari =
-    /iphone|ipod|ipad/i.test(ua) &&
+    /iphone|ipod/i.test(ua) &&
     ua.indexOf("Safari") > -1 &&
     ua.indexOf("CriOS") < 0;
 
