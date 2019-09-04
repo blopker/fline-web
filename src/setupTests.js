@@ -9,6 +9,20 @@ import "@testing-library/jest-dom/extend-expect";
 // stub in a pure JS in-memory implementation of the IndexedDB API for testing
 import "fake-indexeddb/auto";
 
+// Provide a mock implementation of matchMedia which is not implemented in JSDOM
+window.matchMedia = jest.fn().mockImplementation(query => {
+  return {
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn()
+  };
+});
+
 // HACK: silence broken test warnings
 // ReactDOM will warn that tests are not wrapped in act() whenever a component
 // updates its state via an async callback
