@@ -61,7 +61,7 @@ const SuccessScreen = props => {
         onClick={handleClose}
         style={{ margin: "16px 0" }}
       >
-        Ok
+        Compare Foods
       </TealButton>
 
       {repickImageButton}
