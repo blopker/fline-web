@@ -71,7 +71,7 @@ const HiddenFileInputField = ({ onImport, setErrorOccurred, setIsLoading }) => (
 );
 
 // The Select Image button merely acts as a click on the invisible file input.
-const SelectImageButton = ({ repick = false }) => {
+const SelectImageButton = ({ repick = false, date }) => {
   const commonProps = {
     fullWidth: true,
     component: "div",
@@ -86,7 +86,7 @@ const SelectImageButton = ({ repick = false }) => {
         </Button>
       ) : (
         <TealButton variant="contained" {...commonProps}>
-          Select Image
+          Select Image for {date.toLocaleDateString("en-US", { day: 'numeric', month: 'numeric' })}
         </TealButton>
       )}
     </label>
@@ -100,13 +100,13 @@ const SelectImageButton = ({ repick = false }) => {
  */
 
 const ImportDialog = props => {
-  const { classes, isOpen, bloodGlucoseLevels, onClose, onImport } = props;
+  const { classes, isOpen, bloodGlucoseLevels, onClose, onImport, date } = props;
   const [errorOccurred, setErrorOccurred] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dataExists = bloodGlucoseLevels.length > 0;
   const showInstructions = !dataExists || (dataExists && errorOccurred);
-  const pickImageButton = <SelectImageButton disabled={isLoading} />;
-  const repickImageButton = <SelectImageButton repick disabled={isLoading} />;
+  const pickImageButton = <SelectImageButton date={date} disabled={isLoading} />;
+  const repickImageButton = <SelectImageButton date={date} repick disabled={isLoading} />;
 
   // Ensure that the loading indicator is scrolled into view after the user has
   // picked an image and processing has begun.
@@ -200,7 +200,8 @@ ImportDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   bloodGlucoseLevels: PropTypes.array.isRequired,
-  onImport: PropTypes.func.isRequired
+  onImport: PropTypes.func.isRequired,
+  date: PropTypes.instanceOf(Date)
 };
 
 export default withStyles(styles)(ImportDialog);

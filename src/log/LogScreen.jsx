@@ -132,6 +132,7 @@ function LogScreen(props) {
             onClose={handleCloseDialog}
             bloodGlucoseLevels={bloodGlucoseLevels}
             onImport={saveBloodGlucoseLevelsAndReload}
+            date={date}
           />
         )}
       </Route>
