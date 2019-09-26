@@ -6,6 +6,7 @@ import {
   Redirect
 } from "react-router-dom";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { startOfDay } from "date-fns";
 import Theme from "./Theme";
 import LogScreen from "./log/LogScreen";
@@ -15,10 +16,39 @@ import { exportData } from "./db";
 import { FirebaseProvider } from "./firebase";
 import ErrorBoundary from "./common/ErrorBoundary";
 import ErrorScreen from "./error/ErrorScreen";
-import AccountDialog from "./account/AccountDialog";
 import AddToHomeScreen from "./addToHome/AddToHomeScreen";
 
+import Account from "./pages/Account";
+import { useFirebase } from "./firebase";
+
+
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
+
+function PrivateRoute({ component: Component, ...rest }) {
+  const { user, initializing } = useFirebase();
+
+  return (
+    <Route
+      {...rest}
+      render={props => 
+        user && user.email ? (
+          <Component {...props} />
+        ) : (
+          !initializing ? (
+            <Redirect
+              to={{
+                pathname: "/account",
+                state: { from: props.location }
+              }}
+            />
+          ) : (
+            <CircularProgress />
+          )
+        )
+      }
+    />
+  );
+}
 
 function App(props) {
   const { db, fb } = props;
@@ -43,18 +73,19 @@ function App(props) {
           <Suspense fallback={<div>Loading...</div>}>
             <ErrorBoundary fallback={<ErrorScreen menu={menu} />}>
               {!launchedFromHomeScreen && <AddToHomeScreen />}
-              <AccountDialog />
+
               <Router>
                 <Switch>
                   <Route exact path="/test" render={() => <DigitizerTest />} />
-                  <Route
+                  <Route exact path="/account" render={() => <Account />} />
+                  <PrivateRoute
                     path="/log"
-                    render={routeProps => (
+                    component={props => (
                       <LogScreen
                         date={date}
                         setDate={setDate}
-                        routeProps={routeProps}
                         menu={menu}
+                        routeProps={props}
                       />
                     )}
                   />

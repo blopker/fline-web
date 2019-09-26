@@ -6,7 +6,6 @@ import { useFirebase } from "../firebase";
 import get from "lodash/get";
 
 const UnlinkSuccessView = () => {
-  const { closeAccountDialog } = useFirebase();
 
   return (
     <Container>
@@ -25,7 +24,6 @@ const UnlinkSuccessView = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={closeAccountDialog}
         >
           Back to home
         </Button>
@@ -35,8 +33,8 @@ const UnlinkSuccessView = () => {
 };
 
 const UnlinkFailureView = () => {
-  const { accountDialogInfo, closeAccountDialog } = useFirebase();
-  const errorCode = get(accountDialogInfo, "error.code", "Unknown error");
+  const { accountInfo } = useFirebase();
+  const errorCode = get(accountInfo, "error.code", "Unknown error");
 
   return (
     <Container>
@@ -55,7 +53,6 @@ const UnlinkFailureView = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={closeAccountDialog}
         >
           Back to home
         </Button>
@@ -65,9 +62,9 @@ const UnlinkFailureView = () => {
 };
 
 const UnlinkResultView = props => {
-  const { accountDialogInfo } = useFirebase();
+  const { accountInfo } = useFirebase();
 
-  if (accountDialogInfo.error) {
+  if (accountInfo.error) {
     return <UnlinkFailureView />;
   }
 
