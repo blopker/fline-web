@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
@@ -30,12 +31,14 @@ const LinkSuccessView = () => {
       </Box>
 
       <Box textAlign="center" marginTop={4}>
-        <Button
-          variant="contained"
-          color="primary"
-        >
-          Back to home
-        </Button>
+        <Link to="/log" style={{ textDecoration: 'none' }}>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Go to Home
+          </Button>
+        </Link>
       </Box>
     </Container>
   );
@@ -63,7 +66,7 @@ const LinkFailureView = () => {
           variant="contained"
           color="primary"
         >
-          Back to home
+          Go to Home
         </Button>
       </Box>
     </Container>
