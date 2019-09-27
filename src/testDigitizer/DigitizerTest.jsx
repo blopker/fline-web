@@ -38,7 +38,10 @@ const iosImages = [
   "img2.png",
   "img4.PNG",
   "img6.PNG",
-  "img8.PNG"
+  "img8.PNG",
+  "error1.jpg",
+  "error2.jpg",
+  "error3.png"
 ];
 
 const dateTimeFormatter = ({ x, y }) => {

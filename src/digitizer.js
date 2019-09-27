@@ -25,7 +25,7 @@ function isBlack(px) {
   return px < black;
 }
 
-function getCrop(img) {
+function getCrop(img: Image) {
   // Image is color inverted at this point.
   // Grab the first column of the image and start in the middle.
   // Go up until you find the first non-black pixel, that's the top.
@@ -33,11 +33,25 @@ function getCrop(img) {
   // Get the row that's 2 pixels above the bottom you found and find the first non-black
   // pixel to the right. That's the width.
   // column[0] is the top left.
-  const column = img.getColumn(1);
+  let column = img.getColumn(1);
   const columnLength = column.length;
   const columnMid = Math.floor(columnLength / 2);
   let maxC = columnLength;
   let minC = null;
+
+  const row = img.getRow(columnMid);
+  let minR = null;
+  let maxR = null;
+
+  for (let i = 0; i < row.length; i++) {
+    let px = row[i];
+    if (isBlack(px)) {
+      if (!minR) minR = i;
+      maxR = i;
+    }
+  }
+
+  column = img.getColumn(minR);
 
   for (let i = columnMid; i < columnLength; i++) {
     let px = column[i];
@@ -55,13 +69,7 @@ function getCrop(img) {
     }
   }
 
-  let maxR = null;
-  img.getRow(maxC - 1).forEach((px, i) => {
-    if (isBlack(px)) {
-      maxR = i;
-    }
-  });
-  const crop = { y: minC, height: maxC - minC, width: maxR };
+  const crop = { x: minR, y: minC, height: maxC - minC, width: maxR - minR };
   log("Crop:");
   log(crop);
   return img.crop(crop);
