@@ -8,11 +8,12 @@ import UnlinkResultView from "../account/UnlinkResultView";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
-    spinner: {
-      alignSelf: "center",
-      marginTop: theme.spacing(4)
-    }
-  }));
+  spinner: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+  }
+}));
 
 function Account() {
   const classes = useStyles();

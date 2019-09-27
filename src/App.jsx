@@ -5,6 +5,7 @@ import {
   Switch,
   Redirect
 } from "react-router-dom";
+import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { startOfDay } from "date-fns";
@@ -24,8 +25,17 @@ import { useFirebase } from "./firebase";
 
 const DigitizerTest = lazy(() => import("./testDigitizer/DigitizerTest"));
 
+const useStyles = makeStyles(theme => ({
+  spinner: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+  }
+}));
+
 function PrivateRoute({ component: Component, ...rest }) {
   const { user, initializing } = useFirebase();
+  const classes = useStyles();
 
   return (
     <Route
@@ -42,7 +52,7 @@ function PrivateRoute({ component: Component, ...rest }) {
               }}
             />
           ) : (
-            <CircularProgress />
+            <CircularProgress className={classes.spinner} />
           )
         )
       }
