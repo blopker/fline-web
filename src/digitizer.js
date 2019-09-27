@@ -25,7 +25,7 @@ function isBlack(px) {
   return px < black;
 }
 
-function getCrop(img: Image) {
+function getCrop(img) {
   // Image is color inverted at this point.
   // Grab the first column of the image and start in the middle.
   // Go up until you find the first non-black pixel, that's the top.
