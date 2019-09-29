@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import * as Sentry from "@sentry/browser";
 
@@ -8,10 +8,21 @@ function FirebaseProvider(props) {
   const { fb } = props;
   const [user, initializing, error] = useAuthState(fb.auth);
   const alreadyProcessedRedirectResult = useRef(false);
-  const [accountInfo, setAccountInfo] = useState({
+  const [accountDialogInfo, setAccountDialogInfo] = useState({
+    isOpen: false,
     redirectResult: null,
     error: null
   });
+
+  const openAccountDialog = useCallback(
+    () => setAccountDialogInfo({ isOpen: true }),
+    [setAccountDialogInfo]
+  );
+
+  const closeAccountDialog = useCallback(
+    () => setAccountDialogInfo(prev => ({ ...prev, isOpen: false })),
+    [setAccountDialogInfo]
+  );
 
   if (error) {
     Sentry.captureException(error);
@@ -25,7 +36,7 @@ function FirebaseProvider(props) {
 
   // Process any ongoing authentication provider account linking or
   // unlinking flow. After the OAuth provider has redirected back to the app,
-  // bring up the Account which will display either a success or error
+  // bring up the AccountDialog which will display either a success or error
   // message depending on the current workflow.
   if (user && !alreadyProcessedRedirectResult.current) {
     alreadyProcessedRedirectResult.current = true;
@@ -44,11 +55,12 @@ function FirebaseProvider(props) {
         .getRedirectResult()
         .then(redirectResult => {
           if (redirectResult.user !== null) {
-            setAccountInfo({ view: "LinkResultView" });
+            setAccountDialogInfo({ isOpen: true, view: "LinkResultView" });
           }
         })
         .catch(error => {
-          setAccountInfo({
+          setAccountDialogInfo({
+            isOpen: true,
             view: "LinkResultView",
             error
           });
@@ -61,14 +73,16 @@ function FirebaseProvider(props) {
         .then(redirectResult => {
           if (redirectResult.user !== null) {
             return user.delete().then(() => {
-              setAccountInfo({
+              setAccountDialogInfo({
+                isOpen: true,
                 view: "UnlinkResultView"
               });
             });
           }
         })
         .catch(error => {
-          setAccountInfo({
+          setAccountDialogInfo({
+            isOpen: true,
             view: "UnlinkResultView",
             error
           });
@@ -81,8 +95,9 @@ function FirebaseProvider(props) {
   const contextValue = {
     fb,
     user,
-    initializing,
-    accountInfo
+    accountDialogInfo,
+    openAccountDialog,
+    closeAccountDialog
   };
   return <FirebaseContext.Provider value={contextValue} {...props} />;
 }
