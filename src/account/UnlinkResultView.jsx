@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
@@ -6,7 +7,6 @@ import { useFirebase } from "../firebase";
 import get from "lodash/get";
 
 const UnlinkSuccessView = () => {
-  const { closeAccountDialog } = useFirebase();
 
   return (
     <Container>
@@ -22,21 +22,22 @@ const UnlinkSuccessView = () => {
       </Box>
 
       <Box textAlign="center" marginTop={4}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={closeAccountDialog}
-        >
-          Back to home
-        </Button>
+        <Link to="/log" style={{ textDecoration: 'none' }}>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Go to Home
+          </Button>
+        </Link>
       </Box>
     </Container>
   );
 };
 
 const UnlinkFailureView = () => {
-  const { accountDialogInfo, closeAccountDialog } = useFirebase();
-  const errorCode = get(accountDialogInfo, "error.code", "Unknown error");
+  const { accountInfo } = useFirebase();
+  const errorCode = get(accountInfo, "error.code", "Unknown error");
 
   return (
     <Container>
@@ -52,22 +53,23 @@ const UnlinkFailureView = () => {
         Error Code: <strong>{errorCode}</strong>
       </Box>
       <Box textAlign="center" marginTop={4}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={closeAccountDialog}
-        >
-          Back to home
-        </Button>
+        <Link to="/log" style={{ textDecoration: 'none' }}>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Go to Home
+          </Button>
+        </Link>
       </Box>
     </Container>
   );
 };
 
 const UnlinkResultView = props => {
-  const { accountDialogInfo } = useFirebase();
+  const { accountInfo } = useFirebase();
 
-  if (accountDialogInfo.error) {
+  if (accountInfo.error) {
     return <UnlinkFailureView />;
   }
 

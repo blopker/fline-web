@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
@@ -63,6 +64,17 @@ const IdentifiedUserView = () => {
               Unlink Account
             </Button>
           )}
+        </Box>
+
+        <Box textAlign="center" marginTop={4}>
+          <Link to="/log" style={{ textDecoration: 'none' }}>
+            <Button
+              variant="contained"
+              color="primary"
+            >
+              Go to Home
+            </Button>
+          </Link>
         </Box>
       </Container>
       <Dialog

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Route } from "react-router-dom";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -9,7 +10,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import IconButton from "@material-ui/core/IconButton";
 import download from "downloadjs";
-import { useFirebase } from "../firebase";
 
 const styles = {
   list: {
@@ -20,7 +20,6 @@ const styles = {
 function AppMenu(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [dbDump, setDbDump] = useState();
-  const { openAccountDialog } = useFirebase();
 
   const toggleDrawer = open => () => {
     setDbDump();
@@ -62,20 +61,17 @@ function AppMenu(props) {
     window.location.reload(true);
   }
 
-  const handleYourAccountClick = () => {
-    openAccountDialog();
-    setIsOpen(false);
-  };
-
   const { classes } = props;
   const version = (process.env.REACT_APP_COMMIT_REF || "dev").slice(0, 7);
 
   const sideList = (
     <div className={classes.list}>
       <List>
-        <ListItem button onClick={handleYourAccountClick}>
-          <ListItemText primary="Your Account" />
-        </ListItem>
+        <Route render={({history}) => (
+          <ListItem button onClick={() => { history.push('/account') }}>
+            <ListItemText primary="Your Account" />
+          </ListItem>
+        )} />
         <ListItem button onClick={exportAction} disabled={!!!dbDump}>
           <ListItemText primary="Export data for all days" />
         </ListItem>
