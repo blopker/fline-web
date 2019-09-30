@@ -7,6 +7,7 @@ import { useFirebase } from "../firebase";
 import get from "lodash/get";
 
 const UnlinkSuccessView = () => {
+  const { clearAccountInfo } = useFirebase();
 
   return (
     <Container>
@@ -22,12 +23,13 @@ const UnlinkSuccessView = () => {
       </Box>
 
       <Box textAlign="center" marginTop={4}>
-        <Link to="/log" style={{ textDecoration: 'none' }}>
-          <Button
-            variant="contained"
-            color="primary"
-          >
-            Go to Home
+        <Link
+          to="/account"
+          onClick={clearAccountInfo}
+          style={{ textDecoration: "none" }}
+        >
+          <Button variant="contained" color="primary">
+            Go to Account
           </Button>
         </Link>
       </Box>
@@ -36,7 +38,7 @@ const UnlinkSuccessView = () => {
 };
 
 const UnlinkFailureView = () => {
-  const { accountInfo } = useFirebase();
+  const { accountInfo, clearAccountInfo } = useFirebase();
   const errorCode = get(accountInfo, "error.code", "Unknown error");
 
   return (
@@ -53,12 +55,13 @@ const UnlinkFailureView = () => {
         Error Code: <strong>{errorCode}</strong>
       </Box>
       <Box textAlign="center" marginTop={4}>
-        <Link to="/log" style={{ textDecoration: 'none' }}>
-          <Button
-            variant="contained"
-            color="primary"
-          >
-            Go to Home
+        <Link
+          to="/log"
+          onClick={clearAccountInfo}
+          style={{ textDecoration: "none" }}
+        >
+          <Button variant="contained" color="primary">
+            Go to Account
           </Button>
         </Link>
       </Box>

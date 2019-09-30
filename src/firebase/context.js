@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import * as Sentry from "@sentry/browser";
 
@@ -12,6 +12,11 @@ function FirebaseProvider(props) {
     redirectResult: null,
     error: null
   });
+
+  const clearAccountInfo = useCallback(
+    () => setAccountInfo({}),
+    [setAccountInfo]
+  );
 
   if (error) {
     Sentry.captureException(error);
@@ -82,7 +87,8 @@ function FirebaseProvider(props) {
     fb,
     user,
     initializing,
-    accountInfo
+    accountInfo,
+    clearAccountInfo
   };
   return <FirebaseContext.Provider value={contextValue} {...props} />;
 }
