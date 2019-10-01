@@ -29,7 +29,7 @@ const UnlinkSuccessView = () => {
           style={{ textDecoration: "none" }}
         >
           <Button variant="contained" color="primary">
-            Go to Account
+            Done
           </Button>
         </Link>
       </Box>
@@ -61,7 +61,7 @@ const UnlinkFailureView = () => {
           style={{ textDecoration: "none" }}
         >
           <Button variant="contained" color="primary">
-            Go to Account
+            Done
           </Button>
         </Link>
       </Box>

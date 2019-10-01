@@ -64,12 +64,12 @@ const LinkFailureView = () => {
       </Box>
       <Box textAlign="center" marginTop={4}>
         <Link
-          to="/log"
+          to="/account"
           onClick={clearAccountInfo}
           style={{ textDecoration: "none" }}
         >
           <Button variant="contained" color="primary">
-            Go to Home
+            Done
           </Button>
         </Link>
       </Box>
