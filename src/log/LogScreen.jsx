@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { isSameDay, startOfDay } from "date-fns";
-import { Route } from "react-router-dom";
+import { isSameDay, startOfDay, addDays } from "date-fns";
+import { Route, Link } from "react-router-dom";
 import List from "@material-ui/core/List";
 import { withStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Button from "@material-ui/core/Button";
 import get from "lodash/get";
 import AppBar from "./AppBar";
 import CreateFab from "./CreateFab";
@@ -12,7 +16,6 @@ import ImportGlucoseDataBanner from "./ImportGlucoseDataBanner";
 import ImportDialog from "../import/ImportDialog";
 import EditDialog from "../edit/EditDialog";
 import ExploreDialog from "../explore/ExploreDialog";
-
 import { useDatabase } from "../databaseContext";
 
 const styles = theme => ({
@@ -31,6 +34,15 @@ function LogScreen(props) {
     logEntries: null,
     bloodGlucoseLevels: null
   });
+
+  const [showReminderDialog, setShowReminderDialog] = useState(false);
+
+  const closeReminderDialog = () => setShowReminderDialog(false);
+
+  const onShowMeHow = () => {
+    setDate(addDays(date, -1));
+    setShowReminderDialog(false);
+  }
 
   const { logEntries, bloodGlucoseLevels } = logData;
 
@@ -70,10 +82,21 @@ function LogScreen(props) {
 
   const saveLogEntryAndReload = useCallback(
     async entry => {
+      if (logData.logEntries.length === 0) {
+        const yesterday = startOfDay(new Date(date).setDate(date.getDate() - 1));
+        const [logEntries, bloodGlucoseLevels] = await Promise.all([
+          db.getLogEntriesForDay(yesterday),
+          db.getBloodGlucoseLevelsForDay(yesterday)
+        ]);
+        console.log(date, yesterday, logEntries, bloodGlucoseLevels);
+        if (logEntries.length > 0 && bloodGlucoseLevels.length === 0) {
+          setShowReminderDialog(true);
+        }
+      }
       await db.saveLogEntry(entry);
       await loadLogData(date);
     },
-    [date, loadLogData, db]
+    [date, loadLogData, logData, db]
   );
 
   const saveBloodGlucoseLevelsAndReload = useCallback(
@@ -164,6 +187,30 @@ function LogScreen(props) {
           />
         )}
       </Route>
+
+      <Dialog
+        open={showReminderDialog}
+        onClose={closeReminderDialog}
+        aria-labelledby="reminder-dialog-title"
+      >
+        <DialogTitle id="reminder-dialog-title">
+          Psst... Let's add yesterday's glucose data.
+          <span role="img" aria-label="Hugging Face">
+            🤗
+          </span>
+        </DialogTitle>
+        <DialogActions>
+          <Link
+            to="/log/import"
+            onClick={onShowMeHow}
+            style={{ textDecoration: "none" }}
+          >
+            <Button color="secondary">
+              Show Me How
+            </Button>
+          </Link>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
