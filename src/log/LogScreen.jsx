@@ -192,6 +192,7 @@ function LogScreen(props) {
         open={showReminderDialog}
         onClose={closeReminderDialog}
         aria-labelledby="reminder-dialog-title"
+        data-testid="reminderDialog"
       >
         <DialogTitle id="reminder-dialog-title">
           Psst... Let's add yesterday's glucose data.
