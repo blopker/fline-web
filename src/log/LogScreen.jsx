@@ -196,6 +196,7 @@ function LogScreen(props) {
       >
         <DialogTitle id="reminder-dialog-title">
           Psst... Let's add yesterday's glucose data.
+          {" "}
           <span role="img" aria-label="Hugging Face">
             🤗
           </span>
