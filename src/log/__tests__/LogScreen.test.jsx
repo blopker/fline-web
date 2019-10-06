@@ -293,4 +293,44 @@ describe("LogScreen", () => {
       "4th of July Cheeseburger"
     );
   });
+
+  test("show reminder dialog when there is entries and no glucose data on previous day when creating the first entry", async () => {
+    await db.logEntries.add({
+      date: new Date("2019-07-04T12:00"),
+      description: "4th of July Hot Dog"
+    });
+
+    const {
+      getByText,
+      getByLabelText,
+      queryByText,
+      findByTestId,
+      getByTestId
+    } = renderWithProviders(
+      <Route
+        render={routeProps => (
+          <LogScreen
+            menu={<div />}
+            date={new Date("2019-07-05T00:00")}
+            setDate={jest.fn()}
+            routeProps={routeProps}
+          />
+        )}
+      />
+    );
+    await waitForElementToBeRemoved(() => getByText(/loading/i));
+    expect(queryByText("4th of July Hot Dog")).not.toBeInTheDocument();
+
+    // Click on the create entry button
+    fireEvent.click(getByLabelText(/create entry/i));
+    await findByTestId("editDialog");
+    fireEvent.change(getByLabelText(/describe/i), {
+      target: { value: "5th of July Cheeseburger" }
+    });
+    fireEvent.click(getByLabelText(/save/i));
+    await waitForElementToBeRemoved(() => getByTestId("editDialog"));
+
+    await findByTestId("reminderDialog");
+    expect(queryByText("Show Me How")).toBeInTheDocument();
+  });
 });
