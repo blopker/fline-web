@@ -52,7 +52,7 @@ const ImportGlucoseDataBanner = props => {
     colorClassName = classes.tealBanner;
   } else {
     image = <img className={classes.moonIcon} src={crescentMoon} alt="moon" />;
-    copy = "At the end of the day, tap here.";
+    copy = "Tap here to create your glucose curves";
     colorClassName = classes.orangeBanner;
   }
 

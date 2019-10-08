@@ -38,7 +38,7 @@ class Instructions extends React.Component {
         </Typography>
 
         <Typography variant="body1" className={classes.paragraph}>
-          In your LibreLink app, open the menu and go to{" "}
+          At the end of each day, in your Freestyle LibreLink app, open the menu and go to{" "}
           <strong>Daily Graph</strong>.
         </Typography>
 
