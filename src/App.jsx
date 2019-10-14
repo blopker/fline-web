@@ -20,6 +20,7 @@ import ErrorScreen from "./error/ErrorScreen";
 import AddToHomeScreen from "./addToHome/AddToHomeScreen";
 
 import Account from "./pages/Account";
+import Compare from "./pages/Compare";
 import { useFirebase } from "./firebase";
 
 
@@ -96,6 +97,14 @@ function App(props) {
                         setDate={setDate}
                         menu={menu}
                         routeProps={props}
+                      />
+                    )}
+                  />
+                  <PrivateRoute
+                    path="/compare"
+                    component={props => (
+                      <Compare
+                        menu={menu}
                       />
                     )}
                   />
