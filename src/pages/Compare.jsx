@@ -37,10 +37,7 @@ export default function Compare() {
         <GraphSelector entries={logEntries}>Tap to select second graph</GraphSelector>
         <CardActions disableSpacing>
           <Button color="secondary">
-            Save
-          </Button>
-          <Button color="secondary">
-            Share
+            Save to Camera Roll
           </Button>
         </CardActions>
       </Card>
