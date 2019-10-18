@@ -25,16 +25,6 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center"
-  },
-  header: {
-    display: "flex"
-  },
-  headerTime: {
-    flex: "0 0 auto",
-    textAlign: "left",
-    padding: 0,
-    paddingRight: theme.spacing(1),
-    minWidth: 55
   }
 }));
 
@@ -73,16 +63,9 @@ export default function GraphSelector(props) {
   if (selectedEntry && bloodGlucoseLevels)
     content = (
       <>
-        <div className={classes.header}>
-          <ListItemText className={classes.headerTime}>
-            <time dateTime={selectedEntry.date.toISOString()}>
-              {timeFormatter.format(selectedEntry.date)}
-            </time>
-          </ListItemText>
-          <ListItemText>
-            {selectedEntry.description}
-          </ListItemText>
-        </div>
+        <ListItemText>
+          {selectedEntry.description}
+        </ListItemText>
         <EntryGraph
           className={classes.grahpSelector}
           bloodGlucoseLevels={bloodGlucoseLevels}
