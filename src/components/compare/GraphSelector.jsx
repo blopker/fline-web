@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, /*useEffect*/ } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -6,11 +6,6 @@ import EntryGraph from "../../log/EntryGraph";
 import GraphSelectorDialog from "./GraphSelectorDialog"; 
 import { useDatabase } from "../../databaseContext";
 
-const timeFormatter = new Intl.DateTimeFormat("default", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
 
 const useStyles = makeStyles(theme => ({
   cardButton: {
@@ -32,31 +27,41 @@ export default function GraphSelector(props) {
   const classes = useStyles();
   const db = useDatabase();
 
-  const { entries, children } = props;
+  const { entries, children, onSelected } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState();
   const [bloodGlucoseLevels, setBloodGlucoseLevels] = useState();
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchData = async (selectedEntry) => {
       const result = await db.getBloodGlucoseLevelsForLogEntry(selectedEntry);
       setBloodGlucoseLevels(result);
+      onSelected({
+        selectedEntry,
+        result
+      })
     };
     if (selectedEntry)
       fetchData(selectedEntry);
-  }, [setBloodGlucoseLevels, db, selectedEntry]);
+  }, [setBloodGlucoseLevels, db, selectedEntry, onSelected]);*/
 
 
   const handleOpenDialog = () => {
     setIsOpen(true);
   };
 
-  const handleCloseDialog = (entry) => {
+  const handleCloseDialog = async (entry) => {
+    setIsOpen(false);
     if (entry) {
       console.log(entry)
       setSelectedEntry(entry);
+      const result = await db.getBloodGlucoseLevelsForLogEntry(entry);
+      setBloodGlucoseLevels(result);
+      onSelected({
+        entry,
+        bloodGlucoseLevels: result
+      })
     }
-    setIsOpen(false);
   };
 
   let content;
