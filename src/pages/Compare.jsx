@@ -32,7 +32,7 @@ function openDownloadURL() {
   canvas.height = svgNode.clientHeight;
 
   var svgString = new XMLSerializer().serializeToString(svgNode);
-  var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+  var svg = new Blob([svgString], {type: "image/svg+xml"});
 
   var DOMURL = window.self.URL || window.self.webkitURL || window.self;
   var url = DOMURL.createObjectURL(svg);
