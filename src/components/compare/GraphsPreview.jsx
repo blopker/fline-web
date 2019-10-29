@@ -7,9 +7,10 @@ import { withTheme } from "@material-ui/core/styles";
 import { Group } from "@vx/group";
 import { scaleTime, scaleLinear } from "@vx/scale";
 import { LinePath, AreaClosed } from "@vx/shape";
-import { AxisLeft, AxisBottom } from "@vx/axis";
+import { AxisLeft, AxisBottom, AxisTop, AxisRight } from "@vx/axis";
 import { Grid, GridColumns } from "@vx/grid";
 import { curveCatmullRom } from "@vx/curve";
+import { Text } from "@vx/text";
 import { format, addHours, isWithinInterval } from "date-fns";
 import range from "lodash/range";
 import ResponsiveWrapper from "../../common/ResponsiveWrapper";
@@ -125,6 +126,7 @@ const GraphsPreview = memo(props => {
               times={firstGraphTimes}
               yExtent={yExtent}
               marginTop={0}
+              title={firstGraph.entry.description}
               theme={theme}
             />
             <Graph
@@ -135,6 +137,7 @@ const GraphsPreview = memo(props => {
               times={secondGraphTimes}
               yExtent={yExtent}
               marginTop={height/2}
+              title={secondGraph.entry.description}
               theme={theme}
             />
           </svg>
@@ -149,7 +152,7 @@ const GraphsPreview = memo(props => {
  */
 
 const Graph = memo(props => {
-  const { width, height, lineSeries, areaSeries, yExtent, marginTop, theme } = props;
+  const { width, height, lineSeries, areaSeries, yExtent, marginTop, title, theme } = props;
 
   if (!(width && height)) {
     return null;
@@ -168,10 +171,10 @@ const Graph = memo(props => {
   const baseline = areaSeries[0].y;
 
   const margin = {
-    top: theme.spacing(2),
+    top: theme.spacing(4),
     right: theme.spacing(3),
     bottom: theme.spacing(4),
-    left: theme.spacing(5)
+    left: theme.spacing(6)
   };
 
   const xMax = width - margin.left - margin.right;
@@ -198,6 +201,8 @@ const Graph = memo(props => {
   let yTicks = yScale.ticks(preferredNumberOfTicks);
   let yGridLines = yScale.ticks(preferredNumberOfTicks);
 
+  yTicks = yTicks.slice(1,-1);
+
   // If D3 doesn't generate four ticks, attempt to do better manually
   if (yTicks.length !== preferredNumberOfTicks) {
     const [domainMin, domainMax] = yScale.domain();
@@ -219,7 +224,7 @@ const Graph = memo(props => {
         width={xMax}
         height={yScale(goodGlucoseMax)}
         style={{
-          fill: red[100]
+          fill: "#FFD7D6"
         }}
       />
       <rect
@@ -228,7 +233,7 @@ const Graph = memo(props => {
         width={xMax}
         height={yScale(goodGlucoseMin) - yScale(goodGlucoseMax)}
         style={{
-          fill: green[200],
+          fill: "#DAFED7"
         }}
       />
       <rect
@@ -237,7 +242,7 @@ const Graph = memo(props => {
         width={xMax}
         height={yMax - yScale(goodGlucoseMin)}
         style={{
-          fill: red[100]
+          fill: "#FFD7D6"
         }}
       />
 
@@ -259,12 +264,12 @@ const Graph = memo(props => {
       />
 
       {/* redraw the event time and +2hr grid lines in a brighter color */}
-      <GridColumns
+      {/* <GridColumns
         scale={xScale}
         height={yMax}
         stroke={grey[800]}
         tickValues={[entryDate, twoHoursLater]}
-      />
+      /> */}
 
       {/* the y-axis tracks the glucose level */}
       <AxisLeft
@@ -278,17 +283,27 @@ const Graph = memo(props => {
           dx: "-0.25em",
           dy: "0.25em",
           fill: grey[900],
-          fontSize: 12,
+          fontSize: "1.1em",
+          fontFamily: "Arial regular",
           textAnchor: "end"
         })}
-      />
+      />~
+      <Text
+        x="-1.5em"
+        y="-0.5em"
+        fontSize="1.1em"
+        fontFamily="Arial regular"
+        fill={grey[900]}
+      >
+        glucose, mg/dL
+      </Text>
 
       {/* the x-axis tracks time */}
       <AxisBottom
         scale={xScale}
         top={yMax}
         stroke={grey[900]}
-        tickStroke={"rgba(255, 255, 255, 0.4)"}
+        tickStroke={grey[900]}
         tickValues={[entryDate, twoHoursLater]}
         tickFormat={x => {
           if (x === twoHoursLater) {
@@ -299,12 +314,36 @@ const Graph = memo(props => {
             .replace(":00", "");
         }}
         tickLabelProps={({ tick, index }) => ({
-          dy: "0.25em",
+          dy: "1.5em",
           fill: grey[900],
-          fontSize: 12,
+          fontSize: "1.1em",
+          fontFamily: "Arial regular",
           textAnchor: "middle"
         })}
       />
+
+      {/* the x-axis tracks time */}
+      <AxisTop scale={xScale} stroke={grey[900]} hideTicks tickValues={[]} />
+      <AxisRight
+        scale={yScale}
+        left={xMax}
+        stroke={grey[900]}
+        hideTicks
+        tickValues={[]}
+      />
+
+      <Text
+        fontSize="1.5em"
+        fontFamily="Arial regular"
+        capHeight="2em"
+        x={xMax / 2}
+        textAnchor="middle"
+        verticalAnchor="start"
+        fill={grey[900]}
+        scaleToFit
+      >
+        {title}
+      </Text>
 
       {/* draw a line representing the glucose level */}
       <LinePath
