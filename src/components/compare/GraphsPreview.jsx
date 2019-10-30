@@ -1,19 +1,17 @@
 import React, { memo } from "react";
 import PropTypes from "prop-types";
 import red from "@material-ui/core/colors/red";
-import green from "@material-ui/core/colors/green";
 import grey from "@material-ui/core/colors/grey";
 import { withTheme } from "@material-ui/core/styles";
 import { Group } from "@vx/group";
 import { scaleTime, scaleLinear } from "@vx/scale";
 import { LinePath, AreaClosed } from "@vx/shape";
 import { AxisLeft, AxisBottom, AxisTop, AxisRight } from "@vx/axis";
-import { Grid, GridColumns } from "@vx/grid";
+import { Grid } from "@vx/grid";
 import { curveCatmullRom } from "@vx/curve";
 import { Text } from "@vx/text";
 import { format, addHours, isWithinInterval } from "date-fns";
 import range from "lodash/range";
-import ResponsiveWrapper from "../../common/ResponsiveWrapper";
 import NotEnoughDataMessage from "../../log/NotEnoughDataMessage";
 import { LOCALE_BLOOD_GLUCOSE_LEVELS as GLUCOSE_LEVELS } from "../../constants";
 

@@ -6,7 +6,6 @@ import CardActions from "@material-ui/core/CardActions";
 import Paper from "@material-ui/core/Paper";
 import List from "@material-ui/core/List";
 import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import GraphSelector from "../components/compare/GraphSelector";
 import GraphsPreview from "../components/compare/GraphsPreview";
 import { useDatabase } from "../databaseContext";
