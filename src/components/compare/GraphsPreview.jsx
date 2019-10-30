@@ -106,43 +106,50 @@ const GraphsPreview = memo(props => {
     Math.max(...firstGraphLineSeries.map(d => d.y), ...secondGraphLineSeries.map(d => d.y))
   ];
 
+  const width = 1417;
+  const height = 1700;
+
   
   // Draw a graph that is sized to the viewport width
   return (
-    <div style={{ height: 720, marginBottom: theme.spacing(2) }}>
-      <ResponsiveWrapper>
-        {({ width, height }) => (
-          <svg
-            id="graph-preview"
-            width={width}
-            height={height}
-            style={{ background: 'white', fontFamily: theme.typography.fontFamily }}
-          >
-            <Graph
-              width={width}
-              height={height/2}
-              lineSeries={firstGraphLineSeries}
-              areaSeries={firstGraphAreaSeries}
-              times={firstGraphTimes}
-              yExtent={yExtent}
-              marginTop={0}
-              title={firstGraph.entry.description}
-              theme={theme}
-            />
-            <Graph
-              width={width}
-              height={height/2}
-              lineSeries={secondGraphLineSeries}
-              areaSeries={secondGraphAreaSeries}
-              times={secondGraphTimes}
-              yExtent={yExtent}
-              marginTop={height/2}
-              title={secondGraph.entry.description}
-              theme={theme}
-            />
-          </svg>
-        )}
-      </ResponsiveWrapper>
+    <div
+      style={{
+        width,
+        height,
+        marginBottom: theme.spacing(2),
+        visibility: "hidden",
+        position: "absolute"
+      }}
+    >
+      <svg
+        id="graph-preview"
+        width={width}
+        height={height}
+        style={{ background: "white", fontFamily: theme.typography.fontFamily }}
+      >
+        <Graph
+          width={width}
+          height={height / 2}
+          lineSeries={firstGraphLineSeries}
+          areaSeries={firstGraphAreaSeries}
+          times={firstGraphTimes}
+          yExtent={yExtent}
+          marginTop={0}
+          title={firstGraph.entry.description}
+          theme={theme}
+        />
+        <Graph
+          width={width}
+          height={height / 2}
+          lineSeries={secondGraphLineSeries}
+          areaSeries={secondGraphAreaSeries}
+          times={secondGraphTimes}
+          yExtent={yExtent}
+          marginTop={height / 2}
+          title={secondGraph.entry.description}
+          theme={theme}
+        />
+      </svg>
     </div>
   );
 });
@@ -171,10 +178,10 @@ const Graph = memo(props => {
   const baseline = areaSeries[0].y;
 
   const margin = {
-    top: theme.spacing(4),
-    right: theme.spacing(3),
-    bottom: theme.spacing(4),
-    left: theme.spacing(6)
+    top: theme.spacing(8),
+    right: theme.spacing(8),
+    bottom: theme.spacing(8),
+    left: theme.spacing(12)
   };
 
   const xMax = width - margin.left - margin.right;
@@ -280,18 +287,18 @@ const Graph = memo(props => {
         tickValues={yTicks}
         tickStroke={grey[900]}
         tickLabelProps={({ tick, index }) => ({
-          dx: "-0.25em",
-          dy: "0.25em",
+          dx: "-0.5em",
+          dy: "0.5em",
           fill: grey[900],
-          fontSize: "1.1em",
+          fontSize: "1.5em",
           fontFamily: "Arial regular",
           textAnchor: "end"
         })}
       />~
       <Text
-        x="-1.5em"
+        x="-1.8em"
         y="-0.5em"
-        fontSize="1.1em"
+        fontSize="1.5em"
         fontFamily="Arial regular"
         fill={grey[900]}
       >
@@ -314,9 +321,9 @@ const Graph = memo(props => {
             .replace(":00", "");
         }}
         tickLabelProps={({ tick, index }) => ({
-          dy: "1.5em",
+          dy: "1.8em",
           fill: grey[900],
-          fontSize: "1.1em",
+          fontSize: "1.5em",
           fontFamily: "Arial regular",
           textAnchor: "middle"
         })}
@@ -333,7 +340,7 @@ const Graph = memo(props => {
       />
 
       <Text
-        fontSize="1.5em"
+        fontSize="1.7em"
         fontFamily="Arial regular"
         capHeight="2em"
         x={xMax / 2}

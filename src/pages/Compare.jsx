@@ -82,7 +82,6 @@ export default function Compare() {
   if (firstSelected && secondSelected) {
     actions = (
       <Paper className={classes.paper}>
-        <Typography variant="h5">Preview</Typography>
         <GraphsPreview
           firstGraph={firstSelected}
           secondGraph={secondSelected}
