@@ -289,7 +289,7 @@ const Graph = memo(props => {
           dy: "0.5em",
           fill: grey[900],
           fontSize: "1.5em",
-          fontFamily: "Arial regular",
+          fontFamily: `"Arial", sans-serif`,
           textAnchor: "end"
         })}
       />~
@@ -297,7 +297,7 @@ const Graph = memo(props => {
         x="-1.8em"
         y="-0.5em"
         fontSize="1.5em"
-        fontFamily="Arial regular"
+        fontFamily={`"Arial", sans-serif`}
         fill={grey[900]}
       >
         glucose, mg/dL
@@ -322,7 +322,7 @@ const Graph = memo(props => {
           dy: "1.8em",
           fill: grey[900],
           fontSize: "1.5em",
-          fontFamily: "Arial regular",
+          fontFamily: `"Arial", sans-serif`,
           textAnchor: "middle"
         })}
       />
@@ -339,7 +339,7 @@ const Graph = memo(props => {
 
       <Text
         fontSize="1.7em"
-        fontFamily="Arial regular"
+        fontFamily={`"Arial", sans-serif`}
         capHeight="2em"
         x={xMax / 2}
         textAnchor="middle"
