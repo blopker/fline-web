@@ -21,6 +21,10 @@ function DatabaseProvider(props) {
       await db.logEntries.put(entry);
     };
 
+    const getLogEntries = async () => {
+      return await db.logEntries.toArray();
+    };
+
     const getLogEntriesForDay = async date => {
       return await getLogEntriesBetweenDates(startOfDay(date), endOfDay(date));
     };
@@ -112,6 +116,7 @@ function DatabaseProvider(props) {
     return {
       db,
       saveLogEntry,
+      getLogEntries,
       getLogEntriesForDay,
       saveBloodGlucoseLevels,
       getBloodGlucoseLevelsForDay,

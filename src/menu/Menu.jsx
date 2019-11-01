@@ -72,6 +72,11 @@ function AppMenu(props) {
             <ListItemText primary="Your Account" />
           </ListItem>
         )} />
+        <Route render={({history}) => (
+          <ListItem button onClick={() => { history.push('/compare') }}>
+            <ListItemText primary="Create Comparison" />
+          </ListItem>
+        )} />
         <ListItem button onClick={exportAction} disabled={!!!dbDump}>
           <ListItemText primary="Export data for all days" />
         </ListItem>
