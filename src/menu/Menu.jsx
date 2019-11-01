@@ -74,7 +74,7 @@ function AppMenu(props) {
         )} />
         <Route render={({history}) => (
           <ListItem button onClick={() => { history.push('/compare') }}>
-            <ListItemText primary="Compare Food" />
+            <ListItemText primary="Create Comparison" />
           </ListItem>
         )} />
         <ListItem button onClick={exportAction} disabled={!!!dbDump}>

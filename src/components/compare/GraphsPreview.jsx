@@ -295,7 +295,7 @@ const Graph = memo(props => {
       />~
       <Text
         x="-1.8em"
-        y="-0.5em"
+        y="-0.6em"
         fontSize="1.5em"
         fontFamily={`"Arial", sans-serif`}
         fill={grey[900]}
