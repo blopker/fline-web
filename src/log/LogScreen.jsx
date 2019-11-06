@@ -99,6 +99,14 @@ function LogScreen(props) {
     [date, loadLogData, logData, db]
   );
 
+  const deleteLogEntryAndReload = useCallback(
+    async entry => {
+      await db.deleteLogEntry(entry);
+      await loadLogData(date);
+    },
+    [date, loadLogData, db]
+  );
+
   const saveBloodGlucoseLevelsAndReload = useCallback(
     async digitizedData => {
       await db.saveBloodGlucoseLevels(date, digitizedData);
@@ -172,6 +180,7 @@ function LogScreen(props) {
               isOpen={routeProps.match !== null}
               onClose={handleCloseDialog}
               saveEntry={saveLogEntryAndReload}
+              deleteEntry={deleteLogEntryAndReload}
               entry={entry}
               date={date}
             />
