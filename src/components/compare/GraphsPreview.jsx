@@ -268,14 +268,6 @@ const Graph = memo(props => {
         tickValues={yGridLines}
       />
 
-      {/* redraw the event time and +2hr grid lines in a brighter color */}
-      {/* <GridColumns
-        scale={xScale}
-        height={yMax}
-        stroke={grey[800]}
-        tickValues={[entryDate, twoHoursLater]}
-      /> */}
-
       {/* the y-axis tracks the glucose level */}
       <AxisLeft
         scale={yScale}
@@ -296,7 +288,7 @@ const Graph = memo(props => {
       <Text
         x="-1.8em"
         y="-0.6em"
-        fontSize="1.5em"
+        fontSize="1.7em"
         fontFamily={`"Arial", sans-serif`}
         fill={grey[900]}
       >

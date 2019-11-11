@@ -21,6 +21,14 @@ function DatabaseProvider(props) {
       await db.logEntries.put(entry);
     };
 
+    /**
+     * Delete a LogEntry from the database
+     * @param {LogEntry} entry 
+     */
+    const deleteLogEntry = async entry => {
+      await db.logEntries.delete(entry.id);
+    };
+
     const getLogEntries = async () => {
       return await db.logEntries.toArray();
     };
@@ -116,6 +124,7 @@ function DatabaseProvider(props) {
     return {
       db,
       saveLogEntry,
+      deleteLogEntry,
       getLogEntries,
       getLogEntriesForDay,
       saveBloodGlucoseLevels,

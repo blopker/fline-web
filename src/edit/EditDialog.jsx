@@ -7,6 +7,8 @@ import Chip from "@material-ui/core/Chip";
 import Dialog from "@material-ui/core/Dialog";
 import Slide from "@material-ui/core/Slide";
 import TextField from "@material-ui/core/TextField";
+import Box from "@material-ui/core/Box";
+import red from "@material-ui/core/colors/red";
 import { ENTRY_TAGS } from "../constants";
 import AppBar from "./AppBar";
 import TimePicker from "./TimePicker";
@@ -46,7 +48,7 @@ function getDefaultDate(selectedDate) {
 }
 
 function _EditDialog(props) {
-  const { classes, isOpen, onClose, date, entry, saveEntry } = props;
+  const { classes, isOpen, onClose, date, entry, saveEntry, deleteEntry } = props;
 
   const [title, setTitle] = useState(
     entry ? "Edit something" : "Add something"
@@ -86,6 +88,11 @@ function _EditDialog(props) {
     await saveEntry(editedEntry);
     onClose();
   };
+
+  const deleteEntryAndClose = async entry => {
+    await deleteEntry(entry);
+    onClose();
+  }
 
   const handleChipClick = e => {
     // Toggle the selected tag
@@ -159,6 +166,21 @@ function _EditDialog(props) {
           >
             Save
           </Button>
+
+          {entry && (
+            <Box textAlign="center" marginTop={3} color={red[500]}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                size="large"
+                fullWidth={true}
+                aria-label="Delete"
+                onClick={() => deleteEntryAndClose(entry)}
+              >
+                Delete
+              </Button>
+            </Box>
+          )}
         </form>
       </div>
     </Dialog>
