@@ -10,7 +10,7 @@ import initSync from "./sync";
 
 if (process.env.NODE_ENV === "production") {
   Sentry.init({
-    dsn: "https://0c534e386e7e4f27bf3e13c28dec0575@sentry.io/1454732",
+    dsn: "https://c1ab222f1c35420a9c4223322450f51e@sentry.io/1765618",
     release: process.env.REACT_APP_COMMIT_REF
   });
 }
